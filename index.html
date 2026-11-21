@@ -65,6 +65,8 @@
       .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
       .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
       .btn-ok { @apply btn text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/25; }
+      .bottom-nav-item { @apply flex flex-col items-center justify-center gap-1 py-1 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition font-medium text-[11px]; }
+      .bottom-nav-item.active { @apply text-brand-600 dark:text-brand-400 font-bold; }
     }
   </style>
 
@@ -89,7 +91,7 @@
     @keyframes pulse { 50% { opacity:.35; } }
   </style>
 </head>
-<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased">
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased pb-20">
 
   <!-- Toast Container -->
   <div id="toast-root" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-[min(92vw,22rem)] pointer-events-none"></div>
@@ -260,6 +262,29 @@
       </div>
     </footer>
 
+    <!-- ======================== BOTTOM NAVIGATION BAR ======================== -->
+    <nav class="fixed bottom-0 inset-x-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-lg">
+      <div class="max-w-md mx-auto grid grid-cols-4 h-16">
+        <button type="button" onclick="switchNav('courses')" id="bnav-courses" class="bottom-nav-item active">
+          <i data-lucide="book-marked" class="w-5 h-5"></i>
+          <span>Courses</span>
+        </button>
+        <button type="button" onclick="switchNav('exams')" id="bnav-exams" class="bottom-nav-item relative">
+          <span class="absolute top-2 right-6 w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+          <i data-lucide="timer" class="w-5 h-5"></i>
+          <span>Live Exam</span>
+        </button>
+        <button type="button" onclick="switchNav('notices')" id="bnav-notices" class="bottom-nav-item">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span>Notices</span>
+        </button>
+        <button type="button" onclick="switchNav('profile')" id="bnav-profile" class="bottom-nav-item">
+          <i data-lucide="user" class="w-5 h-5"></i>
+          <span>Profile</span>
+        </button>
+      </div>
+    </nav>
+
   </div>
 
   <!-- ======================== SCRIPT ======================== -->
@@ -283,6 +308,9 @@
       dashPhoto: 'Learning Journey to the Stars.png'
     };
 
+    // ==========================================
+    // COURSES & CHAPTERS DATABASE
+    // ==========================================
     const coursesDB = [
       {
         id: "maths",
@@ -412,10 +440,70 @@
       }
     ];
 
-    let state = { view: "courses", courseId: null, chapterId: null, searchQuery: "" };
+    // Sample Live Mock Exam (Instantly available + synchronized with Firestore)
+    const sampleMockExam = {
+      id: "maths-live-mock-01",
+      title: "Freshman Mathematics — Midterm Live Mock Exam",
+      course: "Mathematics for Natural Sciences",
+      duration: 30, // 30 minutes
+      status: "active",
+      questions: [
+        {
+          q: "Which of the following sentences is a valid proposition?",
+          options: ["May you succeed in your exams!", "What is the time right now?", "The number 17 is a prime integer.", "Please close the classroom door."],
+          correct: 2,
+          exp: "A proposition must have a definitive truth value (True or False, but not both). '17 is a prime integer' is definitively True."
+        },
+        {
+          q: "Under what specific truth assignment does the conditional implication p → q evaluate to False?",
+          options: ["When p is True and q is True", "When p is True and q is False", "When p is False and q is True", "When both p and q are False"],
+          correct: 1,
+          exp: "An implication p → q is False in exactly one scenario: when the hypothesis is True and the conclusion is False (T → F = False)."
+        },
+        {
+          q: "What is the logically equivalent contrapositive of the statement: 'If it rains, then the road is wet'?",
+          options: ["If the road is wet, then it rains", "If it does not rain, then the road is not wet", "If the road is not wet, then it does not rain", "It rains and the road is not wet"],
+          correct: 2,
+          exp: "The contrapositive of p → q is ¬q → ¬p: 'If the road is not wet, then it does not rain'."
+        },
+        {
+          q: "If set A has 5 elements (|A| = 5), how many PROPER subsets does set A possess?",
+          options: ["32", "31", "25", "16"],
+          correct: 1,
+          exp: "Total subsets = 2ⁿ = 2⁵ = 32. Total proper subsets = 2ⁿ - 1 = 32 - 1 = 31."
+        },
+        {
+          q: "Given sets A = {1, 2, 3, 4} and B = {3, 4, 5, 6}, what is the symmetric difference A △ B?",
+          options: ["{3, 4}", "{1, 2, 5, 6}", "{1, 2, 3, 4, 5, 6}", "∅"],
+          correct: 1,
+          exp: "The symmetric difference A △ B = (A - B) ∪ (B - A) contains elements in exactly one set: {1, 2, 5, 6}."
+        }
+      ]
+    };
+
+    // ==========================================
+    // STATE & VARIABLES
+    // ==========================================
+    let state = {
+      nav: "courses",        // 'courses' | 'exams' | 'notices' | 'profile'
+      view: "courses",       // 'courses' | 'chapters' | 'topics'
+      courseId: null,
+      chapterId: null,
+      searchQuery: ""
+    };
+
+    let currentUser = null;
     let currentStudentName = "Student";
+    let liveExamsList = [sampleMockExam];
+    let announcementsList = [];
     let completedFiles = [];
     try { completedFiles = JSON.parse(localStorage.getItem("freshhub_completed_topics") || "[]"); } catch (e) {}
+
+    // Exam Session State
+    let activeExam = null;
+    let examAnswers = {};
+    let examTimeRemaining = 0;
+    let examTimerInterval = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       applyBranding();
@@ -430,11 +518,18 @@
       auth.onAuthStateChanged(async (user) => {
         const loadingScreen = document.getElementById("auth-loading-screen");
         if (user) {
+          currentUser = user;
           if (loadingScreen) loadingScreen.classList.add("hidden");
           document.getElementById("auth-modal").classList.add("hidden");
           document.getElementById("app-container").classList.remove("hidden");
           currentStudentName = user.displayName || (user.email ? user.email.split("@")[0] : "Student");
           updateUserProfileDisplay(user);
+
+          // Listen to live announcements from admin
+          listenToAnnouncements();
+          // Listen to live mock exams from admin
+          listenToLiveExams();
+
           try {
             const docSnap = await db.collection("users").doc(user.uid).get();
             if (docSnap.exists) {
@@ -445,14 +540,37 @@
               }
             }
           } catch (err) {}
+
           render();
           lucide.createIcons();
         } else {
+          currentUser = null;
           if (loadingScreen) loadingScreen.classList.add("hidden");
           document.getElementById("auth-modal").classList.remove("hidden");
           document.getElementById("app-container").classList.add("hidden");
           lucide.createIcons();
         }
+      });
+    }
+
+    function listenToAnnouncements() {
+      db.collection("announcements").onSnapshot((snap) => {
+        announcementsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (state.nav === "notices") render();
+      }, (err) => console.log("Notices listener:", err));
+    }
+
+    function listenToLiveExams() {
+      db.collection("mock_exams").onSnapshot((snap) => {
+        const remote = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (remote.length > 0) {
+          liveExamsList = remote;
+        } else {
+          liveExamsList = [sampleMockExam];
+        }
+        if (state.nav === "exams") render();
+      }, (err) => {
+        liveExamsList = [sampleMockExam];
       });
     }
 
@@ -467,7 +585,7 @@
 
       if (profileData && profileData.stream) {
         const subEl = document.getElementById("greeting-sub");
-        if (subEl) subEl.innerText = `${profileData.stream} • Select a course below to study notes and take quizzes.`;
+        if (subEl) subEl.innerText = `${profileData.stream} • Natural Science Freshman Portal`;
       }
     }
 
@@ -486,7 +604,7 @@
         await auth.signInWithEmailAndPassword(email, password);
         toast("Signed in successfully!", "success", 2500);
       } catch (err) {
-        let msg = "Unable to sign in. Please check your email and password.";
+        let msg = "Unable to sign in. Please verify your email and password.";
         if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
           msg = "Incorrect email or password. Please verify your credentials.";
         } else if (err.code === "auth/too-many-requests") {
@@ -507,6 +625,33 @@
       if (confirm("Sign out of JU FreshHub?")) auth.signOut();
     }
 
+    // ==========================================
+    // BOTTOM NAVIGATION SWITCHER
+    // ==========================================
+    window.switchNav = function(navTab) {
+      if (activeExam) {
+        if (!confirm("An exam is currently in progress! Leaving will cancel your session. Are you sure?")) {
+          return;
+        }
+        clearInterval(examTimerInterval);
+        activeExam = null;
+      }
+
+      state.nav = navTab;
+      document.querySelectorAll(".bottom-nav-item").forEach(item => item.classList.remove("active"));
+      const activeBtn = document.getElementById(`bnav-${navTab}`);
+      if (activeBtn) activeBtn.classList.add("active");
+
+      if (navTab === "courses") {
+        state.view = "courses";
+        state.courseId = null;
+        state.chapterId = null;
+      }
+
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
     const appMount = document.getElementById("app-mount");
     const navBar = document.getElementById("nav-bar");
     const btnBack = document.getElementById("btn-back");
@@ -517,27 +662,47 @@
     function render() {
       appMount.innerHTML = "";
 
-      if (state.view === "courses") {
+      // Search container visibility
+      if (state.nav === "courses" && state.view === "courses") {
         navBar.classList.add("hidden");
         searchContainer.classList.remove("hidden");
-      } else {
+      } else if (state.nav === "courses") {
         navBar.classList.remove("hidden");
+        searchContainer.classList.add("hidden");
+      } else {
+        navBar.classList.add("hidden");
         searchContainer.classList.add("hidden");
       }
 
-      if (state.view === "courses" && state.searchQuery.trim() !== "") {
-        renderSearchResults();
-        lucide.createIcons();
-        return;
+      // Handle main tabs
+      if (state.nav === "courses") {
+        if (state.view === "courses" && state.searchQuery.trim() !== "") {
+          renderSearchResults();
+        } else if (state.view === "courses") {
+          renderCourses();
+        } else if (state.view === "chapters") {
+          renderChapters();
+        } else if (state.view === "topics") {
+          renderTopics();
+        }
+      } else if (state.nav === "exams") {
+        if (activeExam) {
+          renderActiveExamInterface();
+        } else {
+          renderExamsList();
+        }
+      } else if (state.nav === "notices") {
+        renderNoticesList();
+      } else if (state.nav === "profile") {
+        renderProfileTab();
       }
-
-      if (state.view === "courses") renderCourses();
-      else if (state.view === "chapters") renderChapters();
-      else if (state.view === "topics") renderTopics();
 
       lucide.createIcons();
     }
 
+    // ==========================================
+    // COURSES VIEWS
+    // ==========================================
     function renderCourses() {
       const headerRow = document.createElement("div");
       headerRow.className = "flex items-center justify-between mb-3";
@@ -644,6 +809,7 @@
       appMount.appendChild(stack);
     }
 
+    // TOPICS VIEW: Only Title, Open Notes, and Mark as Read (NO file names displayed!)
     function renderTopics() {
       const course = coursesDB.find(c => c.id === state.courseId);
       const chapter = course.chapters.find(ch => ch.id === state.chapterId);
@@ -667,9 +833,8 @@
 
         if (topic.file) {
           card.innerHTML = `
-            <div class="flex items-start justify-between gap-3 mb-3">
-              <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base">${index + 1}. ${escapeHtml(topic.title)}</div>
-              <span class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">${escapeHtml(topic.file)}</span>
+            <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-3">
+              ${index + 1}. ${escapeHtml(topic.title)}
             </div>
             <div class="flex flex-wrap gap-2">
               <a href="${escapeAttr(topic.file)}" class="btn-primary flex-1 sm:flex-initial sm:min-w-[160px]">
@@ -684,9 +849,8 @@
           `;
         } else {
           card.innerHTML = `
-            <div class="flex items-start justify-between gap-3 mb-3">
-              <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base">${index + 1}. ${escapeHtml(topic.title)}</div>
-              <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 shrink-0">Upcoming</span>
+            <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-3">
+              ${index + 1}. ${escapeHtml(topic.title)}
             </div>
             <div>
               <button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost opacity-70">
@@ -749,13 +913,8 @@
               const card = document.createElement("div");
               card.className = "card p-4";
               card.innerHTML = `
-                <div class="flex items-start justify-between gap-2 mb-2">
-                  <div>
-                    <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">${escapeHtml(course.title)} &rsaquo; ${escapeHtml(chapter.num)}</div>
-                    <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm mt-0.5">${escapeHtml(topic.title)}</h4>
-                  </div>
-                  <span class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">${topic.file ? escapeHtml(topic.file) : "Upcoming"}</span>
-                </div>
+                <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">${escapeHtml(course.title)} &rsaquo; ${escapeHtml(chapter.num)}</div>
+                <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm mb-3">${escapeHtml(topic.title)}</h4>
                 <div>
                   ${topic.file
                     ? `<a href="${escapeAttr(topic.file)}" class="btn-primary !py-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i><span>Open Notes</span></a>`
@@ -781,6 +940,355 @@
       appMount.appendChild(stack);
     }
 
+    // ==========================================
+    // 📝 LIVE MOCK EXAM SYSTEM (TIMER & AUTO-SUBMIT)
+    // ==========================================
+    function renderExamsList() {
+      const headerRow = document.createElement("div");
+      headerRow.className = "mb-4 space-y-1";
+      headerRow.innerHTML = `
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">
+          <i data-lucide="timer" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
+          <span>Live Mock Examination Hall</span>
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Timed university-standard mock exams. Tests automatically submit when the countdown expires.</p>
+      `;
+      appMount.appendChild(headerRow);
+
+      const stack = document.createElement("div");
+      stack.className = "space-y-4";
+
+      liveExamsList.forEach(exam => {
+        const card = document.createElement("div");
+        card.className = "card p-5 border-l-4 border-l-brand-600 space-y-3";
+
+        const qCount = (exam.questions || []).length;
+        const dur = exam.duration || 30;
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> Live &amp; Timed
+              </span>
+              <h4 class="font-display font-bold text-slate-900 dark:text-white text-base mt-1.5">${escapeHtml(exam.title)}</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(exam.course || "Freshman Common Course")}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/15 px-2.5 py-1 rounded-lg border border-brand-200 dark:border-brand-500/30">
+                ⏱️ ${dur} Mins
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">
+            <div>Questions: <strong class="text-slate-900 dark:text-white">${qCount} MCQs</strong></div>
+            <div>Mode: <strong class="text-emerald-600 dark:text-emerald-400 font-bold">Auto-Submit at 00:00</strong></div>
+          </div>
+
+          <div>
+            <button onclick="startExam('${escapeAttr(exam.id)}')" class="btn-primary w-full sm:w-auto py-2.5 !px-6 text-xs">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              <span>Enter Examination &amp; Start Timer</span>
+            </button>
+          </div>
+        `;
+
+        stack.appendChild(card);
+      });
+
+      appMount.appendChild(stack);
+    }
+
+    window.startExam = function(examId) {
+      const selected = liveExamsList.find(e => e.id === examId) || sampleMockExam;
+      if (!confirm(`Are you ready to begin "${selected.title}"?\n\nThe countdown timer will start immediately (${selected.duration || 30} minutes). When the timer reaches 00:00, your test will auto-submit.`)) {
+        return;
+      }
+
+      activeExam = selected;
+      examAnswers = {};
+      examTimeRemaining = (selected.duration || 30) * 60; // in seconds
+
+      clearInterval(examTimerInterval);
+      examTimerInterval = setInterval(() => {
+        examTimeRemaining--;
+        updateExamTimerDisplay();
+        if (examTimeRemaining <= 0) {
+          clearInterval(examTimerInterval);
+          submitExam(true); // Auto-submit on timeout
+        }
+      }, 1000);
+
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    function updateExamTimerDisplay() {
+      const timerEl = document.getElementById("exam-live-timer");
+      if (!timerEl) return;
+      const m = Math.floor(examTimeRemaining / 60);
+      const s = examTimeRemaining % 60;
+      const fmt = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      timerEl.innerText = fmt;
+
+      if (examTimeRemaining <= 300) { // under 5 minutes
+        timerEl.classList.add("text-rose-600", "animate-pulse");
+      }
+    }
+
+    function renderActiveExamInterface() {
+      const exam = activeExam;
+      const questions = exam.questions || [];
+
+      const topCard = document.createElement("div");
+      topCard.className = "card p-4 sm:p-5 sticky top-20 z-20 border-2 border-brand-500 shadow-md bg-white/95 dark:bg-slate-900/95";
+
+      const m = Math.floor(examTimeRemaining / 60);
+      const s = examTimeRemaining % 60;
+      const fmt = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+
+      topCard.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate max-w-[220px] sm:max-w-md">${escapeHtml(exam.title)}</h4>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Answer all questions before the timer hits 00:00</p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Time Left</div>
+            <div id="exam-live-timer" class="font-mono text-lg sm:text-xl font-extrabold text-brand-600 dark:text-brand-400">${fmt}</div>
+          </div>
+        </div>
+      `;
+      appMount.appendChild(topCard);
+
+      const stack = document.createElement("div");
+      stack.className = "space-y-4";
+
+      questions.forEach((qItem, qIdx) => {
+        const qCard = document.createElement("div");
+        qCard.className = "card p-5 space-y-3";
+
+        const selectedAns = examAnswers[qIdx];
+
+        qCard.innerHTML = `
+          <div class="font-display font-semibold text-sm text-slate-900 dark:text-white">
+            <span class="text-brand-600 dark:text-brand-400 font-bold">Q${qIdx + 1}.</span> ${escapeHtml(qItem.q)}
+          </div>
+          <div class="space-y-2">
+            ${qItem.options.map((opt, optIdx) => `
+              <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50 hover:border-brand-500 cursor-pointer text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition">
+                <input type="radio" name="exam_q_${qIdx}" value="${optIdx}" ${selectedAns === optIdx ? "checked" : ""} onchange="recordExamAnswer(${qIdx}, ${optIdx})" class="w-4 h-4 text-brand-600 focus:ring-brand-500" />
+                <span>${escapeHtml(opt)}</span>
+              </label>
+            `).join("")}
+          </div>
+        `;
+        stack.appendChild(qCard);
+      });
+
+      const submitCard = document.createElement("div");
+      submitCard.className = "card p-5 flex flex-col sm:flex-row items-center justify-between gap-3";
+      submitCard.innerHTML = `
+        <p class="text-xs text-slate-500 dark:text-slate-400">Make sure you have answered all questions. Clicking submit finalizes your grade.</p>
+        <button onclick="submitExam(false)" class="btn-primary w-full sm:w-auto !py-3 !px-8 text-xs shrink-0">
+          <i data-lucide="check-check" class="w-4 h-4"></i>
+          <span>Submit Exam</span>
+        </button>
+      `;
+      stack.appendChild(submitCard);
+
+      appMount.appendChild(stack);
+    }
+
+    window.recordExamAnswer = function(qIdx, optIdx) {
+      examAnswers[qIdx] = optIdx;
+    };
+
+    window.submitExam = async function(isTimeout = false) {
+      if (!isTimeout) {
+        if (!confirm("Are you sure you want to finish and submit your exam now?")) return;
+      } else {
+        alert("⏱️ Time has expired! Your exam will now be automatically submitted.");
+      }
+
+      clearInterval(examTimerInterval);
+
+      const exam = activeExam;
+      const questions = exam.questions || [];
+      let score = 0;
+
+      questions.forEach((q, idx) => {
+        if (examAnswers[idx] === q.correct) score++;
+      });
+
+      const total = questions.length;
+      const pct = Math.round((score / total) * 100);
+
+      // Save result to Firestore for admin review
+      if (currentUser) {
+        try {
+          await db.collection("mock_exam_results").add({
+            examId: exam.id || "mock_exam",
+            examTitle: exam.title || "Live Mock Exam",
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            userName: currentStudentName,
+            score: score,
+            total: total,
+            percentage: pct,
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } catch (e) {
+          console.log("Saving exam result error:", e);
+        }
+      }
+
+      // Render Result Screen
+      appMount.innerHTML = `
+        <div class="card p-6 sm:p-8 text-center space-y-4 border-2 border-brand-500">
+          <div class="w-14 h-14 mx-auto rounded-2xl ${pct >= 60 ? 'bg-emerald-500' : 'bg-rose-500'} text-white flex items-center justify-center shadow-lg">
+            <i data-lucide="${pct >= 60 ? 'award' : 'alert-circle'}" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Exam Results</span>
+            <h3 class="font-display text-3xl font-extrabold text-slate-900 dark:text-white mt-1">${score} / ${total} (${pct}%)</h3>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(exam.title)}</p>
+          </div>
+          <p class="text-sm font-medium ${pct >= 60 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+            ${pct >= 80 ? 'Outstanding performance! You have mastered these concepts.' : pct >= 60 ? 'Good work! Review missed questions below.' : 'Needs improvement. Read the study notes and practice again.'}
+          </p>
+
+          <div class="pt-2 flex flex-wrap justify-center gap-2">
+            <button onclick="switchNav('exams')" class="btn-primary !px-5 !py-2.5 text-xs">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span>Back to Exams Hall</span>
+            </button>
+            <button onclick="switchNav('courses')" class="btn-ghost !px-5 !py-2.5 text-xs">
+              <i data-lucide="book-marked" class="w-4 h-4"></i>
+              <span>Study Notes</span>
+            </button>
+          </div>
+
+          <div class="text-left pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
+            <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Question Review &amp; Explanations</h4>
+            ${questions.map((q, idx) => {
+              const userAns = examAnswers[idx];
+              const isCorrect = userAns === q.correct;
+              return `
+                <div class="p-4 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-500/10' : 'border-rose-200 bg-rose-50/50 dark:bg-rose-500/10'} space-y-1.5 text-xs">
+                  <div class="font-bold text-slate-900 dark:text-white">Q${idx + 1}. ${escapeHtml(q.q)}</div>
+                  <div class="${isCorrect ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'} font-semibold">
+                    Your Answer: ${userAns !== undefined ? escapeHtml(q.options[userAns]) : 'Not answered'} ${isCorrect ? '✔' : '✖'}
+                  </div>
+                  ${!isCorrect ? `<div class="text-emerald-700 dark:text-emerald-300 font-bold">Correct Answer: ${escapeHtml(q.options[q.correct])}</div>` : ''}
+                  <div class="text-slate-500 dark:text-slate-400 pt-1"><em>Explanation:</em> ${escapeHtml(q.exp)}</div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+
+      activeExam = null;
+      lucide.createIcons();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    // ==========================================
+    // NOTICES / ANNOUNCEMENTS TAB
+    // ==========================================
+    function renderNoticesList() {
+      const headerRow = document.createElement("div");
+      headerRow.className = "mb-4 space-y-1";
+      headerRow.innerHTML = `
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">
+          <i data-lucide="bell" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
+          <span>Official Announcements</span>
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Direct notifications published by JU FreshHub admin.</p>
+      `;
+      appMount.appendChild(headerRow);
+
+      const stack = document.createElement("div");
+      stack.className = "space-y-3";
+
+      if (announcementsList.length === 0) {
+        stack.innerHTML = `
+          <div class="card p-8 text-center text-slate-400">
+            <i data-lucide="bell-off" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            <p class="text-xs font-semibold">No active announcements at this time.</p>
+          </div>
+        `;
+      } else {
+        announcementsList.forEach(a => {
+          const card = document.createElement("div");
+          card.className = "card p-5 space-y-2 border-l-4 border-l-brand-600";
+
+          card.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
+                  ${escapeHtml(a.tag || "Notice")}
+                </span>
+                ${a.priority ? `<span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-100 text-rose-700">Urgent</span>` : ''}
+              </div>
+              <span class="text-[11px] text-slate-400">${escapeHtml(a.date || "")}</span>
+            </div>
+            <h4 class="font-display font-bold text-slate-900 dark:text-white text-base">${escapeHtml(a.title)}</h4>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHtml(a.content)}</p>
+          `;
+
+          stack.appendChild(card);
+        });
+      }
+
+      appMount.appendChild(stack);
+    }
+
+    // ==========================================
+    // PROFILE TAB
+    // ==========================================
+    function renderProfileTab() {
+      const card = document.createElement("div");
+      card.className = "card p-6 space-y-5";
+
+      card.innerHTML = `
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center font-display font-bold text-xl shadow-md">
+            ${currentStudentName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">${escapeHtml(currentStudentName)}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">${escapeHtml(currentUser ? currentUser.email : "student@ju.edu.et")}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Completed Notes</span>
+            <div class="font-display font-bold text-xl text-slate-900 dark:text-white mt-1">${completedFiles.length}</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Status</span>
+            <div class="font-display font-bold text-sm text-emerald-600 dark:text-emerald-400 mt-1.5 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active Student
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+          <button onclick="handleSignOut()" class="btn-ghost !text-rose-600 w-full py-2.5">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span>Sign Out of JU FreshHub</span>
+          </button>
+        </div>
+      `;
+
+      appMount.appendChild(card);
+    }
+
+    // Toggle completed state
     window.toggleTopicDone = function(file) {
       if (completedFiles.includes(file)) completedFiles = completedFiles.filter(f => f !== file);
       else completedFiles.push(file);
