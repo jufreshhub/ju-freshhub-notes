@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>SI Units and Unit Conversions — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .math-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="ruler" class="w-3.5 h-3.5"></i> Preliminaries · Measurement Standards
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">SI Units and Unit Conversions</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">The Seven Base SI Units, Derived Unit Combinations, and Factor-Label Dimensional Conversion</p>
+      </div>
+    </section>
+
+    <!-- 1. The International System of Units (SI) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>The International System of Units (SI)</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200 space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">What Does SI Mean?</strong>
+        <p>
+          <strong>SI</strong> stands for the <strong>International System of Units</strong> (from the French <em>Système International d'Unités</em>). It is the globally accepted scientific standard used to measure physical quantities.
+        </p>
+        <p class="text-xs text-slate-600 dark:text-slate-400 pt-1">
+          Established in <strong>1960</strong> at the 11th General Conference on Weights and Measures (CGPM), SI serves as the modernized metric system.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-emerald-800 dark:text-emerald-300">Why a Global Standard?</strong> Imagine students in different countries measuring the exact same classroom using local, unstandardized spans or cubits. Comparing results would be chaotic. The SI system provides scientists everywhere with a unified, unambiguous measurement language.
+      </div>
+    </section>
+
+    <!-- 2. The Seven Basic Physical Quantities -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>The Seven Base Physical Quantities</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Every physical quantity in classical and modern physics can be constructed using just <strong>seven fundamental base quantities</strong>:
+      </p>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Base Physical Quantity</th>
+              <th class="py-2.5 px-3 sm:px-4">SI Base Unit</th>
+              <th class="py-2.5 px-3 sm:px-4 font-mono">Unit Symbol</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold">Length</td>
+              <td class="py-2 px-3 sm:px-4">Metre</td>
+              <td class="py-2 px-3 sm:px-4 font-mono font-bold text-brand-700 dark:text-brand-400">\(\text{m}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold">Mass</td>
+              <td class="py-2 px-3 sm:px-4">Kilogram</td>
+              <td class="py-2 px-3 sm:px-4 font-mono font-bold text-brand-700 dark:text-brand-400">\(\text{kg}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold">Time</td>
+              <td class="py-2 px-3 sm:px-4">Second</td>
+              <td class="py-2 px-3 sm:px-4 font-mono font-bold text-brand-700 dark:text-brand-400">\(\text{s}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold">Electric Current</td>
+              <td class="py-2 px-3 sm:px-4">Ampere</td>
+              <td class="py-2 px-3 sm:px-4 font-mono font-bold text-brand-700 dark:text-brand-400">\(\text{A}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold">Thermodynamic Temperature</td>
+              <td class="py-2 px-3 sm:px-4">Kelvin</td>
+              <td class="py-2 px-3 sm:px-4 font-mono font-bold text-brand-700 dark:text-brand-400">\(\text{K}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold">Amount of Substance</td>
+              <td class="py-2 px-3 sm:px-4">Mole</td>
+              <td class="py-2 px-3 sm:px-4 font-mono font-bold text-brand-700 dark:text-brand-400">\(\text{mol}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold">Luminous Intensity</td>
+              <td class="py-2 px-3 sm:px-4">Candela</td>
+              <td class="py-2 px-3 sm:px-4 font-mono font-bold text-brand-700 dark:text-brand-400">\(\text{cd}\)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">Memory Strategy (Two Groups):</strong>
+          <ul class="list-disc pl-4 space-y-0.5 text-slate-600 dark:text-slate-300">
+            <li><strong>Mechanics Core (3):</strong> Length, Mass, Time</li>
+            <li><strong>Specialized Core (4):</strong> Current, Temperature, Mole, Luminous Intensity</li>
+          </ul>
+        </div>
+        <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 space-y-1 text-amber-950 dark:text-amber-200">
+          <strong class="font-display block">Vital Distinction:</strong>
+          <p>Do not confuse a physical quantity with its unit. For <strong>\(5\text{ m}\)</strong>: Quantity = <em>Length</em>, Unit = <em>Metre</em>, Measurement = <em>5 m</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Derived SI Units -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Derived SI Units</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        A <strong>derived unit</strong> is formed algebraically by multiplying or dividing base SI units according to the defining physical equation.
+      </p>
+
+      <!-- Worked Examples Grid -->
+      <div class="grid sm:grid-cols-3 gap-2.5 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">Example A: Area</strong>
+          <p class="text-slate-500">\(L = 4\text{ m},\, W = 3\text{ m}\)</p>
+          <div class="font-mono font-bold text-brand-700 dark:text-brand-400">
+            \(A = 4\text{ m} \times 3\text{ m} = 12\text{ m}^2\)
+          </div>
+          <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Unit: Square metre (\(\text{m}^2\))</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">Example B: Speed</strong>
+          <p class="text-slate-500">\(d = 100\text{ m},\, t = 20\text{ s}\)</p>
+          <div class="font-mono font-bold text-brand-700 dark:text-brand-400">
+            \(v = \frac{100\text{ m}}{20\text{ s}} = 5\text{ m/s}\)
+          </div>
+          <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Unit: Metre per second (\(\text{m/s}\))</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">Example C: Density</strong>
+          <p class="text-slate-500">\(m = 20\text{ kg},\, V = 4\text{ m}^3\)</p>
+          <div class="font-mono font-bold text-brand-700 dark:text-brand-400">
+            \(\rho = \frac{20\text{ kg}}{4\text{ m}^3} = 5\text{ kg/m}^3\)
+          </div>
+          <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Unit: \(\text{kg/m}^3\)</p>
+        </div>
+      </div>
+
+      <!-- Extended Derived Units Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Derived Quantity</th>
+              <th class="py-2.5 px-3 sm:px-4 font-mono">SI Derived Unit</th>
+              <th class="py-2.5 px-3 sm:px-4 font-mono">Expression in Base Units</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Area</td><td class="py-2 px-3 sm:px-4">\(\text{m}^2\)</td><td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400">\(\text{m} \times \text{m}\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Volume</td><td class="py-2 px-3 sm:px-4">\(\text{m}^3\)</td><td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400">\(\text{m} \times \text{m} \times \text{m}\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Speed</td><td class="py-2 px-3 sm:px-4">\(\text{m/s}\)</td><td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400">\(\text{m} \div \text{s}\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Acceleration</td><td class="py-2 px-3 sm:px-4">\(\text{m/s}^2\)</td><td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400">\(\text{m} \div \text{s}^2\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Density</td><td class="py-2 px-3 sm:px-4">\(\text{kg/m}^3\)</td><td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400">\(\text{kg} \div \text{m}^3\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Force</td><td class="py-2 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">Newton (\(\text{N}\))</td><td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400">\(\text{kg}\cdot\text{m/s}^2\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. Principles of Unit Conversion & Conversion Factors -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Principles of Unit Conversion &amp; Conversion Factors</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Unit conversion transforms a measurement from one unit system or scale into another <strong>without changing its physical magnitude</strong>. For instance, \(1\text{ metre} = 100\text{ centimetres}\) describes the exact same physical length using two different unit scales.
+      </p>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-slate-900 dark:text-white font-display block">Why Unit Conversion is Essential:</strong>
+        <ul class="list-disc pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-300">
+          <li>Different regions and laboratory instruments employ different scales (e.g., inches vs. metres, pounds vs. kilograms).</li>
+          <li>Physics equations require dimensional consistency across all substituted terms.</li>
+          <li>Direct quantitative comparisons are impossible unless quantities share identical units.</li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-2">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition: Conversion Factor</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          A <strong>conversion factor</strong> is a ratio expressing the equivalence between two distinct units. Because the numerator and denominator represent the exact same physical quantity, every conversion factor equals \(1\):
+        </p>
+        <div class="math-scroll font-mono text-center text-xs sm:text-sm font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$1\text{ m} = 100\text{ cm} \quad \Longrightarrow \quad \frac{100\text{ cm}}{1\text{ m}} = 1 \quad \text{or} \quad \frac{1\text{ m}}{100\text{ cm}} = 1$$
+        </div>
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+          <em>Analogy:</em> Like exchanging currency—you alter the denomination, not the actual financial value.
+        </p>
+      </div>
+    </section>
+
+    <!-- 5. The Unit Cancellation Method & Worked Examples -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>The Unit Cancellation Method &amp; Worked Examples</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-emerald-800 dark:text-emerald-300 font-bold block">The Golden Cancellation Rule:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          Arrange the conversion factor so the <strong>unwanted unit sits in the denominator</strong> (canceling diagonally) and the <strong>desired unit sits in the numerator</strong>.
+        </p>
+        <div class="math-scroll font-mono text-center text-xs sm:text-sm font-bold text-emerald-900 dark:text-emerald-200 py-1">
+          $$5\,\cancel{\text{m}} \times \frac{100\text{ cm}}{1\,\cancel{\text{m}}} = 5 \times 100\text{ cm} = \mathbf{500\text{ cm}}$$
+        </div>
+      </div>
+
+      <!-- Metric Scaling Examples -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="text-slate-900 dark:text-white font-display block">Example 1: Kilometres to Metres</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Convert \(3\text{ km}\) into metres (\(1\text{ km} = 1000\text{ m}\)):</p>
+          <div class="p-2 rounded bg-white dark:bg-slate-900 font-mono text-xs border border-slate-200 dark:border-slate-800">
+            \(3\,\cancel{\text{km}} \times \frac{1000\text{ m}}{1\,\cancel{\text{km}}} = \mathbf{3000\text{ m}}\)
+          </div>
+          <p class="text-[11px] text-slate-500">From larger to smaller (\(\text{km} \to \text{m}\)): multiply by \(1000\).</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="text-slate-900 dark:text-white font-display block">Example 2: Centimetres to Metres</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Convert \(500\text{ cm}\) into metres (\(1\text{ m} = 100\text{ cm}\)):</p>
+          <div class="p-2 rounded bg-white dark:bg-slate-900 font-mono text-xs border border-slate-200 dark:border-slate-800">
+            \(500\,\cancel{\text{cm}} \times \frac{1\text{ m}}{100\,\cancel{\text{cm}}} = \mathbf{5\text{ m}}\)
+          </div>
+          <p class="text-[11px] text-slate-500">From smaller to larger (\(\text{cm} \to \text{m}\)): divide by \(100\).</p>
+        </div>
+      </div>
+
+      <!-- Cross-System Worked Examples -->
+      <div class="space-y-3">
+        <!-- Inches to Metres -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+          <strong class="text-slate-900 dark:text-white font-display">Example 3: Cross-System Length (Inches to Metres)</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Convert \(0.02\text{ inches}\) into metres, given \(1\text{ inch} = 0.0254\text{ m}\):</p>
+          <div class="math-scroll p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs border border-slate-200 dark:border-slate-800">
+            $$0.02\,\cancel{\text{in}} \times \frac{0.0254\text{ m}}{1\,\cancel{\text{in}}} = 0.02 \times 0.0254\text{ m} = \mathbf{0.000508\text{ m}} = \mathbf{5.08 \times 10^{-4}\text{ m}}$$
+          </div>
+        </div>
+
+        <!-- Pounds to Kilograms -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+          <strong class="text-slate-900 dark:text-white font-display">Example 4: Cross-System Mass (Pounds to Kilograms)</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Convert a car mass of \(2500\text{ lb}\) into kilograms, given \(1\text{ lb} = 0.4536\text{ kg}\):</p>
+          <div class="math-scroll p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs border border-slate-200 dark:border-slate-800">
+            $$2500\,\cancel{\text{lb}} \times \frac{0.4536\text{ kg}}{1\,\cancel{\text{lb}}} = 2500 \times 0.4536\text{ kg} = \mathbf{1134\text{ kg}}$$
+          </div>
+        </div>
+      </div>
+
+      <!-- Three Execution Rules -->
+      <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200 space-y-1">
+        <strong class="font-bold block">Three-Step Conversion Checklist:</strong>
+        <ol class="list-decimal pl-5 space-y-0.5">
+          <li>Write down the original measurement clearly with its initial unit.</li>
+          <li>Multiply by the conversion factor oriented so the initial unit cancels out.</li>
+          <li>Compute the numerical value and verify that only the target unit remains.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 6. Interactive Self-Assessment Quiz (8 Shuffled Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">8 mixed exam-style questions covering SI Units and Unit Conversions</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 8</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 8 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; SI Units and Unit Conversions
+  </footer>
+
+  <script>
+    // 8 Shuffled Questions: 4 from SI Units + 4 from Unit Conversions
+    const quizData = [
+      {
+        q: "Question 1. Which conversion factor properly converts metres into centimetres?",
+        options: [
+          "A. 1 m / 100 cm",
+          "B. 100 cm / 1 m",
+          "C. 1 cm / 100 m",
+          "D. 100 m / 1 cm"
+        ],
+        correct: 1,
+        exp: "To convert metres into centimetres, metres must cancel out in the denominator while centimetres remain in the numerator: (100 cm / 1 m)."
+      },
+      {
+        q: "Question 2. What does the international scientific acronym 'SI' stand for?",
+        options: [
+          "A. Scientific Institution",
+          "B. International System of Units",
+          "C. Standard Instrument",
+          "D. System of Measurement"
+        ],
+        correct: 1,
+        exp: "SI stands for the International System of Units (Système International d'Unités), globally adopted in 1960 as the modern metric system."
+      },
+      {
+        q: "Question 3. Convert 250 centimetres (cm) into metres (m).",
+        options: [
+          "A. 25 m",
+          "B. 2.5 m",
+          "C. 0.25 m",
+          "D. 2500 m"
+        ],
+        correct: 1,
+        exp: "Using 1 m = 100 cm: 250 cm × (1 m / 100 cm) = 250 / 100 = 2.5 m."
+      },
+      {
+        q: "Question 4. Which of the following is one of the seven SI base units?",
+        options: [
+          "A. Newton",
+          "B. Joule",
+          "C. Kilogram",
+          "D. Metre per second"
+        ],
+        correct: 2,
+        exp: "Kilogram (kg) is the SI base unit of mass. Newton, Joule, and metre per second (m/s) are all derived SI units."
+      },
+      {
+        q: "Question 5. Convert 3 hours into seconds (given 1 hour = 3600 seconds).",
+        options: [
+          "A. 180 s",
+          "B. 1,800 s",
+          "C. 10,800 s",
+          "D. 36,000 s"
+        ],
+        correct: 2,
+        exp: "3 hr × (3600 s / 1 hr) = 3 × 3600 = 10,800 seconds."
+      },
+      {
+        q: "Question 6. What is the official SI base unit of thermodynamic temperature?",
+        options: [
+          "A. Celsius",
+          "B. Kelvin",
+          "C. Fahrenheit",
+          "D. Joule"
+        ],
+        correct: 1,
+        exp: "The official SI base unit for thermodynamic temperature is the Kelvin (symbol: K), not Celsius or Fahrenheit."
+      },
+      {
+        q: "Question 7. Convert 2.5 kilograms (kg) into grams (g).",
+        options: [
+          "A. 25 g",
+          "B. 250 g",
+          "C. 2,500 g",
+          "D. 25,000 g"
+        ],
+        correct: 2,
+        exp: "Since 1 kg = 1,000 g, converting from kg to g gives: 2.5 kg × (1,000 g / 1 kg) = 2,500 g."
+      },
+      {
+        q: "Question 8. A car travels 150 metres in 30 seconds. What is its average speed and corresponding derived SI unit?",
+        options: [
+          "A. 5 m/s",
+          "B. 5 m²",
+          "C. 180 m/s",
+          "D. 0.2 m/s"
+        ],
+        correct: 0,
+        exp: "Average speed = Total Distance / Total Time = 150 m / 30 s = 5 m/s."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on SI Units and Unit Conversions."
+          : "Great performance! You have a solid command of base SI units, derived units, and dimensional unit cancellation.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the seven base units and conversion factor orientation above, then retake the quiz.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Review the table of seven SI base units and unit cancellation examples carefully, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

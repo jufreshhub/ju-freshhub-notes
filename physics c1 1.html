@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Introduction to Physics and Physical Quantities — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .math-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="atom" class="w-3.5 h-3.5"></i> Preliminaries · Foundations of Physics
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Introduction to Physics and Physical Quantities</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Nature, Matter, Energy, Measurement Standards, and Basic vs. Derived Quantities</p>
+      </div>
+    </section>
+
+    <!-- 1. What is Physics? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Physics?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Every day we witness remarkable events around us: a stone falling from a tree, the Sun warming our skin, a car accelerating along a road, water flowing from a tap, and electricity illuminating a room. All of these everyday observations involve natural physical phenomena.
+      </p>
+
+      <!-- 3-Panel Bento Grid Collage (1 Tall Left + 2 Stacked Right) -->
+      <div class="p-2 rounded-3xl bg-slate-950 shadow-inner">
+        <div class="grid grid-cols-1 sm:grid-cols-12 sm:grid-rows-2 gap-2">
+
+          <!-- Panel 1 (Left Tall - Free Fall) -->
+          <figure class="sm:col-span-7 sm:row-span-2 cursor-pointer group relative rounded-2xl overflow-hidden bg-[#FDFBF2] border border-amber-200/60" onclick="openVisualLightbox(this, 'Gravitational Free Fall: Apple falling from a tree and stone dropped from a hill')">
+            <svg viewBox="0 0 380 280" class="w-full h-full object-contain block">
+              <defs>
+                <linearGradient id="paperBg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FFFDF5" />
+                  <stop offset="100%" stop-color="#F6EED8" />
+                </linearGradient>
+              </defs>
+              <rect width="380" height="280" fill="url(#paperBg)" />
+              <rect x="10" y="10" width="360" height="260" rx="8" fill="#FFFFFF" stroke="#E8DEC2" stroke-width="2" />
+
+              <!-- Left scene: Apple Tree -->
+              <rect x="20" y="218" width="135" height="14" rx="7" fill="#84CC16" />
+              <path d="M72 220 L76 135 L92 135 L96 220 Z" fill="#92400E" />
+              <path d="M84 148 L64 125 M86 150 L108 132" stroke="#92400E" stroke-width="5" stroke-linecap="round" />
+              <!-- Foliage -->
+              <circle cx="84" cy="100" r="42" fill="#4ADE80" />
+              <circle cx="52" cy="112" r="28" fill="#22C55E" />
+              <circle cx="114" cy="112" r="28" fill="#22C55E" />
+              <circle cx="84" cy="70" r="30" fill="#4ADE80" />
+              <!-- Apples on tree -->
+              <circle cx="58" cy="100" r="5" fill="#DC2626" />
+              <circle cx="86" cy="65" r="5" fill="#DC2626" />
+              <circle cx="108" cy="105" r="5" fill="#DC2626" />
+              <circle cx="72" cy="122" r="5" fill="#DC2626" />
+              <!-- Falling apple + motion lines -->
+              <line x1="102" y1="145" x2="102" y2="165" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3,2" />
+              <line x1="106" y1="148" x2="106" y2="168" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3,2" />
+              <circle cx="104" cy="178" r="7" fill="#E11D48" />
+              <path d="M104 171 Q107 166 110 168" stroke="#15803D" stroke-width="2" fill="none" />
+              <text x="85" y="250" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#1E293B">apple falling from the tree</text>
+
+              <!-- Right scene: Person dropping stone from hill -->
+              <path d="M175 232 Q215 190 232 140 Q248 92 268 100 Q290 112 315 180 Q332 218 352 232 Z" fill="#C2591C" />
+              <path d="M235 135 Q255 96 270 102 Q285 112 302 155 Q270 142 235 135 Z" fill="#EA580C" opacity="0.45" />
+              <!-- Person at top -->
+              <rect x="255" y="78" width="10" height="22" fill="#1E3A8A" />
+              <rect x="254" y="58" width="12" height="22" rx="3" fill="#0284C7" />
+              <circle cx="260" cy="48" r="7" fill="#FDBA74" />
+              <path d="M254 45 Q260 37 267 45" fill="#1E293B" />
+              <!-- Extended arm dropping stone -->
+              <line x1="254" y1="62" x2="236" y2="58" stroke="#FDBA74" stroke-width="3.5" stroke-linecap="round" />
+              <!-- Stone & fall lines -->
+              <line x1="234" y1="68" x2="229" y2="95" stroke="#64748B" stroke-width="1.5" stroke-dasharray="3,2" />
+              <line x1="239" y1="68" x2="235" y2="95" stroke="#64748B" stroke-width="1.5" stroke-dasharray="3,2" />
+              <circle cx="231" cy="108" r="6.5" fill="#94A3B8" stroke="#475569" stroke-width="1.5" />
+              <text x="266" y="250" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#1E293B">stone dropped down from a hill</text>
+            </svg>
+            <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[1px]">
+              <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect
+            </div>
+          </figure>
+
+          <!-- Panel 2 (Top Right - Natural Sunlight) -->
+          <figure class="sm:col-span-5 sm:row-span-1 cursor-pointer group relative rounded-2xl overflow-hidden bg-emerald-900 border border-emerald-700/50" onclick="openVisualLightbox(this, 'Solar Radiation: Natural light and thermal energy shining through forest canopy')">
+            <svg viewBox="0 0 320 140" class="w-full h-full object-cover block">
+              <defs>
+                <radialGradient id="sunGlow" cx="55%" cy="48%" r="55%">
+                  <stop offset="0%" stop-color="#FFFFFF" />
+                  <stop offset="18%" stop-color="#FDE047" />
+                  <stop offset="48%" stop-color="#84CC16" stop-opacity="0.7" />
+                  <stop offset="100%" stop-color="#14532D" />
+                </radialGradient>
+              </defs>
+              <rect width="320" height="140" fill="url(#sunGlow)" />
+              <!-- Foliage silhouettes -->
+              <path d="M0 0 L120 0 L95 45 L35 70 L0 105 Z" fill="#166534" opacity="0.85" />
+              <path d="M320 0 L205 0 L225 55 L290 85 L320 115 Z" fill="#15803D" opacity="0.85" />
+              <path d="M0 140 L140 140 L95 100 L35 90 L0 110 Z" fill="#14532D" opacity="0.9" />
+              <path d="M320 140 L195 140 L230 98 L285 95 L320 112 Z" fill="#166534" opacity="0.9" />
+              <!-- Sunbeams -->
+              <g stroke="#FEF08A" stroke-width="2" opacity="0.65">
+                <line x1="176" y1="67" x2="90" y2="15" />
+                <line x1="176" y1="67" x2="260" y2="18" />
+                <line x1="176" y1="67" x2="80" y2="120" />
+                <line x1="176" y1="67" x2="275" y2="122" />
+                <line x1="176" y1="67" x2="176" y2="5" />
+                <line x1="176" y1="67" x2="176" y2="135" />
+              </g>
+              <circle cx="176" cy="67" r="10" fill="#FFFFFF" />
+              <span class="sr-only">Natural Solar Light</span>
+            </svg>
+            <div class="absolute bottom-2 left-2.5 px-2 py-0.5 rounded bg-black/55 backdrop-blur text-[10px] font-bold text-amber-200">Solar Light &amp; Heat</div>
+            <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[1px]">
+              <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect
+            </div>
+          </figure>
+
+          <!-- Panel 3 (Bottom Right - Thunderstorm & Lightning) -->
+          <figure class="sm:col-span-5 sm:row-span-1 cursor-pointer group relative rounded-2xl overflow-hidden bg-indigo-950 border border-indigo-700/50" onclick="openVisualLightbox(this, 'Atmospheric Electricity: Thunderstorm charge separation and negative/positive lightning')">
+            <svg viewBox="0 0 320 140" class="w-full h-full object-cover block">
+              <defs>
+                <linearGradient id="stormSky" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3730A3" />
+                  <stop offset="100%" stop-color="#818CF8" />
+                </linearGradient>
+              </defs>
+              <rect width="320" height="140" fill="url(#stormSky)" />
+              <!-- Ground -->
+              <rect x="0" y="125" width="320" height="15" fill="#3F6212" />
+              <line x1="0" y1="133" x2="320" y2="133" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="8,6" />
+              <!-- Cloud -->
+              <path d="M55 92 C40 92 40 72 60 72 C58 55 80 42 98 50 C105 26 142 18 175 26 C215 24 265 20 302 25 C312 30 308 42 290 42 C255 44 218 46 190 64 C215 74 210 98 182 100 C140 105 90 100 55 92 Z" fill="#E0E7FF" opacity="0.92" />
+              <text x="108" y="54" font-family="Inter, sans-serif" font-size="9" font-weight="700" fill="#1E293B">Thunderstorm</text>
+
+              <!-- Positive Charges in Upper Anvil -->
+              <g font-family="monospace" font-size="9" font-weight="bold" text-anchor="middle">
+                <circle cx="122" cy="24" r="5" fill="#B91C1C" /><text x="122" y="27" fill="#FFF">+</text>
+                <circle cx="144" cy="22" r="5" fill="#B91C1C" /><text x="144" y="25" fill="#FFF">+</text>
+                <circle cx="168" cy="26" r="5" fill="#B91C1C" /><text x="168" y="29" fill="#FFF">+</text>
+                <circle cx="215" cy="30" r="5" fill="#B91C1C" /><text x="215" y="33" fill="#FFF">+</text>
+                <circle cx="255" cy="31" r="5" fill="#B91C1C" /><text x="255" y="34" fill="#FFF">+</text>
+                <circle cx="288" cy="32" r="5" fill="#B91C1C" /><text x="288" y="35" fill="#FFF">+</text>
+              </g>
+
+              <!-- Negative Charges in Cloud Base -->
+              <g font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">
+                <circle cx="95" cy="70" r="5.5" fill="#FFF" stroke="#1E293B" stroke-width="1" /><text x="95" y="73" fill="#0F172A">−</text>
+                <circle cx="115" cy="72" r="5.5" fill="#FFF" stroke="#1E293B" stroke-width="1" /><text x="115" y="75" fill="#0F172A">−</text>
+                <circle cx="102" cy="86" r="5.5" fill="#FFF" stroke="#1E293B" stroke-width="1" /><text x="102" y="89" fill="#0F172A">−</text>
+                <circle cx="126" cy="88" r="5.5" fill="#FFF" stroke="#1E293B" stroke-width="1" /><text x="126" y="91" fill="#0F172A">−</text>
+              </g>
+
+              <!-- Positive Charges on Ground -->
+              <g font-family="monospace" font-size="9" font-weight="bold" text-anchor="middle">
+                <circle cx="40" cy="132" r="5" fill="#B91C1C" /><text x="40" y="135" fill="#FFF">+</text>
+                <circle cx="90" cy="132" r="5" fill="#B91C1C" /><text x="90" y="135" fill="#FFF">+</text>
+                <circle cx="145" cy="132" r="5" fill="#B91C1C" /><text x="145" y="135" fill="#FFF">+</text>
+                <circle cx="195" cy="132" r="5" fill="#B91C1C" /><text x="195" y="135" fill="#FFF">+</text>
+              </g>
+
+              <!-- Lightning Bolts -->
+              <polyline points="120,94 128,104 118,113 127,125" fill="none" stroke="#FFFFFF" stroke-width="2.2" />
+              <text x="144" y="114" font-family="Inter, sans-serif" font-size="7.5" font-weight="700" fill="#F8FAFC">Negative</text>
+              <text x="144" y="122" font-family="Inter, sans-serif" font-size="7.5" font-weight="700" fill="#F8FAFC">lightning</text>
+
+              <polyline points="288,38 278,62 292,84 282,106 289,125" fill="none" stroke="#FFFFFF" stroke-width="2.2" />
+              <text x="242" y="110" font-family="Inter, sans-serif" font-size="7.5" font-weight="700" fill="#F8FAFC">Positive</text>
+              <text x="242" y="118" font-family="Inter, sans-serif" font-size="7.5" font-weight="700" fill="#F8FAFC">lightning</text>
+            </svg>
+            <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[1px]">
+              <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect
+            </div>
+          </figure>
+
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200 space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition of Physics:</strong>
+        <p>
+          <strong>Physics</strong> is the branch of natural science that investigates <strong>nature</strong>, <strong>matter</strong>, <strong>energy</strong>, and their mutual interactions through accurate quantitative measurement.
+        </p>
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+          <em>Etymology:</em> The term originates from the ancient Greek word <em>Physis</em>, meaning <strong>Nature</strong>.
+        </p>
+      </div>
+
+      <!-- Three Fundamental Pillars -->
+      <div class="grid sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">A. Matter</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Anything possessing mass and occupying spatial volume.</p>
+          <p class="text-[11px] font-semibold text-brand-700 dark:text-brand-400">Examples: Stone, water, air, textbook</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">B. Energy</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">The capacity to cause change or perform mechanical work.</p>
+          <p class="text-[11px] font-semibold text-brand-700 dark:text-brand-400">Examples: Electrical, heat, light, kinetic</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">C. Precision</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Instead of vague descriptions (<em>"moving fast"</em>), physics quantifies: <strong>"80 km/h"</strong>.</p>
+        </div>
+      </div>
+
+      <!-- Importance & Applications Table -->
+      <div class="space-y-2">
+        <strong class="text-xs sm:text-sm text-slate-900 dark:text-white font-display block">Applications of Physics in Engineering &amp; Technology:</strong>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr>
+                <th class="py-2.5 px-3 sm:px-4">Scientific Field</th>
+                <th class="py-2.5 px-3 sm:px-4">Direct Application of Physics</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">Medicine</td>
+                <td class="py-2 px-3 sm:px-4 text-slate-600 dark:text-slate-300">X-rays, MRI, ultrasound imaging</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">Agriculture</td>
+                <td class="py-2 px-3 sm:px-4 text-slate-600 dark:text-slate-300">Soil mechanics and hydraulic irrigation technology</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">Engineering</td>
+                <td class="py-2 px-3 sm:px-4 text-slate-600 dark:text-slate-300">Machines, bridges, and load-bearing structures</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">Communication</td>
+                <td class="py-2 px-3 sm:px-4 text-slate-600 dark:text-slate-300">Radio waves, fiber optics, and semiconductor electronics</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">Energy</td>
+                <td class="py-2 px-3 sm:px-4 text-slate-600 dark:text-slate-300">Photovoltaic solar panels and electromagnetic generators</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. What is Measurement? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Measurement &amp; Standard Units</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-emerald-800 dark:text-emerald-300">The Market Scale Analogy:</strong> Suppose you buy \(2\text{ kg}\) of sugar at a market in Jimma. The vendor places the sugar on a weighing balance against calibrated iron weights. Why? Because the seller is comparing an unknown quantity of sugar with an internationally accepted standard.
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition of Measurement:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          <strong>Measurement</strong> is the quantitative act of comparing an unknown physical quantity with a fixed, universally accepted standard.
+        </p>
+        <p class="text-xs text-slate-600 dark:text-slate-400 pt-1">
+          <em>Example:</em> Measuring a table as \(2\text{ meters}\) compares the unknown table length against the fixed \(1\text{-meter}\) standard.
+        </p>
+      </div>
+
+      <!-- Unit Definition & Table -->
+      <div class="space-y-2">
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          A <strong>unit</strong> is the fixed physical standard used as a common language to measure a physical quantity. Without standardized units, scientific comparison across regions would be impossible.
+        </p>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr>
+                <th class="py-2.5 px-3 sm:px-4">Physical Quantity Measured</th>
+                <th class="py-2.5 px-3 sm:px-4">Standard SI Unit</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-sans font-bold">Length</td>
+                <td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400 font-bold">Meter (\(\text{m}\))</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-sans font-bold">Mass</td>
+                <td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400 font-bold">Kilogram (\(\text{kg}\))</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-sans font-bold">Time</td>
+                <td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400 font-bold">Second (\(\text{s}\))</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 sm:px-4 font-sans font-bold">Thermodynamic Temperature</td>
+                <td class="py-2 px-3 sm:px-4 text-brand-700 dark:text-brand-400 font-bold">Kelvin (\(\text{K}\))</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Measurement Components Example -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1">
+        <strong class="text-slate-900 dark:text-white font-display">Worked Identification:</strong>
+        <p class="text-slate-600 dark:text-slate-300">A student measures a pencil and records <strong>\(15\text{ cm}\)</strong>:</p>
+        <ul class="list-disc pl-5 space-y-0.5 font-mono text-xs text-brand-700 dark:text-brand-400">
+          <li>Physical Quantity: <span class="text-slate-700 dark:text-slate-200 font-sans">Length</span></li>
+          <li>Numerical Value: <span class="text-slate-700 dark:text-slate-200">\(15\)</span></li>
+          <li>Unit: <span class="text-slate-700 dark:text-slate-200">\(\text{cm}\)</span></li>
+        </ul>
+        <p class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 pt-1">Rule: A complete physical measurement requires BOTH a numerical value AND a unit.</p>
+      </div>
+    </section>
+
+    <!-- 3. Physical Quantities -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Physical Quantities</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Saying <em>"Student A is tall"</em> or <em>"Student B is heavy"</em> does not allow mathematical calculation. When we specify <strong>height = \(1.75\text{ m}\)</strong> and <strong>mass = \(65\text{ kg}\)</strong>, we are utilizing measurable properties.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block mb-1">Definition:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          A <strong>physical quantity</strong> is a quantifiable or assignable property ascribed to a particular phenomenon or body that can be measured and expressed numerically with a unit (e.g., Length = \(5\text{ m}\), Mass = \(10\text{ kg}\), Time = \(20\text{ s}\), Temperature = \(30\,^\circ\text{C}\)).
+        </p>
+      </div>
+
+      <!-- Diagnostic Distinction Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Statement</th>
+              <th class="py-2.5 px-3 sm:px-4">Complete Quantitative Measurement?</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <tr>
+              <td class="py-2 px-3 sm:px-4">"The rod is long."</td>
+              <td class="py-2 px-3 sm:px-4 text-rose-600 dark:text-rose-400 font-medium">Length is mentioned, but no numerical measurement is given.</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-semibold">"The rod is 5 m long."</td>
+              <td class="py-2 px-3 sm:px-4 text-emerald-600 dark:text-emerald-400 font-bold">Yes (Value = 5, Unit = m).</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4">"The water is hot."</td>
+              <td class="py-2 px-3 sm:px-4 text-rose-600 dark:text-rose-400 font-medium">Temperature is mentioned, but no numerical measurement is given.</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-semibold">"Water temperature is 80 °C."</td>
+              <td class="py-2 px-3 sm:px-4 text-emerald-600 dark:text-emerald-400 font-bold">Yes (Value = 80, Unit = °C).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. Classification of Physical Quantities -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Classification: Basic vs. Derived Quantities</span>
+      </h2>
+
+      <!-- A. Basic Physical Quantities -->
+      <div class="space-y-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span> A. Basic (Fundamental) Physical Quantities
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <strong>Definition:</strong> Quantities that <strong>cannot be expressed in terms of any other physical quantity</strong>. They serve as the independent starting building blocks of measurement (e.g., <strong>Length</strong>, <strong>Mass</strong>, <strong>Time</strong>).
+        </p>
+        <div class="p-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-xs text-emerald-950 dark:text-emerald-200">
+          <strong>Building Blocks Analogy:</strong> Constructing a house starts with raw materials like bricks, cement, and steel. You don't build a brick out of a wall. Similarly, basic quantities are the foundation from which complex quantities are built.
+        </div>
+      </div>
+
+      <!-- B. Derived Physical Quantities -->
+      <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span> B. Derived Physical Quantities
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <strong>Definition:</strong> Quantities that <strong>can be expressed mathematically in terms of fundamental quantities</strong>. Key standard examples include Area, Volume, and Density:
+        </p>
+
+        <div class="grid sm:grid-cols-3 gap-2.5 text-xs">
+          <!-- Area -->
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="text-slate-900 dark:text-white font-display block">1. Area (\(A\))</strong>
+            <p class="text-slate-500">Classroom: \(L = 5\text{ m},\, W = 4\text{ m}\)</p>
+            <div class="font-mono font-bold text-brand-700 dark:text-brand-400">
+              \(A = L \times W\)<br>\(= 5 \times 4 = \mathbf{20\text{ m}^2}\)
+            </div>
+          </div>
+
+          <!-- Volume -->
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="text-slate-900 dark:text-white font-display block">2. Volume (\(V\))</strong>
+            <p class="text-slate-500">Tank: \(2\text{ m} \times 2\text{ m} \times 3\text{ m}\)</p>
+            <div class="font-mono font-bold text-brand-700 dark:text-brand-400">
+              \(V = L \times W \times H\)<br>\(= 2 \times 2 \times 3 = \mathbf{12\text{ m}^3}\)
+            </div>
+          </div>
+
+          <!-- Density -->
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="text-slate-900 dark:text-white font-display block">3. Density (\(\rho\))</strong>
+            <p class="text-slate-500">\(m = 20\text{ kg},\, V = 4\text{ m}^3\)</p>
+            <div class="font-mono font-bold text-brand-700 dark:text-brand-400">
+              \(\rho = \frac{\text{Mass}}{\text{Volume}}\)<br>\(= \frac{20}{4} = \mathbf{5\text{ kg/m}^3}\)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Basic (Fundamental) Quantities</th>
+              <th class="py-2.5 px-3 sm:px-4">Derived Quantities</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-semibold">Length, Mass, Time</td>
+              <td class="py-2 px-3 sm:px-4 font-semibold">Area, Volume, Density, Speed</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 text-slate-600 dark:text-slate-300">Cannot be expressed using other quantities</td>
+              <td class="py-2 px-3 sm:px-4 text-slate-600 dark:text-slate-300">Expressed by combining fundamental quantities</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Operational Definitions & Average Speed -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>How Physical Quantities are Defined</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">1. Operational Measurement</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Specifying the direct instrument/method used to measure it:</p>
+          <ul class="list-disc pl-4 text-xs text-slate-500">
+            <li>Distance via a meter stick</li>
+            <li>Time via a stopwatch</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">2. Mathematical Derivation</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Calculating from other measurements (e.g., Average Speed):</p>
+          <div class="font-mono text-xs font-bold text-brand-700 dark:text-brand-400 pt-0.5">
+            $$\text{Average Speed} = \frac{\text{Total Distance}}{\text{Total Time}}$$
+          </div>
+          <p class="font-mono text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+            \(100\text{ m}\) in \(20\text{ s} \implies v = \frac{100}{20} = 5\text{ m/s}\)
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Quick Revision & Essential Formulas -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Quick Revision &amp; Essential Formulas</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Concept</th>
+              <th class="py-2.5 px-3 sm:px-4">Core Idea</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <tr><td class="py-2 px-3 sm:px-4 font-bold">Physics</td><td class="py-2 px-3 sm:px-4">Science of nature, matter, energy, and measurement</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-bold">Matter</td><td class="py-2 px-3 sm:px-4">Has mass and occupies space</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-bold">Energy</td><td class="py-2 px-3 sm:px-4">Ability to cause changes or perform work</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-bold">Measurement</td><td class="py-2 px-3 sm:px-4">Comparing an unknown quantity with a fixed standard</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-bold">Unit</td><td class="py-2 px-3 sm:px-4">Fixed standard of measurement</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-bold">Physical Quantity</td><td class="py-2 px-3 sm:px-4">Quantifiable property expressed numerically with a unit</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-bold">Basic Quantity</td><td class="py-2 px-3 sm:px-4">Cannot be expressed using other physical quantities</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-bold">Derived Quantity</td><td class="py-2 px-3 sm:px-4">Expressed using fundamental quantities</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30">
+        <strong class="text-xs text-brand-900 dark:text-brand-300 block mb-1.5 font-display">Essential Formulas:</strong>
+        <div class="math-scroll font-mono text-center text-xs sm:text-sm font-bold text-brand-800 dark:text-brand-200">
+          $$A = L \times W \qquad V = L \times W \times H \qquad \rho = \frac{m}{V} \qquad v = \frac{d}{t}$$
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Interactive Self-Assessment Quiz -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and explanation</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Lightbox Modal (Supports both Images and SVG Diagrams cleanly on Mobile) -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <div id="lightbox-stage" class="flex items-center justify-center max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-full overflow-hidden rounded-xl shadow-2xl border border-white/10 bg-slate-900"></div>
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Introduction to Physics and Physical Quantities
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. The word 'Physics' originates from an ancient Greek word meaning:",
+        options: [
+          "A. Motion",
+          "B. Nature",
+          "C. Energy",
+          "D. Measurement"
+        ],
+        correct: 1,
+        exp: "Physics derives from the Greek word 'Physis', which translates to 'Nature', reflecting its focus on natural phenomena, matter, and energy."
+      },
+      {
+        q: "Question 2. Which of the following statements best defines scientific measurement?",
+        options: [
+          "A. Describing an object qualitatively using words",
+          "B. Comparing an unknown physical quantity with a known standard",
+          "C. Computing all physical quantities without tools",
+          "D. Observing natural phenomena without instruments"
+        ],
+        correct: 1,
+        exp: "Measurement is the process of comparing an unknown physical quantity against an accepted fixed standard unit (such as a meter or kilogram)."
+      },
+      {
+        q: "Question 3. Which of the following is classified as a derived physical quantity?",
+        options: [
+          "A. Length",
+          "B. Mass",
+          "C. Time",
+          "D. Density"
+        ],
+        correct: 3,
+        exp: "Length, mass, and time are basic (fundamental) quantities. Density (ρ = Mass / Volume) is derived by mathematically combining mass and length cubed."
+      },
+      {
+        q: "Question 4. A student measures a table and obtains '3 meters'. Which component represents the unit?",
+        options: [
+          "A. 3",
+          "B. Table",
+          "C. Meter",
+          "D. Length"
+        ],
+        correct: 2,
+        exp: "In the measurement '3 meters', Length is the physical quantity, 3 is the numerical value, and Meter is the standardized unit."
+      },
+      {
+        q: "Question 5. A car travels 120 meters in 20 seconds. Which statement is mathematically accurate?",
+        options: [
+          "A. Speed is basic because it describes motion",
+          "B. Speed is derived and its value is 6 m/s",
+          "C. Distance is derived from speed and time",
+          "D. Time is derived from distance and speed"
+        ],
+        correct: 1,
+        exp: "Average speed = Total Distance / Total Time = 120 m / 20 s = 6 m/s. Because it combines distance (length) and time, speed is a derived physical quantity."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on Physics Foundations and Physical Quantities."
+          : "Great performance! You have a solid understanding of measurement, units, and physical quantities.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the difference between basic and derived quantities above and retake the quiz.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the definitions of measurement, units, and derived quantities, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openVisualLightbox(figureEl, captionText) {
+      const modal = document.getElementById('lightbox-modal');
+      const stage = document.getElementById('lightbox-stage');
+      const caption = document.getElementById('lightbox-caption');
+
+      stage.innerHTML = "";
+      const svg = figureEl.querySelector('svg');
+      const img = figureEl.querySelector('img');
+
+      if (svg) {
+        const clone = svg.cloneNode(true);
+        clone.classList.remove('w-full', 'h-full', 'object-cover', 'object-contain');
+        clone.classList.add('w-auto', 'h-auto', 'max-w-[92vw]', 'max-h-[70vh]', 'sm:max-h-[78vh]');
+        stage.appendChild(clone);
+      } else if (img) {
+        const cloneImg = document.createElement('img');
+        cloneImg.src = img.src;
+        cloneImg.alt = captionText;
+        cloneImg.className = 'max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain';
+        stage.appendChild(cloneImg);
+      }
+
+      caption.innerText = captionText;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox-modal') closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

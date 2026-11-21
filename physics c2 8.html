@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Unit Vectors — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .math-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="navigation" class="w-3.5 h-3.5"></i> Preliminaries · Directional Basis
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Unit Vectors</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Cartesian Basis Vectors (\(\hat{i}, \hat{j}, \hat{k}\)), Analytical Vector Arithmetic, and Normalization</p>
+      </div>
+    </section>
+
+    <!-- 1. What is a Unit Vector? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is a Unit Vector?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Saying <em>&ldquo;Walk 5 metres&rdquo;</em> lacks direction, whereas <em>&ldquo;Walk 5 metres east&rdquo;</em> specifies both distance and direction. Often in physics, we wish to isolate and communicate <strong>pure direction alone</strong>, independent of physical size or units.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          A <strong>unit vector</strong> is a dimensionless vector whose magnitude is <strong>strictly equal to \(1\)</strong> and whose sole purpose is to specify spatial direction. It is denoted by a letter topped with a circumflex (hat):
+        </p>
+        <div class="math-scroll font-mono text-center text-base font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{\hat{A}} \qquad \text{with} \qquad \boxed{|\hat{A}| = 1}$$
+        </div>
+      </div>
+
+      <!-- Diagram 1 -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Figure 1: Scaling a Vector into its Unit Vector</span>
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5" onclick="openLightbox('https://images.openai.com/static-rsc-4/BoK4-HFNd2V52HZ-wjUU3qMV3k8t0Cr7DEHvqMCYsnUxvfaRUhyt-9Es8bcjprsVqOx7NKFn1U9hfVV6LI-nEyz6Sm9ri0J2o6_k0JQPl-mFKPJnNnv-QIwIujrbM2or7Vt1NBrPhfpukRdTD_MUsrTKNFFfsX9xi5nJ2H18y_uZj5cvz0IvEzUFwy7JoKoz?purpose=fullsize', 'Converting a Vector to a Unit Vector')">
+          <img src="https://images.openai.com/static-rsc-4/BoK4-HFNd2V52HZ-wjUU3qMV3k8t0Cr7DEHvqMCYsnUxvfaRUhyt-9Es8bcjprsVqOx7NKFn1U9hfVV6LI-nEyz6Sm9ri0J2o6_k0JQPl-mFKPJnNnv-QIwIujrbM2or7Vt1NBrPhfpukRdTD_MUsrTKNFFfsX9xi5nJ2H18y_uZj5cvz0IvEzUFwy7JoKoz?purpose=fullsize" alt="Converting a Vector to a Unit Vector" class="w-full max-h-56 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="text-slate-900 dark:text-white font-display block">Magnitude &amp; Unit Contrast:</strong>
+        <div>&bull; A displacement of \(10\text{ m east}\) has magnitude \(10\text{ m}\).</div>
+        <div>&bull; A unit vector pointing east has magnitude \(1\) and <strong>no physical unit</strong>.</div>
+      </div>
+    </section>
+
+    <!-- 2. The Three Cartesian Unit Vectors -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>The Three Cartesian Basis Unit Vectors</span>
+      </h2>
+
+      <!-- Diagram 2 -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Figure 2: Orthogonal 3D Coordinate Basis (\(\hat{i}, \hat{j}, \hat{k}\))</span>
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5" onclick="openLightbox('https://images.openai.com/static-rsc-4/BhJvMTVYtbbj9I4FQTDJmNoKR21CqSgsjPt3Wb8f-5e1dTO7JAhs5g-hdbp5KRUZ2W_rFwqviYs1W4mTw4OA5eeqLOnkEUX8bF0QCbuSwG1KTDvAyBB3BwxtIQHg00LgYBmirb-1e2hD9uIxlg55Yrm0ixIhFV9HcBWDRPCLNS4P6snaxwmsRnu2QZq5YKsM?purpose=fullsize', 'Cartesian XYZ Coordinate Frame Unit Vectors')">
+          <img src="https://images.openai.com/static-rsc-4/BhJvMTVYtbbj9I4FQTDJmNoKR21CqSgsjPt3Wb8f-5e1dTO7JAhs5g-hdbp5KRUZ2W_rFwqviYs1W4mTw4OA5eeqLOnkEUX8bF0QCbuSwG1KTDvAyBB3BwxtIQHg00LgYBmirb-1e2hD9uIxlg55Yrm0ixIhFV9HcBWDRPCLNS4P6snaxwmsRnu2QZq5YKsM?purpose=fullsize" alt="Cartesian XYZ Coordinate Frame Unit Vectors" class="w-full max-h-56 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4 font-mono">Unit Vector</th>
+              <th class="py-2.5 px-3 sm:px-4">Directional Axis</th>
+              <th class="py-2.5 px-3 sm:px-4 font-mono">Magnitude</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\hat{i}\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-700 dark:text-slate-200">Points along positive \(x\)-axis</td>
+              <td class="py-2 px-3 sm:px-4 font-bold text-emerald-600">\(|\hat{i}| = 1\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\hat{j}\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-700 dark:text-slate-200">Points along positive \(y\)-axis</td>
+              <td class="py-2 px-3 sm:px-4 font-bold text-emerald-600">\(|\hat{j}| = 1\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\hat{k}\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-700 dark:text-slate-200">Points along positive \(z\)-axis</td>
+              <td class="py-2 px-3 sm:px-4 font-bold text-emerald-600">\(|\hat{k}| = 1\)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. Expressing Vectors Using Unit-Vector Notation -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Expressing Vectors in Unit-Vector Notation</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1 text-center">
+          <strong class="text-slate-900 dark:text-white font-display block">Two Dimensions (2D)</strong>
+          <div class="math-scroll font-mono font-bold text-brand-700 dark:text-brand-400">
+            $$\vec{A} = A_x\hat{i} + A_y\hat{j}$$
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1 text-center">
+          <strong class="text-slate-900 dark:text-white font-display block">Three Dimensions (3D)</strong>
+          <div class="math-scroll font-mono font-bold text-brand-700 dark:text-brand-400">
+            $$\vec{A} = A_x\hat{i} + A_y\hat{j} + A_z\hat{k}$$
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1">
+        <strong class="text-slate-900 dark:text-white font-display block">Examples:</strong>
+        <div>&bull; Given \(A_x = 3,\; A_y = 4,\; A_z = 5 \implies \mathbf{\vec{A} = 3\hat{i} + 4\hat{j} + 5\hat{k}}\).</div>
+        <div>&bull; Given \(\vec{A} = 2\hat{i} + 3\hat{j} + 4\hat{k}\): reading the scalars beside each unit vector gives \(A_x = 2,\; A_y = 3,\; A_z = 4\).</div>
+      </div>
+    </section>
+
+    <!-- 4. Addition and Subtraction in Unit-Vector Notation -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Analytical Addition &amp; Subtraction</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        In unit-vector notation, vector addition and subtraction reduce to grouping and combining corresponding \(x\)-, \(y\)-, and \(z\)-components independently:
+      </p>
+
+      <div class="space-y-3">
+        <!-- Addition Example -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+          <strong class="text-slate-900 dark:text-white font-display block">Worked Example A: Addition</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300 font-mono">
+            \(\vec{A} = 2\hat{i} + 3\hat{j} + 4\hat{k}, \qquad \vec{B} = 5\hat{i} + 2\hat{j} + 1\hat{k}\)
+          </p>
+          <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1 border border-slate-200 dark:border-slate-800">
+            <div class="math-scroll">\(\vec{R} = \vec{A} + \vec{B} = (2 + 5)\hat{i} + (3 + 2)\hat{j} + (4 + 1)\hat{k}\)</div>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(\vec{R} = \mathbf{7\hat{i} + 5\hat{j} + 5\hat{k}}\)</div>
+          </div>
+        </div>
+
+        <!-- Subtraction Example -->
+        <div class="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 text-xs sm:text-sm space-y-1.5">
+          <strong class="text-amber-950 dark:text-amber-300 font-display block">Worked Example B: Subtraction (Watch Negative Signs)</strong>
+          <p class="text-xs text-slate-700 dark:text-slate-300 font-mono">
+            \(\vec{A} = 6\hat{i} + 5\hat{j} + 3\hat{k}, \qquad \vec{B} = 2\hat{i} + 1\hat{j} + 4\hat{k}\)
+          </p>
+          <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1 border border-slate-200 dark:border-slate-800">
+            <div class="math-scroll">\(\vec{A} - \vec{B} = (6 - 2)\hat{i} + (5 - 1)\hat{j} + (3 - 4)\hat{k}\)</div>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(\vec{A} - \vec{B} = \mathbf{4\hat{i} + 4\hat{j} - \hat{k}}\)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Magnitude & Finding a Unit Vector (Normalization) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Magnitude &amp; Finding a Unit Vector in a Given Direction</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-emerald-800 dark:text-emerald-300 font-bold block">Vector Normalization Formula:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          To find the unit vector \(\hat{A}\) pointing in the exact direction of any non-zero vector \(\vec{A}\), divide the vector by its scalar magnitude:
+        </p>
+        <div class="math-scroll font-mono text-center text-sm sm:text-base font-bold text-emerald-900 dark:text-emerald-200 py-1">
+          $$\boxed{\hat{A} = \frac{\vec{A}}{|\vec{A}|}}$$
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <!-- 2D Normalization -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+          <strong class="text-slate-900 dark:text-white font-display block">Worked Example 1 (2D Normalization):</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Find the unit vector in the direction of \(\vec{A} = 3\hat{i} + 4\hat{j}\):</p>
+          <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1 border border-slate-200 dark:border-slate-800">
+            <div>Step 1 (Magnitude): \(|\vec{A}| = \sqrt{3^2 + 4^2} = \sqrt{9 + 16} = \mathbf{5}\)</div>
+            <div>Step 2 (Divide): \(\hat{A} = \frac{3\hat{i} + 4\hat{j}}{5} = \mathbf{0.6\hat{i} + 0.8\hat{j}}\)</div>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">Verification: \(|\hat{A}| = \sqrt{0.6^2 + 0.8^2} = \sqrt{0.36 + 0.64} = \sqrt{1} = 1\)</div>
+          </div>
+        </div>
+
+        <!-- 3D Normalization -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+          <strong class="text-slate-900 dark:text-white font-display block">Worked Example 2 (3D Normalization):</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Find the unit vector in the direction of \(\vec{B} = 2\hat{i} + 3\hat{j} + 6\hat{k}\):</p>
+          <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1 border border-slate-200 dark:border-slate-800">
+            <div>Step 1 (3D Magnitude): \(|\vec{B}| = \sqrt{2^2 + 3^2 + 6^2} = \sqrt{4 + 9 + 36} = \sqrt{49} = \mathbf{7}\)</div>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">Step 2 (Unit Vector): \(\hat{B} = \frac{2\hat{i} + 3\hat{j} + 6\hat{k}}{7} = \mathbf{\frac{2}{7}\hat{i} + \frac{3}{7}\hat{j} + \frac{6}{7}\hat{k}}\)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Master Formula Sheet -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Master Formula Sheet</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Operation / Task</th>
+              <th class="py-2.5 px-3 sm:px-4 font-mono">Formula</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">2D vector notation</td><td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\vec{A} = A_x\hat{i} + A_y\hat{j}\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">3D vector notation</td><td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\vec{A} = A_x\hat{i} + A_y\hat{j} + A_z\hat{k}\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Magnitude in 2D</td><td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(|\vec{A}| = \sqrt{A_x^2 + A_y^2}\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Magnitude in 3D</td><td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(|\vec{A}| = \sqrt{A_x^2 + A_y^2 + A_z^2}\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Unit vector formula</td><td class="py-2 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">\(\hat{A} = \frac{\vec{A}}{|\vec{A}|}\)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Unit-vector magnitude</td><td class="py-2 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">\(|\hat{A}| = 1\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. Interactive Self-Assessment Quiz -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and explanation</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Lightbox Modal (Optimized for Mobile Viewports) -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Unit Vectors and Analytical Addition
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. By strict mathematical definition, every unit vector has a magnitude equal to:",
+        options: [
+          "A. 0",
+          "B. 1",
+          "C. 10",
+          "D. It depends on its direction"
+        ],
+        correct: 1,
+        exp: "A unit vector is dimensionless and normalized specifically to have a magnitude of exactly 1, isolating spatial direction."
+      },
+      {
+        q: "Question 2. Which Cartesian unit vector points along the positive y-axis?",
+        options: [
+          "A. î",
+          "B. k̂",
+          "C. ĵ",
+          "D. −ĵ"
+        ],
+        correct: 2,
+        exp: "î points along +x, ĵ points along +y, and k̂ points along +z."
+      },
+      {
+        q: "Question 3. Given the vector A = 3î + 4ĵ, what is its scalar magnitude |A|?",
+        options: [
+          "A. 7",
+          "B. 12",
+          "C. 5",
+          "D. √7"
+        ],
+        correct: 2,
+        exp: "|A| = √(3² + 4²) = √(9 + 16) = √25 = 5."
+      },
+      {
+        q: "Question 4. If A = 2î + 3ĵ and B = 4î + 5ĵ, calculate the vector sum A + B.",
+        options: [
+          "A. 6î + 8ĵ",
+          "B. 2î + 8ĵ",
+          "C. 6î + 2ĵ",
+          "D. 8î + 6ĵ"
+        ],
+        correct: 0,
+        exp: "Group corresponding components: (2 + 4)î + (3 + 5)ĵ = 6î + 8ĵ."
+      },
+      {
+        q: "Question 5. Let A = 3î + 4ĵ. What is the unit vector in the exact direction of A?",
+        options: [
+          "A. 3î + 4ĵ",
+          "B. (3/5)î + (4/5)ĵ",
+          "C. (4/5)î + (3/5)ĵ",
+          "D. (1/3)î + (1/4)ĵ"
+        ],
+        correct: 1,
+        exp: "First compute |A| = √(3² + 4²) = 5. Then divide each component by 5: Â = A / |A| = (3/5)î + (4/5)ĵ."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on Unit Vectors."
+          : "Great performance! You have a firm command of Cartesian unit vectors, addition, and normalization.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the unit vector normalization formula (Â = A⃗ / |A⃗|) above, then try again.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the master formula sheet and worked examples above, then retake the quiz.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+
+      img.src = src;
+      img.alt = alt;
+      caption.innerText = alt;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox-modal') closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

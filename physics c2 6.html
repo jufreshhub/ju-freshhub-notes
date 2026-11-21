@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Vector Addition — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .math-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="git-merge" class="w-3.5 h-3.5"></i> Preliminaries · Vector Algebra
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Vector Addition</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Resultant Vectors, Head-to-Tail Geometry, the Parallelogram Law, and Special Angle Cases</p>
+      </div>
+    </section>
+
+    <!-- 1. The Resultant Vector -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>The Resultant Vector (\(\vec{R}\))</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200 space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition:</strong>
+        <p>
+          A <strong>resultant vector</strong> is a single combined vector obtained by adding two or more individual vectors together, usually denoted by \(\vec{R}\):
+        </p>
+        <div class="math-scroll font-mono text-center text-sm sm:text-base font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{\vec{R} = \vec{A} + \vec{B}}$$
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1">
+        <strong class="text-slate-900 dark:text-white font-display block">Collinear Example:</strong>
+        <p class="text-slate-600 dark:text-slate-300">Walking \(4\text{ m east}\) followed by \(3\text{ m east}\) produces a single net displacement:</p>
+        <p class="font-mono font-bold text-emerald-600 dark:text-emerald-400">\(\vec{R} = 4\text{ m} + 3\text{ m} = 7\text{ m east}\)</p>
+      </div>
+    </section>
+
+    <!-- 2. Graphical Method: Head-to-Tail -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Graphical Method (Head-to-Tail Rule)</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Vectors are added graphically using the <strong>head-to-tail method</strong>. Consider walking \(4\text{ metres east}\) and then \(3\text{ metres north}\):
+      </p>
+
+      <ol class="list-decimal pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-300">
+        <li>Draw the first vector \(\vec{A} = 4\text{ m east}\).</li>
+        <li>Attach the <strong>tail</strong> of the second vector \(\vec{B} = 3\text{ m north}\) directly to the <strong>head</strong> of \(\vec{A}\).</li>
+        <li>Draw the resultant \(\vec{R}\) from the <strong>tail of the first vector</strong> to the <strong>head of the last vector</strong>.</li>
+      </ol>
+
+      <!-- Custom Head-to-Tail SVG Diagram -->
+      <figure class="cursor-pointer group rounded-2xl bg-slate-950 text-slate-100 p-4 sm:p-5 border border-slate-800 shadow-lg space-y-2" onclick="openVisualLightbox(this, 'Head-to-Tail Vector Addition: 4 m East + 3 m North = 5 m Northeast')">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-display font-semibold text-emerald-400">Head-to-Tail Right Triangle (\(4\text{ m} + 3\text{ m}\))</p>
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 group-hover:text-emerald-400 transition">
+            <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i> Tap to zoom
+          </span>
+        </div>
+
+        <svg viewBox="0 0 420 185" class="w-full h-auto block">
+          <!-- Right Angle Marker -->
+          <rect x="242" y="138" width="12" height="12" fill="none" stroke="#94A3B8" stroke-width="1.5" />
+
+          <!-- Vector A: 4 m East (80,150 -> 254,150) -->
+          <circle cx="80" cy="150" r="4.5" fill="#F59E0B" />
+          <line x1="80" y1="150" x2="244" y2="150" stroke="#10B981" stroke-width="5" stroke-linecap="round" />
+          <polygon points="240,143 256,150 240,157" fill="#10B981" />
+          <text x="167" y="172" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#34D399">A = 4 m East</text>
+
+          <!-- Vector B: 3 m North (254,150 -> 254,30) -->
+          <line x1="254" y1="150" x2="254" y2="42" stroke="#0EA5E9" stroke-width="5" stroke-linecap="round" />
+          <polygon points="247,46 254,30 261,46" fill="#0EA5E9" />
+          <text x="270" y="95" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#38BDF8">B = 3 m North</text>
+
+          <!-- Resultant R: Tail of A (80,150) to Head of B (254,30) -->
+          <line x1="80" y1="150" x2="242" y2="38" stroke="#F59E0B" stroke-width="5.5" stroke-linecap="round" />
+          <polygon points="234,35 252,31 243,47" fill="#F59E0B" />
+          <text x="142" y="78" text-anchor="middle" transform="rotate(-34 142 78)" font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" fill="#FBBF24">Resultant R = 5 m</text>
+
+          <!-- Labels -->
+          <text x="75" y="170" text-anchor="end" font-family="Inter, sans-serif" font-size="10.5" fill="#94A3B8">Start</text>
+          <text x="254" y="18" text-anchor="middle" font-family="Inter, sans-serif" font-size="10.5" fill="#94A3B8">End</text>
+        </svg>
+      </figure>
+
+      <!-- Pythagorean Calculation -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-slate-900 dark:text-white font-display block">Magnitude via Pythagoras' Theorem:</strong>
+        <div class="math-scroll font-mono text-xs sm:text-sm text-brand-700 dark:text-brand-400 font-bold">
+          $$R = \sqrt{A^2 + B^2} = \sqrt{4^2 + 3^2} = \sqrt{16 + 9} = \sqrt{25} = \mathbf{5\text{ m Northeast}}$$
+        </div>
+        <p class="text-xs text-rose-600 dark:text-rose-400 font-semibold">
+          Important Principle: The magnitude of a resultant vector is <em>not</em> always the simple arithmetic sum of the individual magnitudes!
+        </p>
+      </div>
+    </section>
+
+    <!-- 3. Parallelogram Law, Cosine Law & Sine Law -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Parallelogram Law, Cosine Law &amp; Direction</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block mb-1">The Parallelogram Law:</strong>
+        When two vectors \(\vec{A}\) and \(\vec{B}\) are placed tail-to-tail at a common origin forming two adjacent sides of a parallelogram, their resultant vector \(\vec{R}\) is represented by the <strong>main diagonal</strong> extending from that common origin.
+      </div>
+
+      <!-- Custom Parallelogram Law SVG Diagram -->
+      <figure class="cursor-pointer group rounded-2xl bg-slate-950 text-slate-100 p-4 sm:p-5 border border-slate-800 shadow-lg space-y-2" onclick="openVisualLightbox(this, 'Parallelogram Law of Vector Addition: Diagonal Resultant R from common tail')">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-display font-semibold text-amber-400">Parallelogram Law Geometry</p>
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 group-hover:text-amber-400 transition">
+            <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i> Tap to zoom
+          </span>
+        </div>
+
+        <svg viewBox="0 0 420 175" class="w-full h-auto block">
+          <!-- Dashed Parallelogram Sides -->
+          <line x1="145" y1="35" x2="335" y2="35" stroke="#475569" stroke-width="2" stroke-dasharray="5,4" />
+          <line x1="260" y1="140" x2="335" y2="35" stroke="#475569" stroke-width="2" stroke-dasharray="5,4" />
+
+          <!-- Angle Arcs -->
+          <path d="M105 140 A35 35 0 0 0 91 112" fill="none" stroke="#94A3B8" stroke-width="1.5" />
+          <text x="114" y="114" font-family="serif" font-style="italic" font-size="13" fill="#CBD5E1">&theta;</text>
+
+          <path d="M120 140 A50 50 0 0 0 116 122" fill="none" stroke="#FBBF24" stroke-width="1.5" />
+          <text x="128" y="133" font-family="serif" font-style="italic" font-size="12" fill="#FBBF24">&alpha;</text>
+
+          <!-- Vector A (70,140 -> 260,140) -->
+          <line x1="70" y1="140" x2="246" y2="140" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" />
+          <polygon points="242,133 260,140 242,147" fill="#10B981" />
+          <text x="165" y="162" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" fill="#34D399">A</text>
+
+          <!-- Vector B (70,140 -> 145,35) -->
+          <line x1="70" y1="140" x2="137" y2="46" stroke="#0EA5E9" stroke-width="4.5" stroke-linecap="round" />
+          <polygon points="130,44 146,34 142,52" fill="#0EA5E9" />
+          <text x="88" y="82" font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" fill="#38BDF8">B</text>
+
+          <!-- Diagonal Resultant R (70,140 -> 335,35) -->
+          <line x1="70" y1="140" x2="322" y2="40" stroke="#F59E0B" stroke-width="5.5" stroke-linecap="round" />
+          <polygon points="315,35 335,35 322,49" fill="#F59E0B" />
+          <text x="215" y="75" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#FBBF24">R = A + B</text>
+
+          <!-- Common Tail Dot -->
+          <circle cx="70" cy="140" r="5" fill="#F8FAFC" />
+        </svg>
+      </figure>
+
+      <!-- Cosine & Direction Formulas -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1">
+          <strong class="text-emerald-900 dark:text-emerald-300 font-display block">Magnitude (Cosine Law):</strong>
+          <div class="math-scroll font-mono font-bold text-emerald-900 dark:text-emerald-200 text-xs">
+            $$\boxed{R = \sqrt{A^2 + B^2 + 2AB\cos\theta}}$$
+          </div>
+          <p class="text-[11px] text-slate-600 dark:text-slate-400">Where \(\theta\) is the angle between \(\vec{A}\) and \(\vec{B}\).</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">Direction (Tangent / Sine Law):</strong>
+          <div class="math-scroll font-mono font-bold text-brand-700 dark:text-brand-400 text-xs">
+            $$\tan\alpha = \frac{B\sin\theta}{A + B\cos\theta} \quad \text{or} \quad \frac{R}{\sin\theta} = \frac{B}{\sin\alpha}$$
+          </div>
+          <p class="text-[11px] text-slate-500">Where \(\alpha\) is the angle measured from \(\vec{A}\) toward \(\vec{R}\).</p>
+        </div>
+      </div>
+
+      <!-- Worked Cosine Example -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-slate-900 dark:text-white font-display block">Worked Example: Applying Cosine Law &amp; Direction</strong>
+        <p class="text-xs text-slate-600 dark:text-slate-300">
+          Two forces have magnitudes \(A = 6\text{ N}\) and \(B = 8\text{ N}\) separated by an angle \(\theta = 90^\circ\):
+        </p>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1 border border-slate-200 dark:border-slate-800">
+          <div class="math-scroll">\(R = \sqrt{6^2 + 8^2 + 2(6)(8)\cos 90^\circ} = \sqrt{36 + 64 + 0} = \mathbf{10\text{ N}}\)</div>
+          <div class="math-scroll text-emerald-600 dark:text-emerald-400 font-bold">
+            Direction: \(\tan\alpha = \frac{8\sin 90^\circ}{6 + 8\cos 90^\circ} = \frac{8}{6} \implies \alpha = \arctan\left(\frac{8}{6}\right) \approx \mathbf{53.1^\circ}\)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Three Important Special Cases -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Three Crucial Special Cases</span>
+      </h2>
+
+      <!-- Special Cases Visual Diagram -->
+      <figure class="cursor-pointer group rounded-2xl bg-slate-950 text-slate-100 p-4 sm:p-5 border border-slate-800 shadow-lg space-y-2" onclick="openVisualLightbox(this, 'Three Special Cases of Vector Addition: 0° (Same), 180° (Opposite), and 90° (Perpendicular)')">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-display font-semibold text-sky-400">Visualizing the Three Special Angles</p>
+          <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 group-hover:text-sky-400 transition">
+            <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i> Tap to zoom
+          </span>
+        </div>
+
+        <svg viewBox="0 0 420 125" class="w-full h-auto block">
+          <!-- 0 Degrees: Same Direction -->
+          <text x="15" y="24" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#34D399">1. Same (0&deg;): Max</text>
+          <line x1="150" y1="20" x2="215" y2="20" stroke="#10B981" stroke-width="4" stroke-linecap="round" />
+          <polygon points="212,15 224,20 212,25" fill="#10B981" />
+          <line x1="228" y1="20" x2="275" y2="20" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" />
+          <polygon points="272,15 284,20 272,25" fill="#38BDF8" />
+          <text x="300" y="24" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#FBBF24">R = A + B</text>
+
+          <!-- 180 Degrees: Opposite -->
+          <text x="15" y="64" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#FB7185">2. Opposite (180&deg;): Min</text>
+          <line x1="150" y1="58" x2="245" y2="58" stroke="#10B981" stroke-width="4" stroke-linecap="round" />
+          <polygon points="241,53 253,58 241,63" fill="#10B981" />
+          <line x1="195" y1="68" x2="253" y2="68" stroke="#F43F5E" stroke-width="4" stroke-linecap="round" />
+          <polygon points="199,63 187,68 199,73" fill="#F43F5E" />
+          <text x="300" y="64" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#FBBF24">R = |A - B|</text>
+
+          <!-- 90 Degrees: Perpendicular -->
+          <text x="15" y="106" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#38BDF8">3. Perpendicular (90&deg;)</text>
+          <line x1="150" y1="112" x2="215" y2="112" stroke="#10B981" stroke-width="4" stroke-linecap="round" />
+          <polygon points="211,107 223,112 211,117" fill="#10B981" />
+          <line x1="223" y1="112" x2="223" y2="85" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" />
+          <polygon points="218,88 223,77 228,88" fill="#38BDF8" />
+          <text x="300" y="106" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#FBBF24">R = &radic;(A&sup2;+B&sup2;)</text>
+        </svg>
+      </figure>
+
+      <!-- Completed Special Cases Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Orientation (\(\theta\))</th>
+              <th class="py-2.5 px-3 sm:px-4 font-mono">Resultant Formula</th>
+              <th class="py-2.5 px-3 sm:px-4">Worked Example</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <tr>
+              <td class="py-2.5 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">Same Direction (\(0^\circ\))</td>
+              <td class="py-2.5 px-3 sm:px-4 font-mono font-bold">\(R = A + B\) (Maximum)</td>
+              <td class="py-2.5 px-3 sm:px-4 font-mono">\(5\text{ N east} + 3\text{ N east} = \mathbf{8\text{ N east}}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 sm:px-4 font-bold text-rose-600 dark:text-rose-400">Opposite Directions (\(180^\circ\))</td>
+              <td class="py-2.5 px-3 sm:px-4 font-mono font-bold">\(R = |A - B|\) (Minimum)</td>
+              <td class="py-2.5 px-3 sm:px-4 font-mono">\(10\text{ N east} + 4\text{ N west} = \mathbf{6\text{ N east}}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 sm:px-4 font-bold text-sky-600 dark:text-sky-400">Perpendicular (\(90^\circ\))</td>
+              <td class="py-2.5 px-3 sm:px-4 font-mono font-bold">\(R = \sqrt{A^2 + B^2}\)</td>
+              <td class="py-2.5 px-3 sm:px-4 font-mono">\(3\text{ N east} + 4\text{ N north} = \mathbf{5\text{ N NE}}\)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and explanation</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Lightbox Modal (Optimized for Mobile Viewports) -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <div id="lightbox-stage" class="flex items-center justify-center max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-full p-4 overflow-hidden rounded-xl shadow-2xl border border-white/10 bg-slate-950"></div>
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Vector Addition
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. A single vector obtained by adding two or more individual vectors is termed a:",
+        options: [
+          "A. Unit vector",
+          "B. Resultant vector",
+          "C. Zero vector",
+          "D. Scalar"
+        ],
+        correct: 1,
+        exp: "The resultant vector (R⃗ = A⃗ + B⃗) represents the combined net effect of adding two or more vectors together."
+      },
+      {
+        q: "Question 2. In the graphical head-to-tail method, the resultant vector is drawn strictly from:",
+        options: [
+          "A. The head of the first vector to the tail of the last",
+          "B. The tail of the first vector to the head of the last",
+          "C. The head of the first vector to the head of the last",
+          "D. The middle of the first vector to the middle of the last"
+        ],
+        correct: 1,
+        exp: "To complete the head-to-tail polygon, draw the resultant arrow starting at the very first vector's tail and ending at the very last vector's head."
+      },
+      {
+        q: "Question 3. Two forces of 5 N and 7 N act in the exact same direction. What is their resultant magnitude?",
+        options: [
+          "A. 2 N",
+          "B. 12 N",
+          "C. 35 N",
+          "D. √74 N"
+        ],
+        correct: 1,
+        exp: "When θ = 0° (same direction), magnitudes add directly to yield the maximum resultant: R = 5 N + 7 N = 12 N."
+      },
+      {
+        q: "Question 4. Two vectors of 10 N east and 6 N west act along the same straight line. What is their net resultant?",
+        options: [
+          "A. 16 N east",
+          "B. 16 N west",
+          "C. 4 N east",
+          "D. 4 N west"
+        ],
+        correct: 2,
+        exp: "When vectors act in opposite directions (180°), subtract their magnitudes and keep the direction of the larger vector: 10 N − 6 N = 4 N east."
+      },
+      {
+        q: "Question 5. Two perpendicular vectors have magnitudes 3 N and 4 N. Calculate their resultant magnitude.",
+        options: [
+          "A. 7 N",
+          "B. 1 N",
+          "C. 5 N",
+          "D. 12 N"
+        ],
+        correct: 2,
+        exp: "For perpendicular vectors (θ = 90°), use Pythagoras' theorem: R = √(3² + 4²) = √(9 + 16) = √25 = 5 N."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on Vector Addition."
+          : "Great performance! You clearly understand head-to-tail addition, the parallelogram law, and special angles.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the three special angle formulas (0°, 180°, 90°) above, then retake the quiz.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the graphical head-to-tail diagrams and cosine law formula above, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openVisualLightbox(figureEl, captionText) {
+      const modal = document.getElementById('lightbox-modal');
+      const stage = document.getElementById('lightbox-stage');
+      const caption = document.getElementById('lightbox-caption');
+
+      stage.innerHTML = "";
+      const svg = figureEl.querySelector('svg');
+      if (svg) {
+        const clone = svg.cloneNode(true);
+        clone.classList.remove('w-full', 'h-auto');
+        clone.classList.add('w-full', 'max-w-[85vw]', 'max-h-[60vh]');
+        stage.appendChild(clone);
+      }
+
+      caption.innerText = captionText;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox-modal') closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>
