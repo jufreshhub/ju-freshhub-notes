@@ -106,7 +106,7 @@
     </div>
     <h2 class="font-display font-bold text-lg mb-1">JU FreshHub</h2>
     <p class="text-xs text-brand-200/80 mb-6">Loading student session...</p>
-    <div class="w-8 h-8 border-3 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+    <div class="w-8 h-8 border-[3px] border-brand-500 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
   <!-- ======================== STUDENT LOGIN OVERLAY ======================== -->
@@ -311,8 +311,16 @@
     // ==========================================
     // COURSES & CHAPTERS DATABASE
     // ==========================================
-    const coursesDB = [  
-       {
+    const coursesDB = [
+      {
+        id: "maths",
+        title: "Mathematics for Natural Sciences",
+        desc: "Propositional logic, set theory, real and complex number systems, functions, and analytic geometry.",
+        icon: "sigma",
+        accent: "from-brand-600 to-brand-800",
+        badgeBg: "bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300",
+        chapters: [
+          {
             id: "math-ch1", num: "Chapter 1", title: "Propositional Logic and Set Theory",
             topics: [
               { title: "Foundations of Propositional Logic", file: "maths 1.html" },
@@ -763,6 +771,12 @@
 
     function renderChapters() {
       const course = coursesDB.find(c => c.id === state.courseId);
+      if (!course) {
+        state.view = "courses";
+        state.courseId = null;
+        renderCourses();
+        return;
+      }
       breadcrumb.innerText = `Courses > ${course.title}`;
 
       const headerRow = document.createElement("div");
@@ -819,7 +833,14 @@
     // TOPICS VIEW: Only Title, Open Notes, and Mark as Read (NO file names displayed!)
     function renderTopics() {
       const course = coursesDB.find(c => c.id === state.courseId);
-      const chapter = course.chapters.find(ch => ch.id === state.chapterId);
+      const chapter = course ? course.chapters.find(ch => ch.id === state.chapterId) : null;
+      if (!course || !chapter) {
+        state.view = "courses";
+        state.courseId = null;
+        state.chapterId = null;
+        renderCourses();
+        return;
+      }
       breadcrumb.innerText = `${course.title} > ${chapter.num}`;
 
       const headerRow = document.createElement("div");
@@ -965,7 +986,9 @@
       const stack = document.createElement("div");
       stack.className = "space-y-4";
 
-      if (liveExamsList.length === 0) {
+      const visibleExams = liveExamsList.filter(e => e.status !== "ended" && e.status !== "closed");
+
+      if (visibleExams.length === 0) {
         stack.innerHTML = `
           <div class="card p-8 text-center text-slate-400">
             <i data-lucide="clock-alert" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
@@ -974,7 +997,7 @@
           </div>
         `;
       } else {
-        liveExamsList.forEach(exam => {
+        visibleExams.forEach(exam => {
           const card = document.createElement("div");
           card.className = "card p-5 border-l-4 border-l-brand-600 space-y-3";
 
@@ -1144,7 +1167,7 @@
       });
 
       const total = questions.length;
-      const pct = Math.round((score / total) * 100);
+      const pct = total > 0 ? Math.round((score / total) * 100) : 0;
 
       // Save result to Firestore for admin review in collection: live_exam_results
       if (currentUser) {
