@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Motion with Constant Acceleration — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .math-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="fast-forward" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · Uniform Acceleration
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Motion with Constant Acceleration</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">The Four Kinematic Equations, Sign Conventions, 2D Component Independence, and Stopping Distance</p>
+      </div>
+    </section>
+
+    <!-- 1. What is Constant Acceleration? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Constant Acceleration?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Calculating how an object moves when its velocity changes at a uniform rate forms the foundation for free fall, projectile motion, and mechanical problem-solving. Consider a car moving along a straight road with the following recorded velocities:
+      </p>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 max-w-sm mx-auto">
+        <table class="w-full text-center text-xs sm:text-sm font-mono">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-sans font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-4">Time (\(t\))</th><th class="py-2 px-4">Velocity (\(v\))</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-4">0 s</td><td class="py-1.5 px-4 font-bold text-brand-600">0 m/s</td></tr>
+            <tr><td class="py-1.5 px-4">1 s</td><td class="py-1.5 px-4 font-bold text-brand-600">2 m/s</td></tr>
+            <tr><td class="py-1.5 px-4">2 s</td><td class="py-1.5 px-4 font-bold text-brand-600">4 m/s</td></tr>
+            <tr><td class="py-1.5 px-4">3 s</td><td class="py-1.5 px-4 font-bold text-brand-600">6 m/s</td></tr>
+            <tr><td class="py-1.5 px-4">4 s</td><td class="py-1.5 px-4 font-bold text-brand-600">8 m/s</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 text-center">
+        Every single second, the velocity increases steadily by \(2\text{ m/s}\). Thus, the acceleration is constant: <strong class="font-mono text-emerald-600 dark:text-emerald-400">\(a = 2\text{ m/s}^2\)</strong>.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          <strong>Constant acceleration</strong> means that velocity changes by equal amounts in equal intervals of time throughout the motion. Think of it like adding the exact same amount of money to your savings every day—the total grows regularly.
+        </p>
+        <ul class="list-disc pl-5 pt-1 text-xs space-y-0.5 text-slate-600 dark:text-slate-400">
+          <li><strong>Constant velocity:</strong> Velocity does not change (\(a = 0\)).</li>
+          <li><strong>Constant acceleration:</strong> Velocity changes by equal amounts in equal time intervals (\(a = \text{constant}\)).</li>
+        </ul>
+      </div>
+
+      <!-- Diagram 1 -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Figure 1: Velocity-Time Graphs — Uniform Velocity vs. Uniform Acceleration</span>
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5" onclick="openLightbox('https://images.openai.com/static-rsc-4/wgFjZUIE45zXJT6MVz80nrRC9lCq48DUO09PBNcrU_ImSwhtZETN7fgxo0uP-fmZVfFuniFmse2DSFLd1SnLYDf8gZkoq4AdPkptAsEJOasRbwtIj5hZe__jlYPCb5RtjHQHNrgQO4pudyPcXYshVFfRTUbeh57cKtst5U0r1bD78mCOM2CGFG4pjIvsbFQT?purpose=fullsize', 'Velocity-Time Graph: Uniform Velocity vs Uniform Acceleration')">
+          <img src="https://images.openai.com/static-rsc-4/wgFjZUIE45zXJT6MVz80nrRC9lCq48DUO09PBNcrU_ImSwhtZETN7fgxo0uP-fmZVfFuniFmse2DSFLd1SnLYDf8gZkoq4AdPkptAsEJOasRbwtIj5hZe__jlYPCb5RtjHQHNrgQO4pudyPcXYshVFfRTUbeh57cKtst5U0r1bD78mCOM2CGFG4pjIvsbFQT?purpose=fullsize" alt="Velocity-Time Graph: Uniform Velocity vs Uniform Acceleration" class="w-full max-h-56 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+      </div>
+
+      <!-- Critical-Thinking Question 1 -->
+      <div class="p-4 rounded-xl bg-indigo-50/90 dark:bg-indigo-500/10 border-l-4 border-indigo-500 text-xs sm:text-sm space-y-1 text-indigo-950 dark:text-indigo-200">
+        <strong class="font-display font-bold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
+          <i data-lucide="help-circle" class="w-4 h-4"></i> Critical-Thinking Question 1
+        </strong>
+        <p>If a car has constant acceleration, does that mean its speed is constant? Why or why not?</p>
+      </div>
+    </section>
+
+    <!-- 2. The Four Kinematic Equations -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>The Four Kinematic Equations</span>
+      </h2>
+
+      <!-- Standard Symbols Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-4 font-mono">Symbol</th><th class="py-2 px-4">Physical Quantity</th><th class="py-2 px-4 font-mono">SI Unit</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(u\) or \(v_i\)</td><td class="py-2 px-4 font-sans">Initial velocity</td><td class="py-2 px-4">m/s</td></tr>
+            <tr><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(v\) or \(v_f\)</td><td class="py-2 px-4 font-sans">Final velocity</td><td class="py-2 px-4">m/s</td></tr>
+            <tr><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(a\)</td><td class="py-2 px-4 font-sans">Constant acceleration</td><td class="py-2 px-4">m/s²</td></tr>
+            <tr><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(t\)</td><td class="py-2 px-4 font-sans">Elapsed time</td><td class="py-2 px-4">s</td></tr>
+            <tr><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(s\) or \(\Delta x\)</td><td class="py-2 px-4 font-sans">Displacement</td><td class="py-2 px-4">m</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Equation 1 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <strong class="text-slate-900 dark:text-white font-display">Equation 1: Final Velocity</strong>
+          <span class="font-mono font-bold text-brand-700 dark:text-brand-400 bg-brand-100 dark:bg-brand-500/20 px-2.5 py-0.5 rounded">\(v = u + at\)</span>
+        </div>
+        <p class="text-xs text-slate-600 dark:text-slate-300">
+          Intuitively: \(\text{Final velocity} = \text{Initial velocity} + \text{Change in velocity}\; (\Delta v = at)\).
+        </p>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs border border-slate-200 dark:border-slate-800 space-y-0.5">
+          <div class="font-sans text-slate-500"><em>Example:</em> A motorcycle starts at \(u = 5\text{ m/s}\) and accelerates at \(a = 3\text{ m/s}^2\) for \(t = 4\text{ s}\):</div>
+          <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(v = 5 + (3)(4) = 5 + 12 = \mathbf{17\text{ m/s}}\)</div>
+        </div>
+      </div>
+
+      <!-- Equation 2 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <strong class="text-slate-900 dark:text-white font-display">Equation 2: Displacement via Average Velocity</strong>
+          <span class="font-mono font-bold text-brand-700 dark:text-brand-400 bg-brand-100 dark:bg-brand-500/20 px-2.5 py-0.5 rounded">\(s = \frac{u + v}{2}t\)</span>
+        </div>
+        <p class="text-xs text-slate-600 dark:text-slate-300">
+          Under uniform acceleration, average velocity equals \(v_{\text{av}} = \frac{u + v}{2}\), so \(s = v_{\text{av}} t\).
+        </p>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs border border-slate-200 dark:border-slate-800 space-y-0.5">
+          <div class="font-sans text-slate-500"><em>Example:</em> A car speeds up from \(u = 10\text{ m/s}\) to \(v = 20\text{ m/s}\) in \(t = 5\text{ s}\):</div>
+          <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(s = \frac{10 + 20}{2} \times 5 = 15 \times 5 = \mathbf{75\text{ m}}\)</div>
+        </div>
+      </div>
+
+      <!-- Critical-Thinking Question 2 -->
+      <div class="p-4 rounded-xl bg-indigo-50/90 dark:bg-indigo-500/10 border-l-4 border-indigo-500 text-xs sm:text-sm space-y-1 text-indigo-950 dark:text-indigo-200">
+        <strong class="font-display font-bold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
+          <i data-lucide="help-circle" class="w-4 h-4"></i> Critical-Thinking Question 2
+        </strong>
+        <p>Why are we allowed to use the average of initial and final velocities here? Would this method always work if acceleration were changing unpredictably?</p>
+      </div>
+
+      <!-- Equation 3 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <strong class="text-slate-900 dark:text-white font-display">Equation 3: Displacement Using Time</strong>
+          <span class="font-mono font-bold text-brand-700 dark:text-brand-400 bg-brand-100 dark:bg-brand-500/20 px-2.5 py-0.5 rounded">\(s = ut + \frac{1}{2}at^2\)</span>
+        </div>
+        <div class="math-scroll text-center text-xs text-slate-600 dark:text-slate-300 py-1">
+          $$\underbrace{ut}_{\text{displacement from initial velocity}} + \underbrace{\frac{1}{2}at^2}_{\text{additional displacement due to acceleration}}$$
+        </div>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs border border-slate-200 dark:border-slate-800 space-y-0.5">
+          <div class="font-sans text-slate-500"><em>Example:</em> A ball starts at \(u = 4\text{ m/s}\) with \(a = 2\text{ m/s}^2\) for \(t = 3\text{ s}\):</div>
+          <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(s = (4)(3) + \frac{1}{2}(2)(3^2) = 12 + 9 = \mathbf{21\text{ m}}\)</div>
+        </div>
+      </div>
+
+      <!-- Equation 4 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <strong class="text-slate-900 dark:text-white font-display">Equation 4: Final Velocity Without Time</strong>
+          <span class="font-mono font-bold text-brand-700 dark:text-brand-400 bg-brand-100 dark:bg-brand-500/20 px-2.5 py-0.5 rounded">\(v^2 = u^2 + 2as\)</span>
+        </div>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs border border-slate-200 dark:border-slate-800 space-y-0.5">
+          <div class="font-sans text-slate-500"><em>Example:</em> A car starts from rest (\(u = 0\)) with \(a = 4\text{ m/s}^2\) over \(s = 50\text{ m}\):</div>
+          <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(v^2 = 0 + 2(4)(50) = 400 \implies v = \mathbf{20\text{ m/s}}\)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Equation Selection Guide -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>How to Choose the Correct Equation</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-4">Known Quantities</th><th class="py-2 px-4">Target Unknown</th><th class="py-2 px-4 font-mono">Select Equation</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr><td class="py-2 px-4">\(u,\; a,\; t\)</td><td class="py-2 px-4 font-sans">Final velocity (\(v\))</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(v = u + at\)</td></tr>
+            <tr><td class="py-2 px-4">\(u,\; v,\; t\)</td><td class="py-2 px-4 font-sans">Displacement (\(s\))</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(s = \frac{u+v}{2}t\)</td></tr>
+            <tr><td class="py-2 px-4">\(u,\; a,\; t\)</td><td class="py-2 px-4 font-sans">Displacement (\(s\))</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(s = ut + \frac{1}{2}at^2\)</td></tr>
+            <tr><td class="py-2 px-4">\(u,\; a,\; s\)</td><td class="py-2 px-4 font-sans">Final velocity (\(v\)) [No \(t\)]</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(v^2 = u^2 + 2as\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+        Exam Strategy: First list all given quantities with signs, identify the target variable, and select the formula containing solely those quantities.
+      </p>
+    </section>
+
+    <!-- 4. Direction and Signs -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Direction and Algebraic Signs</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Choose a positive coordinate axis (e.g., <strong>East = positive</strong>, <strong>West = negative</strong>). Suppose a car travels east at \(u = +20\text{ m/s}\) while braking with acceleration \(a = -4\text{ m/s}^2\):
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">After 3 Seconds:</strong>
+          <p class="font-mono font-bold text-emerald-600 dark:text-emerald-400">\(v = 20 + (-4)(3) = \mathbf{+8\text{ m/s}}\)</p>
+          <p class="text-slate-600 dark:text-slate-300">Still moving east, but more slowly.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 space-y-1">
+          <strong class="text-rose-900 dark:text-rose-300 font-display block">After Another 3 Seconds:</strong>
+          <p class="font-mono font-bold text-rose-600 dark:text-rose-400">\(v = 8 - 4(3) = \mathbf{-4\text{ m/s}}\)</p>
+          <p class="text-slate-700 dark:text-slate-300">Negative sign means the car stopped and reversed direction (now moving west).</p>
+        </div>
+      </div>
+
+      <!-- Diagram 2 -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Figure 2: Sign Conventions for Velocity &amp; Acceleration</span>
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5" onclick="openLightbox('https://images.openai.com/static-rsc-4/OOlnNqaupbhFXxz7m75q7K7d1PdWsu4qhG8lA-oMwZ1MBEeh8ROCobN3zMOWdEk66rkGxzFzrPgomKKD3aUcqVHKPTZv57aUFIkiG0Y4HmsEyPoJ_xbBdXc-VKJ8k4PUbBf89-UsDA9omCygnrNQ3bQ196PZFuGqkCNtlu57IIbaSEF2WJZyGNtCcxY5Au7n?purpose=fullsize', 'Velocity and Acceleration Sign Conventions')">
+          <img src="https://images.openai.com/static-rsc-4/OOlnNqaupbhFXxz7m75q7K7d1PdWsu4qhG8lA-oMwZ1MBEeh8ROCobN3zMOWdEk66rkGxzFzrPgomKKD3aUcqVHKPTZv57aUFIkiG0Y4HmsEyPoJ_xbBdXc-VKJ8k4PUbBf89-UsDA9omCygnrNQ3bQ196PZFuGqkCNtlu57IIbaSEF2WJZyGNtCcxY5Au7n?purpose=fullsize" alt="Velocity and Acceleration Sign Conventions" class="w-full max-h-56 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+      </div>
+
+      <!-- Critical-Thinking Question 3 -->
+      <div class="p-4 rounded-xl bg-indigo-50/90 dark:bg-indigo-500/10 border-l-4 border-indigo-500 text-xs sm:text-sm space-y-1 text-indigo-950 dark:text-indigo-200">
+        <strong class="font-display font-bold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
+          <i data-lucide="help-circle" class="w-4 h-4"></i> Critical-Thinking Question 3
+        </strong>
+        <p>A car moves east at \(10\text{ m/s}\). Its acceleration is \(2\text{ m/s}^2\) west. After \(5\text{ seconds}\), what is its velocity? Will it still move east, or will it move west? Explain what happens during those five seconds.</p>
+      </div>
+    </section>
+
+    <!-- 5. 2D Motion with Constant Acceleration -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Two-Dimensional (2D) Motion with Constant Acceleration</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Motion across a plane (such as a ball crossing a football field) is analyzed by decomposing it into <strong>independent horizontal (\(x\)-axis) and vertical (\(y\)-axis) motions</strong>:
+      </p>
+
+      <!-- Diagram 3 -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Figure 3: Two-Dimensional Motion Resolved Along Orthogonal Axes</span>
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5" onclick="openLightbox('https://images.openai.com/static-rsc-4/AGA91CjjpYBFxBJTuxzvW8VrvO2Ki91OtBBaMxGR1ATS9E0qEFx-Ds8TUHGxBnX8-grBEcJmkxktIPYl2QSNZoIenHCstpmhIp0h5JsG6jgafMbiMstk3saMyk7LUFO9xxP72pEBkRaxLhu_h5W9VdRMxnWBnoNk2yHx8qaLodL0pICHXQELoc30nfjd4nzK?purpose=fullsize', '2D Motion Independent x and y Components')">
+          <img src="https://images.openai.com/static-rsc-4/AGA91CjjpYBFxBJTuxzvW8VrvO2Ki91OtBBaMxGR1ATS9E0qEFx-Ds8TUHGxBnX8-grBEcJmkxktIPYl2QSNZoIenHCstpmhIp0h5JsG6jgafMbiMstk3saMyk7LUFO9xxP72pEBkRaxLhu_h5W9VdRMxnWBnoNk2yHx8qaLodL0pICHXQELoc30nfjd4nzK?purpose=fullsize" alt="2D Motion Independent x and y Components" class="w-full max-h-56 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-mono text-xs space-y-1">
+        <div class="math-scroll">\(\vec{u} = u_x\hat{i} + u_y\hat{j} \qquad \text{and} \qquad \vec{a} = a_x\hat{i} + a_y\hat{j}\)</div>
+        <div class="math-scroll">\(v_x = u_x + a_xt, \qquad v_y = u_y + a_yt\)</div>
+        <div class="math-scroll">\(\Delta x = u_xt + \frac{1}{2}a_xt^2, \qquad \Delta y = u_yt + \frac{1}{2}a_yt^2\)</div>
+      </div>
+
+      <!-- Worked 2D Example -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-slate-900 dark:text-white font-display block">Worked Example: 2D Velocity After \(3\text{ s}\)</strong>
+        <p class="text-xs text-slate-600 dark:text-slate-300 font-mono">
+          \(\vec{u} = (3\hat{i} + 2\hat{j})\text{ m/s}, \qquad \vec{a} = (1\hat{i} + 2\hat{j})\text{ m/s}^2, \qquad t = 3\text{ s}\)
+        </p>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1 border border-slate-200 dark:border-slate-800">
+          <div>\(v_x = 3 + (1)(3) = 6\text{ m/s} \quad | \quad v_y = 2 + (2)(3) = 8\text{ m/s}\)</div>
+          <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(\vec{v} = (6\hat{i} + 8\hat{j})\text{ m/s} \implies |\vec{v}| = \sqrt{6^2 + 8^2} = \mathbf{10\text{ m/s}}\)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Real-World Application: Jet Landing -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Application: Can a Jet Land Safely on the Runway?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        A jet plane touches down at \(100\text{ m/s}\) and decelerates uniformly at \(5\text{ m/s}^2\) until stopping. The available runway length is \(0.8\text{ km}\) (\(800\text{ m}\)). Can it stop safely within the runway?
+      </p>
+
+      <!-- Diagram 4 -->
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5" onclick="openLightbox('https://images.openai.com/static-rsc-4/nu4-ZDXNS5-bN0wtIQ7HjqQDfDXaUPsQ9B1VNvugwy183CdBogluPrqobOd0Tf_KNDLiJMZtiLSfWdz8W81XV-zYDfjZgevFtoSrRBAboPM6jTmPCtxctlGGNBFLKqskX6VsZJkqjiste8S7M6NOIAG_XhCJLmLgvNNJOxoeXRAIJrvBnRrCFtJ6leHUWg3o?purpose=fullsize', 'Jet Airliner Landing Roll Deceleration Problem')">
+        <img src="https://images.openai.com/static-rsc-4/nu4-ZDXNS5-bN0wtIQ7HjqQDfDXaUPsQ9B1VNvugwy183CdBogluPrqobOd0Tf_KNDLiJMZtiLSfWdz8W81XV-zYDfjZgevFtoSrRBAboPM6jTmPCtxctlGGNBFLKqskX6VsZJkqjiste8S7M6NOIAG_XhCJLmLgvNNJOxoeXRAIJrvBnRrCFtJ6leHUWg3o?purpose=fullsize" alt="Jet Airliner Landing Roll" class="w-full max-h-52 object-cover object-center group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+        </div>
+      </figure>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 font-mono text-xs space-y-1">
+        <div>Given: \(u = 100\text{ m/s},\; v = 0,\; a = -5\text{ m/s}^2\)</div>
+        <div>Using \(v^2 = u^2 + 2as\): \(0^2 = 100^2 + 2(-5)s \implies 0 = 10000 - 10s\)</div>
+        <div class="text-rose-600 dark:text-rose-400 font-bold">
+          \(10s = 10000 \implies s = 1000\text{ m} = 1\text{ km} > 0.8\text{ km}\) &rarr; Cannot stop safely within the runway!
+        </div>
+      </div>
+
+      <!-- Think Beyond -->
+      <div class="p-4 rounded-xl bg-indigo-50/90 dark:bg-indigo-500/10 border-l-4 border-indigo-500 text-xs sm:text-sm space-y-1 text-indigo-950 dark:text-indigo-200">
+        <strong class="font-display font-bold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
+          <i data-lucide="help-circle" class="w-4 h-4"></i> Think Beyond the Calculation
+        </strong>
+        <p>What if the pilot wanted to stop within \(800\text{ m}\)? Would the jet need greater or smaller deceleration? Why?</p>
+      </div>
+    </section>
+
+    <!-- 7. Five Deeper Investigation Questions (Left for Student) -->
+    <section class="card p-4 sm:p-6 space-y-4 border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-950/20">
+      <h2 class="section-heading !text-indigo-700 dark:!text-indigo-300">
+        <span class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-extrabold shrink-0">7</span>
+        <span>Five Deeper Questions to Investigate</span>
+      </h2>
+
+      <ol class="list-decimal pl-5 space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+        <li>If an object has constant acceleration, can its velocity become zero? Give an example.</li>
+        <li>Can an object have positive acceleration and negative velocity at the same time? Explain with a real situation.</li>
+        <li>Why can we study \(x\)-axis and \(y\)-axis motion independently even though the object follows one combined path?</li>
+        <li>A car moving at \(30\text{ m/s}\) brakes uniformly and stops. If its initial speed were doubled, how would its stopping distance change if the braking acceleration stayed the same? Derive your reasoning.</li>
+        <li>Is constant acceleration possible when an object is slowing down? Explain why acceleration does not necessarily mean increasing speed.</li>
+      </ol>
+    </section>
+
+    <!-- 8. Interactive Self-Assessment Quiz -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and step-by-step calculations</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Lightbox Modal (Optimized for Mobile Viewports) -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Motion with Constant Acceleration
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. A body starts with an initial velocity of 4 m/s and accelerates uniformly at 3 m/s² for 2 seconds. Find its final velocity.",
+        options: [
+          "A. 7 m/s",
+          "B. 10 m/s",
+          "C. 12 m/s",
+          "D. 14 m/s"
+        ],
+        correct: 1,
+        exp: "Using v = u + at: v = 4 + (3)(2) = 4 + 6 = 10 m/s."
+      },
+      {
+        q: "Question 2. A car starts from rest and accelerates at 2 m/s² for 5 seconds. What displacement does it cover?",
+        options: [
+          "A. 10 m",
+          "B. 20 m",
+          "C. 25 m",
+          "D. 50 m"
+        ],
+        correct: 2,
+        exp: "Starting from rest means u = 0. Using s = ut + ½at²: s = 0(5) + ½(2)(5²) = 1 × 25 = 25 m."
+      },
+      {
+        q: "Question 3. Which kinematic equation is most appropriate when time (t) is not given and you need to determine final velocity?",
+        options: [
+          "A. v = u + at",
+          "B. s = (u + v)t / 2",
+          "C. v² = u² + 2as",
+          "D. a = (v − u) / t"
+        ],
+        correct: 2,
+        exp: "v² = u² + 2as is the time-independent kinematic equation linking initial velocity, final velocity, acceleration, and displacement directly."
+      },
+      {
+        q: "Question 4. A vehicle travels east while experiencing acceleration pointing west. What happens to its speed initially?",
+        options: [
+          "A. It increases",
+          "B. It decreases",
+          "C. It remains constant",
+          "D. It becomes infinite"
+        ],
+        correct: 1,
+        exp: "When velocity and acceleration point in opposite directions (east vs. west), the object decelerates—its speed decreases."
+      },
+      {
+        q: "Question 5. An object has u = 2 m/s, a = 3 m/s², and t = 4 s. Calculate its total displacement.",
+        options: [
+          "A. 16 m",
+          "B. 24 m",
+          "C. 32 m",
+          "D. 40 m"
+        ],
+        correct: 2,
+        exp: "Using s = ut + ½at²: s = (2)(4) + ½(3)(4²) = 8 + ½(3)(16) = 8 + 24 = 32 m."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on Constant Acceleration Kinematics."
+          : "Great performance! You clearly know how to select and apply the four kinematic equations.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the equation selection guide above to ensure consistent accuracy.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the 4 kinematic equations and worked examples above, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+
+      img.src = src;
+      img.alt = alt;
+      caption.innerText = alt;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox-modal') closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Uniform Circular Motion — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+    .swipe-row::-webkit-scrollbar { height: 5px; }
+    .swipe-row::-webkit-scrollbar-thumb { background: rgba(217,119,6,.35); border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · Rotational Dynamics
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Uniform Circular Motion</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Centripetal Acceleration, Orbital Period, Centripetal vs. Centrifugal Forces, and Limiting Cornering Speed</p>
+      </div>
+    </section>
+
+    <!-- Intro Card -->
+    <section class="card p-4 sm:p-6 bg-gradient-to-r from-brand-50/80 to-amber-50/40 dark:from-brand-900/20 dark:to-slate-900/75 border-brand-200 dark:border-brand-500/30 space-y-1.5">
+      <p class="font-display font-bold text-sm text-brand-800 dark:text-brand-300">Can an object move at constant speed and still accelerate?</p>
+      <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
+        <strong>Yes!</strong> Imagine a car travelling around a circular track at a constant speed of \(20\text{ m/s}\). Its speed stays fixed, yet its <strong>direction changes continuously</strong>. Because velocity includes both speed and direction, its velocity changes—and therefore the car accelerates.
+      </p>
+    </section>
+
+    <!-- 1. What is Uniform Circular Motion? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Uniform Circular Motion?</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block mb-1">Definition:</strong>
+        <strong>Uniform circular motion</strong> is the motion of an object along a circular path at constant speed. (<em>Uniform</em> = constant speed; <em>Circular</em> = circular path.)
+      </div>
+
+      <!-- Swipeable Carousel 1: Examples of Uniform Circular Motion (8 Images) -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+          <span>Examples of Uniform Circular Motion (Tap to zoom)</span>
+          <span class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400">Swipe left <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+        </div>
+
+        <div class="swipe-row flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/wRPXsiHPgu3YPEnOXVJUmXkHmbInHgpex5bMB7bBBFTyzbAgk4v6IRWphpmOiuLF2LGbFk5-_l9gPOMhVXWtRl_4K0WknOiDc8d1lD93IVW6hegeQdKtG1yzrIt4fM0vEeZh40uGCeJYK_uQYX51xBWqINFyczHFKOoRXvqBqhQcqQDU6s1-d96q7iGBzsOk?purpose=fullsize', 'Satellite in Low Earth Circular Orbit')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/wRPXsiHPgu3YPEnOXVJUmXkHmbInHgpex5bMB7bBBFTyzbAgk4v6IRWphpmOiuLF2LGbFk5-_l9gPOMhVXWtRl_4K0WknOiDc8d1lD93IVW6hegeQdKtG1yzrIt4fM0vEeZh40uGCeJYK_uQYX51xBWqINFyczHFKOoRXvqBqhQcqQDU6s1-d96q7iGBzsOk?purpose=fullsize" alt="Satellite Orbit" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">1. Satellite Orbit</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/vSmEbeP0H2RfyJbYZCutd_oRssFUmu4eWLoOP23ToU6SNnmRoWuajS9buGOZWgu0qsrDqtqUE8AHKPlS4Da5CQOMkGEGZseJNxFFF408dbvAvZ3nFlB0Gj9pY8jKLcT1VnUrXe7_C-tPS5lKCrXXdDpSWlqYoN7oLsO0Xe11Apqj96VuMCRUW86sVvSKUt1-?purpose=fullsize', 'Car Travelling Around a Circular Track')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/vSmEbeP0H2RfyJbYZCutd_oRssFUmu4eWLoOP23ToU6SNnmRoWuajS9buGOZWgu0qsrDqtqUE8AHKPlS4Da5CQOMkGEGZseJNxFFF408dbvAvZ3nFlB0Gj9pY8jKLcT1VnUrXe7_C-tPS5lKCrXXdDpSWlqYoN7oLsO0Xe11Apqj96VuMCRUW86sVvSKUt1-?purpose=fullsize" alt="Car on Track" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">2. Circular Track</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/WEfbBMtCAkHm9IEBhJFjafMQekricah-EzkE4C3Vlvk0T7lTyKMCM6Wjj5e2eKxGVKQKJQfL3KbfexhEQWRVHp_Qi9Uehqj-nY0vC-WAgbAzHfQF_Fm2yAVMHbfEyb8sv5M4ksthzy4AtLclt1Npj85jd--9JkHez--1JJDFq5jPDQGqg1iGhwYHp_rGDsx2?purpose=fullsize', 'Continuously Changing Velocity Direction')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/WEfbBMtCAkHm9IEBhJFjafMQekricah-EzkE4C3Vlvk0T7lTyKMCM6Wjj5e2eKxGVKQKJQfL3KbfexhEQWRVHp_Qi9Uehqj-nY0vC-WAgbAzHfQF_Fm2yAVMHbfEyb8sv5M4ksthzy4AtLclt1Npj85jd--9JkHez--1JJDFq5jPDQGqg1iGhwYHp_rGDsx2?purpose=fullsize" alt="Velocity Direction Change" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">3. Velocity Vectors</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/kNraUoRDUxk1uPIlU0VDbM-Z03n0nOTxN-xj7HdYFfAckHnSrdsmqefjKNyEic2-cSfSgvWia0DKO23BBW1pz5_-u8WWjsaxdnrrvbAladNNoT2JDfNQ-fDUk_495b8XwMj4NtK4Vb8F7GMRWMZ8RdkmuDxzuqfGzg6oimhQ35ziRtdOSGo9DH5gMLzmxJn9?purpose=fullsize', 'Rotating Washing Machine Drum')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/kNraUoRDUxk1uPIlU0VDbM-Z03n0nOTxN-xj7HdYFfAckHnSrdsmqefjKNyEic2-cSfSgvWia0DKO23BBW1pz5_-u8WWjsaxdnrrvbAladNNoT2JDfNQ-fDUk_495b8XwMj4NtK4Vb8F7GMRWMZ8RdkmuDxzuqfGzg6oimhQ35ziRtdOSGo9DH5gMLzmxJn9?purpose=fullsize" alt="Washing Machine Drum" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">4. Rotating Drum</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/5f9GcYpRscoPJdvuuYQjVaIrq5J17vI3atp5K-fzSWCT9JleUcmWPaHEHL0qcAgNdT2WcZSGtJBlCHzTHjDkLvOYWsYJ38NDyG_SaLsIJJTufNqbpmnzHvjy0X3pLWHlaXFKPm46-Iu4anvWKA6elf-1TsR_2TQAc42_5xUM6RRser8O_IMrnmwbHUiu1244?purpose=fullsize', 'Orbital Motion Around Earth')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/5f9GcYpRscoPJdvuuYQjVaIrq5J17vI3atp5K-fzSWCT9JleUcmWPaHEHL0qcAgNdT2WcZSGtJBlCHzTHjDkLvOYWsYJ38NDyG_SaLsIJJTufNqbpmnzHvjy0X3pLWHlaXFKPm46-Iu4anvWKA6elf-1TsR_2TQAc42_5xUM6RRser8O_IMrnmwbHUiu1244?purpose=fullsize" alt="Orbital Escape" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">5. Planetary Orbit</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/Mw5_VkAofTvSbna40kuhHBMJ3J4Ev6cuDXFtjln8EmoBAoHLYPaCIIYGde-GqZ_XGdJc1d6EtAreF7v624azSppSMpfM0fzVxejlJxOb34aoJlnV9_aq03AsSAr9ppxpv0Eks6Ryi508zyD2oXvTmAMk7ekgqcfEz-kdEeNpyPMRRxRTnqadM2p-bLRB6skE?purpose=fullsize', 'Newton Cannonball Orbital Thought Experiment')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/Mw5_VkAofTvSbna40kuhHBMJ3J4Ev6cuDXFtjln8EmoBAoHLYPaCIIYGde-GqZ_XGdJc1d6EtAreF7v624azSppSMpfM0fzVxejlJxOb34aoJlnV9_aq03AsSAr9ppxpv0Eks6Ryi508zyD2oXvTmAMk7ekgqcfEz-kdEeNpyPMRRxRTnqadM2p-bLRB6skE?purpose=fullsize" alt="Circular Orbit Physics" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">6. Continuous Turning</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/IFPNpjq-GRJARCk60d2rWh9DgFQPfjiazqKnbBW8B7bmGUOKGZNbwSQrRBQgGkaNy1lz4_HifVypGTmGpzRqH32SAzGuP4E6DQHN_UnjU9L-W4FdYkK5J14gP_j5W4s_09Ke8fCr3rQgokN5a9CFHQYr0vTi6vkh4RZ3nihpfCaiqWTWkErdd4Q8r3l45Nch?purpose=fullsize', 'Stone Attached to a Rotating String')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/IFPNpjq-GRJARCk60d2rWh9DgFQPfjiazqKnbBW8B7bmGUOKGZNbwSQrRBQgGkaNy1lz4_HifVypGTmGpzRqH32SAzGuP4E6DQHN_UnjU9L-W4FdYkK5J14gP_j5W4s_09Ke8fCr3rQgokN5a9CFHQYr0vTi6vkh4RZ3nihpfCaiqWTWkErdd4Q8r3l45Nch?purpose=fullsize" alt="Stone on String" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">7. Stone on a String</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/_70rLNwzZsZf_k2sEk423OjYHpOrtQTm8QSUiWSjzs709P3Fdrmj_qwQUe9pod854IKV0dkU4fSTklV7skevF-blSJfiz4ghuf7J3b9m-M8u562jcf08JP30ZVN8Qjss4B54FENxRp6vGHbmILmjULl0MOWiyQAUAALjySTwZt-dV3Rqm3_ocAXZs4JdeWBt?purpose=fullsize', 'Vehicle Cornering Along a Curved Path')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/_70rLNwzZsZf_k2sEk423OjYHpOrtQTm8QSUiWSjzs709P3Fdrmj_qwQUe9pod854IKV0dkU4fSTklV7skevF-blSJfiz4ghuf7J3b9m-M8u562jcf08JP30ZVN8Qjss4B54FENxRp6vGHbmILmjULl0MOWiyQAUAALjySTwZt-dV3Rqm3_ocAXZs4JdeWBt?purpose=fullsize" alt="Vehicle Turning" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">8. Cornering Car</figcaption>
+          </figure>
+        </div>
+
+        <ul class="list-disc pl-5 text-xs text-slate-600 dark:text-slate-300 space-y-0.5">
+          <li>A satellite orbiting Earth in a circular path.</li>
+          <li>A car moving around a circular track at constant speed.</li>
+          <li>A rotating washing machine drum.</li>
+          <li>A stone tied to a string and whirled in a circle.</li>
+        </ul>
+      </div>
+
+      <!-- Summary Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-4">Quantity</th><th class="py-2 px-4">Behavior in Uniform Circular Motion</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-4 font-bold">Speed</td><td class="py-2 px-4 font-semibold text-emerald-600">Constant</td></tr>
+            <tr><td class="py-2 px-4 font-bold">Velocity</td><td class="py-2 px-4 font-semibold text-amber-600">Continuously changes direction (along tangent)</td></tr>
+            <tr><td class="py-2 px-4 font-bold">Acceleration</td><td class="py-2 px-4 font-semibold text-rose-600">Nonzero</td></tr>
+            <tr><td class="py-2 px-4 font-bold">Direction of Acceleration</td><td class="py-2 px-4 font-semibold text-brand-600">Always inward toward the center</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. Centripetal Acceleration -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Centripetal Acceleration (\(a_c\))</span>
+      </h2>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/bZbpPpT9uBeUdnSWyzb6zJ1S1usM8Gvio9CY7qFiClmTYsAfKzxnyWn_yQY8sMCOwOwNoy5E50-yNHNxjtDWRSKLUqx-j0gZTWxdnETtD3N_NKvoOntC3GSKMUAxt6nVFcYTezEiDAsgZVvGvrJAHaKA6mPlhK_IdwxBsyjPDYGk2QDEl9gA3kbttfLlZ5T-?purpose=fullsize', 'Velocity Tangent to Circle and Centripetal Acceleration Directed Toward Center')">
+        <img src="https://images.openai.com/static-rsc-4/bZbpPpT9uBeUdnSWyzb6zJ1S1usM8Gvio9CY7qFiClmTYsAfKzxnyWn_yQY8sMCOwOwNoy5E50-yNHNxjtDWRSKLUqx-j0gZTWxdnETtD3N_NKvoOntC3GSKMUAxt6nVFcYTezEiDAsgZVvGvrJAHaKA6mPlhK_IdwxBsyjPDYGk2QDEl9gA3kbttfLlZ5T-?purpose=fullsize" alt="Centripetal Acceleration" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1.5">
+        <p class="text-slate-700 dark:text-slate-300">
+          At every instant, velocity points along the <strong>tangent</strong> to the circle, perpendicular to the radius, while <strong>centripetal</strong> (center-seeking) acceleration points along the radius toward the center:
+        </p>
+        <div class="math-scroll font-mono text-center text-base font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{a_c = \frac{v^2}{r}}$$
+        </div>
+        <p class="text-xs text-slate-600 dark:text-slate-300">
+          Where \(a_c\) = centripetal acceleration (\(\text{m/s}^2\)), \(v\) = constant speed (\(\text{m/s}\)), and \(r\) = radius (\(\text{m}\)).
+        </p>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">Scaling Relationships (\(a_c \propto v^2\) and \(a_c \propto \frac{1}{r}\)):</strong>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5">
+          <li>Double speed &rarr; acceleration becomes <strong>4&times;</strong> greater.</li>
+          <li>Triple speed &rarr; acceleration becomes <strong>9&times;</strong> greater.</li>
+          <li>Double radius (at constant speed) &rarr; acceleration becomes <strong>half</strong>.</li>
+        </ul>
+      </div>
+
+      <!-- Worked Example 1 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Worked Example 1 — Basic Centripetal Acceleration</strong>
+        <p class="text-slate-600 dark:text-slate-300">A car moves around a circular track of radius \(10\text{ m}\) at a constant speed of \(5\text{ m/s}\). Find its centripetal acceleration.</p>
+        <div class="space-y-2.5 font-mono">
+          <div class="step-box">
+            <strong class="font-sans text-slate-900 dark:text-white block">Step 1: List given values and formula</strong>
+            <div>Given: \(v = 5\text{ m/s}, \quad r = 10\text{ m}\) &nbsp;|&nbsp; Formula: \(a_c = \frac{v^2}{r}\)</div>
+          </div>
+          <div class="step-box">
+            <strong class="font-sans text-slate-900 dark:text-white block">Step 2: Substitute and evaluate</strong>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(a_c = \frac{5^2}{10} = \frac{25}{10} = \mathbf{2.5\text{ m/s}^2}\) (toward center)</div>
+          </div>
+          <div class="step-box">
+            <strong class="font-sans text-slate-900 dark:text-white block">Doubling Check (if \(v\) increases to \(10\text{ m/s}\)):</strong>
+            <div>\(a_c = \frac{10^2}{10} = \frac{100}{10} = 10\text{ m/s}^2\) (exact 4&times; increase!)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Period of Circular Motion -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Period of Circular Motion (\(T\))</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The <strong>period</strong>, represented by \(T\), is the time required for one complete revolution. Because one revolution covers the circumference \(C = 2\pi r\):
+      </p>
+
+      <div class="grid sm:grid-cols-3 gap-2.5 font-mono text-xs text-center">
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-bold">
+          $$\boxed{v = \frac{2\pi r}{T}}$$
+        </div>
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-bold">
+          $$\boxed{T = \frac{2\pi r}{v}}$$
+        </div>
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-bold">
+          $$\boxed{a_c = \frac{4\pi^2 r}{T^2}}$$
+        </div>
+      </div>
+
+      <!-- Worked Examples 2 & 3 -->
+      <div class="space-y-3 text-xs">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Worked Example 2 — Finding Speed From Period</strong>
+          <p class="text-slate-600 dark:text-slate-300">A wheel rotates in a circular path of radius \(r = 2\text{ m}\) completing one revolution in \(T = 4\text{ s}\).</p>
+          <div class="step-box font-mono">
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(v = \frac{2\pi r}{T} = \frac{2\pi(2)}{4} = \pi \approx \mathbf{3.14\text{ m/s}}\)</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Worked Example 3 — Finding Acceleration Using Period</strong>
+          <p class="text-slate-600 dark:text-slate-300">Using the same wheel (\(r = 2\text{ m},\; v \approx 3.14\text{ m/s},\; T = 4\text{ s}\)):</p>
+          <div class="step-box font-mono space-y-1">
+            <div>Method 1: \(a_c = \frac{v^2}{r} = \frac{3.14^2}{2} \approx \mathbf{4.93\text{ m/s}^2}\)</div>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">Method 2 (Direct): \(a_c = \frac{4\pi^2 r}{T^2} = \frac{4\pi^2(2)}{4^2} = \frac{\pi^2}{2} \approx \mathbf{4.93\text{ m/s}^2}\)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Centripetal Force (With Swipeable Sources Carousel) -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Centripetal Force (\(F_c\))</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1.5">
+        <p class="text-slate-700 dark:text-slate-300">Connecting Newton's Second Law (\(F_{\text{net}} = ma\)) with \(a_c = \frac{v^2}{r}\):</p>
+        <div class="math-scroll font-mono text-center text-base font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{F_c = ma_c = \frac{mv^2}{r}}$$
+        </div>
+        <p class="text-xs font-semibold text-rose-600 dark:text-rose-400">
+          Very Important: Centripetal force is NOT a new type of force—it is simply the net inward force keeping an object on a circular path.
+        </p>
+      </div>
+
+      <!-- Swipeable Carousel 2: Sources Providing Centripetal Force (7 Images) -->
+      <div class="space-y-2">
+        <p class="text-xs text-slate-600 dark:text-slate-300">Depending on the situation, centripetal force may be provided by <strong>tension in a string</strong>, <strong>gravitational force</strong>, <strong>friction between tyres and road</strong>, or <strong>normal force from a surface</strong>:</p>
+
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+          <span>Physical Sources of Centripetal Force (Tap to zoom)</span>
+          <span class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400">Swipe left <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+        </div>
+
+        <div class="swipe-row flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/OlZP5jO6rFC-EioxTV8UGLPWk25Yrv1dViC9tufiz9HLTW9ooKfMfEfSAwM7qaugN_vnbzlV2_UiM2Jaqxx8G9Xq4Rb_Elg2ip4o9D_l_ZV8Pi9VBMLdGJ90_1B5hgVRhvyeM-HBEoV8e22zm3ShPB3QboUBeQGIb53Dc44ndD_z4Q7AXF3h3hX3r1fLgaWo?purpose=fullsize', 'Inward Radial Force Causing Circular Motion')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/OlZP5jO6rFC-EioxTV8UGLPWk25Yrv1dViC9tufiz9HLTW9ooKfMfEfSAwM7qaugN_vnbzlV2_UiM2Jaqxx8G9Xq4Rb_Elg2ip4o9D_l_ZV8Pi9VBMLdGJ90_1B5hgVRhvyeM-HBEoV8e22zm3ShPB3QboUBeQGIb53Dc44ndD_z4Q7AXF3h3hX3r1fLgaWo?purpose=fullsize" alt="Radial Force" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">1. Inward Force</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/K57cru5UZIYYVtnkH-7rtEpl7UZpsKMF6FJZ4nrm0KXMC0vXHAcyJ5-6UDM00kwG1Q12-yAqotlMtDpYpwCvX1rIwbvzelUI-CXAiaJyKqXbkjk7GpbBkeZ-aNMbSqtjSz2nlgST25AeKbtGQd-HuSaIIJLsFUNaHws3TVvolZOdBwJr-S5FACpEVjsiddT-?purpose=fullsize', 'Friction Turning a Car on a Road')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/K57cru5UZIYYVtnkH-7rtEpl7UZpsKMF6FJZ4nrm0KXMC0vXHAcyJ5-6UDM00kwG1Q12-yAqotlMtDpYpwCvX1rIwbvzelUI-CXAiaJyKqXbkjk7GpbBkeZ-aNMbSqtjSz2nlgST25AeKbtGQd-HuSaIIJLsFUNaHws3TVvolZOdBwJr-S5FACpEVjsiddT-?purpose=fullsize" alt="Friction Turn" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">2. Road Friction</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/lTKzVPzn4BoAZF_602Z7ziZiYQvUxm9_jai4pUE_ijfuAKqns3kIo7wRfDpUGmyYpa_9jrXF19fLfmc3OLEfiwwylAbfRUdjUo1kfwYcvUOBOvkJ5nG2HvTLbQhhDG6wOfa9oXbcFMngl9etdvxIMxN0IZLGEQ7MTrrUW3mCASs6-jx9u0ym2gflXSlS-k0d?purpose=fullsize', 'Gravity Providing Centripetal Force in Orbit')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/lTKzVPzn4BoAZF_602Z7ziZiYQvUxm9_jai4pUE_ijfuAKqns3kIo7wRfDpUGmyYpa_9jrXF19fLfmc3OLEfiwwylAbfRUdjUo1kfwYcvUOBOvkJ5nG2HvTLbQhhDG6wOfa9oXbcFMngl9etdvxIMxN0IZLGEQ7MTrrUW3mCASs6-jx9u0ym2gflXSlS-k0d?purpose=fullsize" alt="Gravity Orbit" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">3. Gravity in Orbit</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/kLAG-mDtId06NugWfJOD7_4kvwwdr4JxkW5AWrSTna6XVoFMEB3RPR5k8Pbv-5vApUSVhVLMZ_w9_KycY3ht5u0CtES4z2gvTYjNeSG77I8zLqr88mWlitzdrUokLv5QhcjV7X5x2Un0cG9OCgk_WSo1d_3ynG-nQFfahv4ZGHqkDd-lV5I1lwDRSyw-BBiR?purpose=fullsize', 'Circular Motion Force Sources')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/kLAG-mDtId06NugWfJOD7_4kvwwdr4JxkW5AWrSTna6XVoFMEB3RPR5k8Pbv-5vApUSVhVLMZ_w9_KycY3ht5u0CtES4z2gvTYjNeSG77I8zLqr88mWlitzdrUokLv5QhcjV7X5x2Un0cG9OCgk_WSo1d_3ynG-nQFfahv4ZGHqkDd-lV5I1lwDRSyw-BBiR?purpose=fullsize" alt="Circular Force Sources" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">4. Banked &amp; Flat Turns</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/ptWX_rjRPsg4IKYc6i-wVl6OKLQZqVDljCUmOYaDL1rLwP9U1kBnmXB4mSBARary3blnUb2vMMi7C8sMtnkp0SVucBf6GQqgHOXsZGgNqBKkhbsTkH2HknB-UG8K5m-_eXdLurZcLQBSHOMZLQxzZh8cIaUrVB7bcdpPaLxd30jfyTLQIt8V74tiMBrSHRsj?purpose=fullsize', 'Normal Force Providing Centripetal Force')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/ptWX_rjRPsg4IKYc6i-wVl6OKLQZqVDljCUmOYaDL1rLwP9U1kBnmXB4mSBARary3blnUb2vMMi7C8sMtnkp0SVucBf6GQqgHOXsZGgNqBKkhbsTkH2HknB-UG8K5m-_eXdLurZcLQBSHOMZLQxzZh8cIaUrVB7bcdpPaLxd30jfyTLQIt8V74tiMBrSHRsj?purpose=fullsize" alt="Normal Force Circle" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">5. Surface Normal</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/IFPNpjq-GRJARCk60d2rWh9DgFQPfjiazqKnbBW8B7bmGUOKGZNbwSQrRBQgGkaNy1lz4_HifVypGTmGpzRqH32SAzGuP4E6DQHN_UnjU9L-W4FdYkK5J14gP_j5W4s_09Ke8fCr3rQgokN5a9CFHQYr0vTi6vkh4RZ3nihpfCaiqWTWkErdd4Q8r3l45Nch?purpose=fullsize', 'Tension in a String Providing Centripetal Force')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/IFPNpjq-GRJARCk60d2rWh9DgFQPfjiazqKnbBW8B7bmGUOKGZNbwSQrRBQgGkaNy1lz4_HifVypGTmGpzRqH32SAzGuP4E6DQHN_UnjU9L-W4FdYkK5J14gP_j5W4s_09Ke8fCr3rQgokN5a9CFHQYr0vTi6vkh4RZ3nihpfCaiqWTWkErdd4Q8r3l45Nch?purpose=fullsize" alt="String Tension" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">6. String Tension</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/cAZJPp_p01RqH7IIDRO-k9FLSiNPS0dFqDrDcDVYfl3xK2HrOJhgPpMkoGeCWM8z7jKsAy5JitqCm7cY-nQEDSJOwB8txPGxB_ywvJayFUrFhDQsPCLnGkL8cvou6gF95scHviEnKrRzWUg7lRVO_d2yGLLKa-OiqA5RwDpiGm7X2ltWH9fe-6pEiSldTP1Z?purpose=fullsize', 'Gravitational Field Maintaining Circular Orbit')">
+            <div class="h-28 sm:h-32 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/cAZJPp_p01RqH7IIDRO-k9FLSiNPS0dFqDrDcDVYfl3xK2HrOJhgPpMkoGeCWM8z7jKsAy5JitqCm7cY-nQEDSJOwB8txPGxB_ywvJayFUrFhDQsPCLnGkL8cvou6gF95scHviEnKrRzWUg7lRVO_d2yGLLKa-OiqA5RwDpiGm7X2ltWH9fe-6pEiSldTP1Z?purpose=fullsize" alt="Gravitational Centripetal Force" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">7. Gravitational Pull</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- Worked Examples 4 & 5 -->
+      <div class="space-y-3 text-xs">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Worked Example 4 — Centripetal Force on a Rotating Stone</strong>
+          <p class="text-slate-600 dark:text-slate-300">A stone of mass \(2\text{ kg}\) rotates in a circle of radius \(0.5\text{ m}\) at \(4\text{ m/s}\). Find the centripetal force.</p>
+          <div class="step-box font-mono">
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(F_c = \frac{mv^2}{r} = \frac{2(4^2)}{0.5} = \frac{32}{0.5} = \mathbf{64\text{ N inward}}\)</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Worked Example 5 — What Happens If the String Breaks?</strong>
+          <figure class="cursor-pointer rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/IFPNpjq-GRJARCk60d2rWh9DgFQPfjiazqKnbBW8B7bmGUOKGZNbwSQrRBQgGkaNy1lz4_HifVypGTmGpzRqH32SAzGuP4E6DQHN_UnjU9L-W4FdYkK5J14gP_j5W4s_09Ke8fCr3rQgokN5a9CFHQYr0vTi6vkh4RZ3nihpfCaiqWTWkErdd4Q8r3l45Nch?purpose=fullsize', 'Tangential Motion After String Breaks')">
+            <img src="https://images.openai.com/static-rsc-4/IFPNpjq-GRJARCk60d2rWh9DgFQPfjiazqKnbBW8B7bmGUOKGZNbwSQrRBQgGkaNy1lz4_HifVypGTmGpzRqH32SAzGuP4E6DQHN_UnjU9L-W4FdYkK5J14gP_j5W4s_09Ke8fCr3rQgokN5a9CFHQYr0vTi6vkh4RZ3nihpfCaiqWTWkErdd4Q8r3l45Nch?purpose=fullsize" alt="String Break Tangent" class="w-full max-h-44 object-contain" />
+          </figure>
+          <p class="text-slate-700 dark:text-slate-300">
+            <strong>Answer:</strong> It moves in a straight line <strong>tangent</strong> to the circular path at the breaking point (along its instantaneous velocity).
+          </p>
+          <p class="text-[11px] font-bold text-rose-600 dark:text-rose-400">Exam Trap: The stone does NOT fly radially outward from the center—it travels tangentially!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Centripetal vs Centrifugal Force -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Centripetal Force vs. Centrifugal Force</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        When a car turns left, passengers feel pushed toward the right side because their bodies resist turning due to inertia.
+      </p>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-4">Centripetal Force</th><th class="py-2 px-4">Centrifugal Force</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-4">Directed toward the center</td><td class="py-2 px-4">Appears directed away from the center</td></tr>
+            <tr><td class="py-2 px-4">Required for circular motion</td><td class="py-2 px-4">Apparent force in a rotating frame</td></tr>
+            <tr><td class="py-2 px-4 font-semibold text-emerald-600">Real net inward force</td><td class="py-2 px-4 font-semibold text-rose-600">Not a real interaction in an inertial frame</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">Rule: Never draw an outward centrifugal force in an ordinary inertial-frame free-body diagram.</p>
+    </section>
+
+    <!-- 6. Applied Worked Examples (Examples 6, 7, 8) -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Advanced Applied Circular Motion Examples</span>
+      </h2>
+
+      <!-- Example 6 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 6 — Athlete Rotating a Discus</strong>
+        <p class="text-slate-600 dark:text-slate-300">An athlete swings a discus along a circle of radius \(r = 1.06\text{ m}\) at maximum speed \(v = 20\text{ m/s}\). Find the maximum centripetal acceleration.</p>
+        <div class="step-box font-mono">
+          <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(a_c = \frac{v^2}{r} = \frac{20^2}{1.06} = \frac{400}{1.06} \approx \mathbf{377.36\text{ m/s}^2}\)</div>
+        </div>
+      </div>
+
+      <!-- Example 7 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 7 — Car Turning on a Flat Road</strong>
+        <p class="text-slate-600 dark:text-slate-300">A \(1000\text{ kg}\) car rounds a flat circular road of radius \(50\text{ m}\) at \(10\text{ m/s}\). Find the minimum static friction force required.</p>
+        <div class="space-y-2 font-mono">
+          <div class="step-box">Step 1: On a flat road, static friction provides the centripetal force.</div>
+          <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 2: \(F_c = \frac{mv^2}{r} = \frac{1000(10^2)}{50} = \frac{100000}{50} = \mathbf{2000\text{ N}}\)</div>
+        </div>
+      </div>
+
+      <!-- Example 8 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 8 — Finding Maximum Speed Before Slipping</strong>
+        <p class="text-slate-600 dark:text-slate-300">A car travels on a flat curve of radius \(r = 40\text{ m}\) where \(\mu_s = 0.5\) (\(g = 10\text{ m/s}^2\)). Find the maximum safe speed without slipping.</p>
+        <div class="space-y-2.5 font-mono">
+          <div class="step-box">
+            <strong class="font-sans text-slate-900 dark:text-white block">Step 1: Express maximum static friction</strong>
+            <div>\(f_{s,\max} = \mu_s N = \mu_s mg\)</div>
+          </div>
+          <div class="step-box">
+            <strong class="font-sans text-slate-900 dark:text-white block">Step 2: Equate limiting friction to required centripetal force</strong>
+            <div>\(\frac{mv^2}{r} = \mu_s mg\)</div>
+            <div>Cancel mass \(m\) from both sides: \(\frac{v^2}{r} = \mu_s g \implies v = \sqrt{\mu_s g r}\)</div>
+          </div>
+          <div class="step-box">
+            <strong class="font-sans text-slate-900 dark:text-white block">Step 3: Substitute numerical values</strong>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">\(v = \sqrt{0.5(10)(40)} = \sqrt{200} \approx \mathbf{14.14\text{ m/s}}\)</div>
+          </div>
+        </div>
+        <p class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300">Critical Observation: Mass cancels completely! Maximum flat cornering speed does not depend on the car's mass.</p>
+      </div>
+    </section>
+
+    <!-- 7. Master Formulas Summary -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">7</span>
+        <span>Important Formulas to Remember</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-4">Quantity</th><th class="py-2 px-4 font-mono">Formula</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+            <tr><td class="py-2 px-4 font-sans font-bold">Centripetal acceleration</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(a_c = \frac{v^2}{r}\)</td></tr>
+            <tr><td class="py-2 px-4 font-sans font-bold">Centripetal force</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(F_c = \frac{mv^2}{r} = ma_c\)</td></tr>
+            <tr><td class="py-2 px-4 font-sans font-bold">Circumference</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(C = 2\pi r\)</td></tr>
+            <tr><td class="py-2 px-4 font-sans font-bold">Speed from period</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(v = \frac{2\pi r}{T}\)</td></tr>
+            <tr><td class="py-2 px-4 font-sans font-bold">Period</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(T = \frac{2\pi r}{v}\)</td></tr>
+            <tr><td class="py-2 px-4 font-sans font-bold">Acceleration using period</td><td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">\(a_c = \frac{4\pi^2 r}{T^2}\)</td></tr>
+            <tr><td class="py-2 px-4 font-sans font-bold">Max speed on flat road</td><td class="py-2 px-4 font-bold text-emerald-600 dark:text-emerald-400">\(v_{\max} = \sqrt{\mu_s g r}\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8. Critical-Thinking Questions (Left for Student) -->
+    <section class="card p-4 sm:p-6 space-y-4 border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-950/20">
+      <h2 class="section-heading !text-indigo-700 dark:!text-indigo-300">
+        <span class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-extrabold shrink-0">8</span>
+        <span>Critical-Thinking Questions</span>
+      </h2>
+
+      <ol class="list-decimal pl-5 space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+        <li>If a car moves around a circle at constant speed, why is its acceleration not zero?</li>
+        <li>If the speed of a rotating object doubles, why does the centripetal force become four times greater?</li>
+        <li>Why does a car need friction to turn on a flat road?</li>
+        <li>If a string breaks while a stone is rotating, why does the stone move tangentially rather than radially outward?</li>
+        <li>Why can two objects with different masses have the same centripetal acceleration when moving at the same speed along circles of equal radius?</li>
+      </ol>
+    </section>
+
+    <!-- 9. Interactive Self-Assessment Quiz (8 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">8 exam-style questions on Circular Motion and Centripetal Dynamics</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 8</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 8 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Uniform Circular Motion
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. A car moves at 12 m/s around a circular track of radius 24 m. Find its centripetal acceleration.",
+        options: ["A. 3 m/s²", "B. 6 m/s²", "C. 12 m/s²", "D. 24 m/s²"],
+        correct: 1,
+        exp: "Using ac = v² / r: ac = 12² / 24 = 144 / 24 = 6 m/s²."
+      },
+      {
+        q: "Question 2. An object completes one revolution in 5 seconds on a circle of radius 2 m. What is its speed?",
+        options: ["A. 1.26 m/s", "B. 2.51 m/s", "C. 5.02 m/s", "D. 6.28 m/s"],
+        correct: 1,
+        exp: "v = 2πr / T = 2π(2) / 5 = 4π / 5 ≈ 12.566 / 5 ≈ 2.51 m/s."
+      },
+      {
+        q: "Question 3. If the speed of an object moving in a circle is tripled while its radius remains constant, its centripetal acceleration becomes:",
+        options: ["A. 3 times", "B. 6 times", "C. 9 times", "D. One-third"],
+        correct: 2,
+        exp: "Since ac = v² / r, centripetal acceleration is proportional to v². Tripling v multiplies ac by 3² = 9 times."
+      },
+      {
+        q: "Question 4. A 2 kg object moves at 6 m/s in a circle of radius 3 m. What centripetal force is required?",
+        options: ["A. 12 N", "B. 18 N", "C. 24 N", "D. 36 N"],
+        correct: 2,
+        exp: "Fc = mv² / r = 2(6²) / 3 = 2(36) / 3 = 72 / 3 = 24 N."
+      },
+      {
+        q: "Question 5. The velocity vector of an object in uniform circular motion is always directed:",
+        options: ["A. Toward the center", "B. Away from the center", "C. Tangentially to the circular path", "D. Along the radius"],
+        correct: 2,
+        exp: "In circular motion, instantaneous velocity is always tangent to the circle, perpendicular to the inward radial acceleration."
+      },
+      {
+        q: "Question 6. A string holding a rotating stone suddenly breaks. Ignoring other forces, the stone initially moves:",
+        options: ["A. Radially outward", "B. Tangentially to the circle", "C. Directly toward the center", "D. In a smaller circle"],
+        correct: 1,
+        exp: "Once inward tension vanishes, by Newton's First Law the stone continues in a straight line along its instantaneous tangential velocity."
+      },
+      {
+        q: "Question 7. A car turns safely around a flat horizontal road. Which physical force provides the required centripetal force?",
+        options: ["A. Weight", "B. Normal force", "C. Static friction", "D. Air resistance only"],
+        correct: 2,
+        exp: "On an unbanked flat road, sideways static friction between the tyres and pavement pulls the car inward toward the center of curvature."
+      },
+      {
+        q: "Question 8. A car travels around a flat circular track of radius 20 m. If μs = 0.5 and g = 10 m/s², what is its maximum speed without slipping?",
+        options: ["A. 5 m/s", "B. 10 m/s", "C. 15 m/s", "D. 20 m/s"],
+        correct: 1,
+        exp: "v_max = √(μs g r) = √(0.5 × 10 × 20) = √100 = 10 m/s."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Uniform Circular Motion!" : "Great performance! You clearly understand centripetal acceleration, period, and cornering friction.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the scaling laws (ac ∝ v²) and the tangential release rule above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the 7 formulas and worked examples above, then retake the quiz.";
+      }
+      resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

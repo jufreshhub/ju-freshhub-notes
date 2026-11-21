@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Types of Forces — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · Mechanical Forces
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Types of Forces</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Contact &amp; Non-Contact Forces, Static vs. Kinetic Friction, Normal Force, Tension, and Spring Force</p>
+      </div>
+    </section>
+
+    <!-- 1. Two Main Categories of Forces -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>The Two Main Categories of Forces</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Imagine pushing a box across a floor, then imagine Earth pulling an apple downward. When you push the box, your hand touches it; when Earth pulls the apple, Earth does not need to touch it.
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-brand-700 dark:text-brand-400 block">1. Contact Force</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Requires direct physical contact between the interacting objects.</p>
+          <figure class="cursor-pointer group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/nYUNv4LlpAXtfu65CV1WBWM1jMd0gHgM9C0aaOrp7wiUVJ6345U6rOUAxwllf_tGvzTmL9tZ3d5PQ3fLHQakt1vJNZ4QcBu59KrdrrQvRIyqbxr85jEw_LifxrMGSFwAQiJ67YQniYanbdy4Yoj-RiHNVCr2DRPbgQpEW4SzZzJEnVBgzu_K4jsWtHYZhyH7?purpose=fullsize', 'Contact Force: Direct Physical Interaction')">
+            <img src="https://images.openai.com/static-rsc-4/nYUNv4LlpAXtfu65CV1WBWM1jMd0gHgM9C0aaOrp7wiUVJ6345U6rOUAxwllf_tGvzTmL9tZ3d5PQ3fLHQakt1vJNZ4QcBu59KrdrrQvRIyqbxr85jEw_LifxrMGSFwAQiJ67YQniYanbdy4Yoj-RiHNVCr2DRPbgQpEW4SzZzJEnVBgzu_K4jsWtHYZhyH7?purpose=fullsize" alt="Contact Force" class="w-full max-h-40 object-contain group-hover:scale-105 transition duration-300" />
+          </figure>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-emerald-700 dark:text-emerald-400 block">2. Non-Contact Force</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Acts across empty space without direct physical contact between the objects.</p>
+          <figure class="cursor-pointer group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/gNYK2z2-wjVhA4u9kax2fivFh4xtxntnP-2Dbqd039Fdhoksgg7VbGN7N7LttmzJyAV15i28rJyrQ6RskZDl0_94PrkJnWAiwdrbh9w8hXQJZDuFNnpTSyEnYo7plgkiO4SegVbPRRicXQNm4jXV6wiCGB5ribooEpcXsKY71OnkuBSZX52PyHfK_MwS7uFg?purpose=fullsize', 'Non-Contact Force: Gravity Acting Across Space')">
+            <img src="https://images.openai.com/static-rsc-4/gNYK2z2-wjVhA4u9kax2fivFh4xtxntnP-2Dbqd039Fdhoksgg7VbGN7N7LttmzJyAV15i28rJyrQ6RskZDl0_94PrkJnWAiwdrbh9w8hXQJZDuFNnpTSyEnYo7plgkiO4SegVbPRRicXQNm4jXV6wiCGB5ribooEpcXsKY71OnkuBSZX52PyHfK_MwS7uFg?purpose=fullsize" alt="Non-Contact Force" class="w-full max-h-40 object-contain group-hover:scale-105 transition duration-300" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Contact Forces -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Types of Contact Forces</span>
+      </h2>
+
+      <!-- A. Muscular Force -->
+      <div class="space-y-1.5">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">A. Muscular Force</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+          Muscles generate forces when we push, pull, lift, or move objects (e.g., lifting a bucket, pushing a table, pulling a door, or bodily movements). Muscular force is a contact force because it transmits through physical interaction with an object.
+        </p>
+      </div>
+
+      <!-- B. Frictional Force -->
+      <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">B. Frictional Force</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <strong>Friction</strong> is a resisting force arising when two surfaces in contact slide—or tend to slide—relative to each other. It always acts <strong>parallel to the surfaces</strong> and opposite the actual sliding motion (kinetic) or tendency of motion (static).
+        </p>
+
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/_3g3DNYZ2sN8Vb0TZhCk6i2O4_zPbRaITMEAWtGPrZg1vE3OU8PEWCoyG-y4sjJ_hlVwnXhsDJVPB3zZd_NkAqT09Bxz52VwcjTuHqPidjpESWnFuGNGBcwsrdQNtCL6k5dY2mvmJiB0BHTv-STtY8ESMx0moPh0K8iPYmAlROj2y3Stk9KFcf1l2cKVTqQA?purpose=fullsize', 'Frictional Force Opposing Sliding Motion')">
+          <img src="https://images.openai.com/static-rsc-4/_3g3DNYZ2sN8Vb0TZhCk6i2O4_zPbRaITMEAWtGPrZg1vE3OU8PEWCoyG-y4sjJ_hlVwnXhsDJVPB3zZd_NkAqT09Bxz52VwcjTuHqPidjpESWnFuGNGBcwsrdQNtCL6k5dY2mvmJiB0BHTv-STtY8ESMx0moPh0K8iPYmAlROj2y3Stk9KFcf1l2cKVTqQA?purpose=fullsize" alt="Frictional Force" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+        </figure>
+
+        <div class="grid sm:grid-cols-2 gap-3 text-xs">
+          <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1">
+            <strong class="font-display text-brand-900 dark:text-brand-300 block">1. Static Friction (\(f_s\))</strong>
+            <p class="text-slate-700 dark:text-slate-300">Acts when surfaces are <strong>not sliding</strong>. Adjusts to match the applied force up to a maximum limit:</p>
+            <div class="font-mono font-bold text-brand-800 dark:text-brand-200">$$f_{s,\max} = \mu_s N$$</div>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1">
+            <strong class="font-display text-emerald-900 dark:text-emerald-300 block">2. Kinetic Friction (\(f_k\))</strong>
+            <p class="text-slate-700 dark:text-slate-300">Acts while one surface actively <strong>slides</strong> across another:</p>
+            <div class="font-mono font-bold text-emerald-800 dark:text-emerald-200">$$f_k = \mu_k N$$</div>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-600 dark:text-slate-300">
+          Where \(\mu_s\) and \(\mu_k\) are coefficients of static and kinetic friction, and \(N\) is normal force. Usually <strong>\(\mu_k < \mu_s\)</strong>, which is why starting a heavy box takes more force than keeping it sliding.
+        </p>
+
+        <!-- Worked Example 1 & 2 -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Worked Example 1 — Static Friction Adjustment</strong>
+          <p class="text-slate-600 dark:text-slate-300">A student pushes a box with \(30\text{ N}\) horizontally. Maximum static friction is \(50\text{ N}\). Will it move?</p>
+          <p class="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+            Since \(30\text{ N} < 50\text{ N}\), static friction adjusts to \(30\text{ N} \implies F_{\text{net}} = 30 - 30 = 0\). Box remains at rest.
+          </p>
+          <p class="text-[11px] text-rose-600 dark:text-rose-400 font-semibold">Exam Trap: Do not blindly set static friction equal to \(50\text{ N}\)—that is only its maximum threshold!</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Worked Example 2 — Kinetic Friction &amp; Acceleration</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(10\text{ kg}\) box slides on a horizontal floor (\(\mu_k = 0.2\)) pushed by \(50\text{ N}\) forward (\(g = 10\text{ m/s}^2\)):</p>
+          <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono space-y-1 border border-slate-200 dark:border-slate-800">
+            <div>1. \(N = mg = 10(10) = 100\text{ N}\) &nbsp;|&nbsp; 2. \(f_k = \mu_k N = 0.2(100) = 20\text{ N}\)</div>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">3. \(F_{\text{net}} = 50 - 20 = 30\text{ N} \implies 30 = 10a \implies \mathbf{a = 3\text{ m/s}^2\text{ forward}}\)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- C. Normal Force -->
+      <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">C. Normal Force (\(N\))</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+          The <strong>normal force</strong> is the support force exerted by a surface on an object in contact with it, always acting <strong>perpendicular</strong> to the surface. On a flat horizontal table with no other vertical forces, \(N = mg\).
+        </p>
+
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/H7FKsfh54F8We35GyVqUFwlQSyypFHlkDjDvz8-fY366ot_HpftcWKc9i2wDQxVaYrG_lrtSPPbCFmrKW1xxY23x0rYBHkRq_TANhP80sst9ZDIv30-NBBa8KeHQT9JZFmtHwn5InS9e_TbgJdL8AHFqsJCJTIpRjeFwULfERRJTvy-oR1vD318AuTRKPWSF?purpose=fullsize', 'Normal Force Acting Perpendicular to Surface')">
+          <img src="https://images.openai.com/static-rsc-4/H7FKsfh54F8We35GyVqUFwlQSyypFHlkDjDvz8-fY366ot_HpftcWKc9i2wDQxVaYrG_lrtSPPbCFmrKW1xxY23x0rYBHkRq_TANhP80sst9ZDIv30-NBBa8KeHQT9JZFmtHwn5InS9e_TbgJdL8AHFqsJCJTIpRjeFwULfERRJTvy-oR1vD318AuTRKPWSF?purpose=fullsize" alt="Normal Force" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+        </figure>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Worked Example 3 — Normal Force on an Inclined Plane</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(5\text{ kg}\) block rests on a smooth plane inclined at \(\theta = 30^\circ\) (\(g = 10\text{ m/s}^2\)):</p>
+          <p class="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+            \(N = mg\cos\theta = 5(10)\cos 30^\circ = 50(0.866) = \mathbf{43.3\text{ N}}\)
+          </p>
+          <p class="text-[11px] text-slate-500">Only the component of weight perpendicular to the incline is balanced by \(N\).</p>
+        </div>
+      </div>
+
+      <!-- D. Applied Force & E. Tension Force -->
+      <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">D. Applied Force &amp; E. Tension Force (\(T\))</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+          An <strong>applied force</strong> is exerted directly by a person or another object (e.g., pushing a table). <strong>Tension force</strong> is the pulling force transmitted through a stretched rope, string, cable, or wire.
+        </p>
+
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/eKXhpmy43-Tzf99aAaPuRg9Yws9Ts6Ud4FTVoOCyIF6MljkwyRbDVk-6HrC2niP3626h2NoG2x9FvxgoJp6-eVAuBofShu08_BxFf11Q-jjJMetG1ulUCMVtAPmfnOS5F1ALZ4H3khCuJoVEXecdoXHlS-xwazBkFObDvUcJI_005fFGIdUMUG6lKTDnFPnz?purpose=fullsize', 'Tension Force in a Stretched Rope or Cable')">
+          <img src="https://images.openai.com/static-rsc-4/eKXhpmy43-Tzf99aAaPuRg9Yws9Ts6Ud4FTVoOCyIF6MljkwyRbDVk-6HrC2niP3626h2NoG2x9FvxgoJp6-eVAuBofShu08_BxFf11Q-jjJMetG1ulUCMVtAPmfnOS5F1ALZ4H3khCuJoVEXecdoXHlS-xwazBkFObDvUcJI_005fFGIdUMUG6lKTDnFPnz?purpose=fullsize" alt="Tension Force" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+        </figure>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Worked Example 4 — Tension in a Rope (\(m = 4\text{ kg}, g = 10\text{ m/s}^2\))</strong>
+          <div class="font-mono space-y-1">
+            <div>&bull; Stationary: \(T - mg = 0 \implies T = 4(10) = \mathbf{40\text{ N}}\)</div>
+            <div class="text-emerald-600 dark:text-emerald-400 font-bold">&bull; Accelerating upward at \(a = 2\text{ m/s}^2\): \(T - mg = ma \implies T = m(g + a) = 4(10 + 2) = \mathbf{48\text{ N}}\)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- F. Spring Force & G. Air Resistance -->
+      <div class="grid sm:grid-cols-2 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">F. Spring Force (Restoring)</strong>
+          <p class="text-slate-600 dark:text-slate-300">A stretched or compressed ideal spring restores its equilibrium length via:</p>
+          <div class="font-mono font-bold text-brand-700 dark:text-brand-400">$$F = -kx$$</div>
+          <p class="text-[11px] text-slate-500">\(k =\) spring constant, \(x =\) displacement; minus sign indicates opposite direction.</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">G. Air Resistance</strong>
+          <p class="text-slate-600 dark:text-slate-300">A resistive drag force opposing motion through air:</p>
+          <ul class="list-disc pl-4 text-[11px] text-slate-600 dark:text-slate-300 space-y-0.5">
+            <li>A parachute slowing a skydiver</li>
+            <li>A cyclist feeling air pushing back</li>
+            <li>Flat paper falling slower than a compact mass</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Non-Contact Forces -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Three Types of Non-Contact Forces</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-3 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">A. Gravitational Force</strong>
+          <p class="text-slate-600 dark:text-slate-300">Attractive force between masses (e.g., Earth pulling objects down).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/NpsrADBBJ3LG3iyKfvbl2SGvxeBqGvVa9aIZTXwYypqY9GmngP2KQuxbCIMD9STACC6-cqiukP-dDRqEV46MZ4FG78A2uLK4lPOsEcMqe7k-wxGvH_0HHQkipOUwAR8jVU-_XseTxdk_kD3EPtIjejENRoQEUpQ-UTHOYUfN9IHADEhIq2gecIz9AoxqeXjF?purpose=fullsize', 'Gravitational Force Between Masses')">
+            <img src="https://images.openai.com/static-rsc-4/NpsrADBBJ3LG3iyKfvbl2SGvxeBqGvVa9aIZTXwYypqY9GmngP2KQuxbCIMD9STACC6-cqiukP-dDRqEV46MZ4FG78A2uLK4lPOsEcMqe7k-wxGvH_0HHQkipOUwAR8jVU-_XseTxdk_kD3EPtIjejENRoQEUpQ-UTHOYUfN9IHADEhIq2gecIz9AoxqeXjF?purpose=fullsize" alt="Gravitational Force" class="w-full h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">B. Magnetic Force</strong>
+          <p class="text-slate-600 dark:text-slate-300">Exerted by magnets on magnetic materials or other magnets (attracts or repels).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/Z0hWyi9SRFKlS6_E_7FhGswTUZGYOYOfF1Fryt-_3tPbpYve9NPJ4ge_ip257fsEMDHVIACl4jhwkjKQ88bjhg-jKeAaA-ycqtjSfiiitd9qRVPE-zq957mZHoJNSovglhvd2c26q9756drhMalYgl0xzvdWFpJ6ajT_cQodIFx_y-2ItRQijbxmEYG_88Ed?purpose=fullsize', 'Magnetic Force: Poles Attracting and Repelling')">
+            <img src="https://images.openai.com/static-rsc-4/Z0hWyi9SRFKlS6_E_7FhGswTUZGYOYOfF1Fryt-_3tPbpYve9NPJ4ge_ip257fsEMDHVIACl4jhwkjKQ88bjhg-jKeAaA-ycqtjSfiiitd9qRVPE-zq957mZHoJNSovglhvd2c26q9756drhMalYgl0xzvdWFpJ6ajT_cQodIFx_y-2ItRQijbxmEYG_88Ed?purpose=fullsize" alt="Magnetic Force" class="w-full h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">C. Electrostatic Force</strong>
+          <p class="text-slate-600 dark:text-slate-300">Force between electrically charged objects (opposite attract, like repel).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/GK0DCYiWGsP2JL1ZQkTdR-uh2QZP944OqQ3nocD9yfOm7DHnsmh6rQPk05_HVOVN5o15CxJqcpops19aJllvcSzbAYOYeVhqYLGmAprrTsCgw2vVKqyYV9DXweUETWi5XXpPyqy6t5bKgT49EqTxEX5gymsqDHIJ1_OwOi4bdk7iGPoobS5ih2Rk4-yxF5Fz?purpose=fullsize', 'Electrostatic Force Between Electric Charges')">
+            <img src="https://images.openai.com/static-rsc-4/GK0DCYiWGsP2JL1ZQkTdR-uh2QZP944OqQ3nocD9yfOm7DHnsmh6rQPk05_HVOVN5o15CxJqcpops19aJllvcSzbAYOYeVhqYLGmAprrTsCgw2vVKqyYV9DXweUETWi5XXpPyqy6t5bKgT49EqTxEX5gymsqDHIJ1_OwOi4bdk7iGPoobS5ih2Rk4-yxF5Fz?purpose=fullsize" alt="Electrostatic Force" class="w-full h-28 object-contain" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Additional Exam-Style Worked Examples -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>More Exam-Style Worked Examples</span>
+      </h2>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 5 — Will a Box Start Moving?</strong>
+          <p class="text-slate-600 dark:text-slate-300">A box rests on a horizontal floor with \(f_{s,\max} = 35\text{ N}\). A student pushes with \(25\text{ N}\):</p>
+          <p class="font-mono font-bold text-emerald-600 dark:text-emerald-400">Since \(25\text{ N} < 35\text{ N}\), static friction balances it (\(f_s = 25\text{ N}\)) &rarr; \(F_{\text{net}} = 0\), box does not move.</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 6 — Find the Coefficient of Kinetic Friction (\(\mu_k\))</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(20\text{ kg}\) box slides at constant velocity under a \(40\text{ N}\) horizontal pull (\(g = 10\text{ m/s}^2\)):</p>
+          <p class="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+            Constant velocity \(\implies F_{\text{net}} = 0 \implies f_k = 40\text{ N}\). With \(N = 20(10) = 200\text{ N}\): \(\mu_k = \frac{40}{200} = \mathbf{0.20}\)
+          </p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 7 — Tension During Downward Acceleration</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(6\text{ kg}\) object hangs from a rope and accelerates downward at \(2\text{ m/s}^2\) (\(g = 10\text{ m/s}^2\)). Taking downward as positive:</p>
+          <p class="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+            \(mg - T = ma \implies 60 - T = 6(2) \implies 60 - T = 12 \implies \mathbf{T = 48\text{ N}}\)
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Critical-Thinking Questions (Left for Student) -->
+    <section class="card p-4 sm:p-6 space-y-4 border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-950/20">
+      <h2 class="section-heading !text-indigo-700 dark:!text-indigo-300">
+        <span class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Critical-Thinking Questions</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Try reasoning these out conceptually before searching for formulas:</p>
+
+      <ol class="list-decimal pl-5 space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+        <li>If friction opposes motion, how can friction help you walk forward?</li>
+        <li>A box is pushed with \(20\text{ N}\) but does not move. Is friction absent, or is another force balancing the push?</li>
+        <li>Can an object experience a normal force without having a gravitational force acting on it?</li>
+        <li>Why does a parachute increase air resistance?</li>
+      </ol>
+    </section>
+
+    <!-- 6. Interactive Self-Assessment Quiz -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and step-by-step calculation</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Types of Forces
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. A 12 kg box rests on a horizontal floor. A 30 N horizontal force is applied. If maximum static friction is 45 N, what happens?",
+        options: ["A. It accelerates at 2.5 m/s²", "B. It remains at rest", "C. It accelerates at 3.75 m/s²", "D. It moves at constant velocity"],
+        correct: 1,
+        exp: "Since the applied force (30 N) is less than the maximum static friction (45 N), static friction adjusts to 30 N, yielding zero net force and keeping the box at rest."
+      },
+      {
+        q: "Question 2. A 5 kg block slides across a horizontal surface with μk = 0.4. Taking g = 10 m/s², what is the kinetic friction force?",
+        options: ["A. 5 N", "B. 10 N", "C. 20 N", "D. 50 N"],
+        correct: 2,
+        exp: "Normal force N = mg = 5 × 10 = 50 N. Kinetic friction fk = μk N = 0.4 × 50 = 20 N."
+      },
+      {
+        q: "Question 3. A 2 kg object accelerates upward at 3 m/s². Taking g = 10 m/s², what is the tension in the supporting rope?",
+        options: ["A. 14 N", "B. 20 N", "C. 26 N", "D. 6 N"],
+        correct: 2,
+        exp: "When accelerating upward, T − mg = ma → T = m(g + a) = 2(10 + 3) = 26 N."
+      },
+      {
+        q: "Question 4. A 10 kg block rests on a smooth plane inclined at 30° to the horizontal. Taking g = 10 m/s² and cos 30° ≈ 0.866, what is the normal force?",
+        options: ["A. 100 N", "B. 50 N", "C. 86.6 N", "D. 0 N"],
+        correct: 2,
+        exp: "On an incline, N = mg cos(θ) = 10(10)cos(30°) = 100 × 0.866 = 86.6 N."
+      },
+      {
+        q: "Question 5. Which of the following groups contains ONLY non-contact forces?",
+        options: [
+          "A. Friction, tension, and gravity",
+          "B. Gravitational, magnetic, and electrostatic forces",
+          "C. Muscular, spring, and magnetic forces",
+          "D. Normal, air resistance, and electrostatic forces"
+        ],
+        correct: 1,
+        exp: "Gravitational, magnetic, and electrostatic forces act across space without direct physical contact, whereas friction, tension, muscular, normal, spring, and air resistance are contact forces."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Types of Forces!" : "Great performance! You have a firm grasp of friction, normal force, tension, and contact vs. non-contact forces.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the difference between static vs. kinetic friction and normal force on inclined planes.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the worked examples on static friction, tension, and normal forces above, then try again.";
+      }
+      resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

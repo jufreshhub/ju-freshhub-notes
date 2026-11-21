@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Projectile Motion — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+
+    /* Smooth horizontal scroll for wide formulas & solution steps on mobile */
+    .math-scroll,
+    .step-scroll {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-top: 0.25rem;
+      padding-bottom: 0.35rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(217, 119, 6, 0.35) transparent;
+    }
+    .step-scroll::-webkit-scrollbar,
+    .math-scroll::-webkit-scrollbar {
+      height: 5px;
+    }
+    .step-scroll::-webkit-scrollbar-thumb,
+    .math-scroll::-webkit-scrollbar-thumb {
+      background: rgba(217, 119, 6, 0.35);
+      border-radius: 9999px;
+    }
+    .step-scroll-line {
+      white-space: nowrap;
+      width: max-content;
+      min-width: 100%;
+    }
+
+    /* Ensure MathJax display blocks never overflow card bounds */
+    mjx-container[display="true"] {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding: 0.25rem 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="rocket" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · Two-Dimensional Motion
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Projectile Motion</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Simultaneous Horizontal &amp; Vertical Kinematics, Parabolic Trajectories, Cliff Launches, and Range Optimization</p>
+      </div>
+    </section>
+
+    <!-- 1. What is Projectile Motion? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Projectile Motion?</span>
+      </h2>
+
+      <div class="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-xs sm:text-sm">
+        <strong class="text-emerald-800 dark:text-emerald-300 font-bold block mb-1">Our Central Idea:</strong>
+        A projectile executes <strong>two simultaneous, independent motions</strong>—constant-velocity horizontal motion and constant-acceleration vertical motion—occurring over the <strong>exact same elapsed time (\(t\))</strong>.
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Imagine kicking a football at an angle. The ball moves forward horizontally, rises vertically, reaches a maximum height, and falls back toward the ground. A <strong>projectile</strong> is any object given an initial velocity that subsequently follows a path determined entirely by gravity—such as a stone thrown at an angle, a package released from an airplane, a gunshot, or a javelin.
+      </p>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/JFzw2WkT3wxn8jNNZueFEousSp6xLJI4hg7DyRULjsN86Pyo5T_iIEo88ECF2__EE7oK3pp4uMamo6vq4EaKrMINYyUMvtQLnC7h5u92dhNqabQArDCkTrFb-TI_8qdOs1Kq2M7dMX61dKKf74K_5urBKKuJcz8n1VkLLSYn9MiQmd9HzvKGBgiHUGzar-QV?purpose=fullsize', 'Parabolic Trajectory of a Projectile')">
+        <img src="https://images.openai.com/static-rsc-4/JFzw2WkT3wxn8jNNZueFEousSp6xLJI4hg7DyRULjsN86Pyo5T_iIEo88ECF2__EE7oK3pp4uMamo6vq4EaKrMINYyUMvtQLnC7h5u92dhNqabQArDCkTrFb-TI_8qdOs1Kq2M7dMX61dKKf74K_5urBKKuJcz8n1VkLLSYn9MiQmd9HzvKGBgiHUGzar-QV?purpose=fullsize" alt="Projectile Trajectory" class="w-full max-h-56 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+        </div>
+      </figure>
+
+      <!-- Terminology Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-4">Term</th><th class="py-2 px-4">Meaning</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+            <tr><td class="py-2 px-4 font-bold">Projectile</td><td class="py-2 px-4">Object moving solely under gravity after projection</td></tr>
+            <tr><td class="py-2 px-4 font-bold">Velocity of projection</td><td class="py-2 px-4">Initial launch velocity (\(u\))</td></tr>
+            <tr><td class="py-2 px-4 font-bold">Angle of projection</td><td class="py-2 px-4">Angle (\(\theta\)) between initial velocity and horizontal</td></tr>
+            <tr><td class="py-2 px-4 font-bold">Trajectory</td><td class="py-2 px-4">Curved path followed by the projectile</td></tr>
+            <tr><td class="py-2 px-4 font-bold">Maximum height</td><td class="py-2 px-4">Greatest vertical displacement above launch point (\(H\))</td></tr>
+            <tr><td class="py-2 px-4 font-bold">Horizontal range</td><td class="py-2 px-4">Total horizontal displacement during flight (\(R\))</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs font-semibold text-brand-700 dark:text-brand-400">Exam Fact: Under ideal assumptions, the trajectory of a projectile is strictly a <strong>parabola</strong>.</p>
+    </section>
+
+    <!-- 2. The Two Assumptions & Sign Convention -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Assumptions &amp; Standard Sign Convention</span>
+      </h2>
+
+      <ul class="list-disc pl-5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1">
+        <li>Gravitational acceleration is constant and directed strictly downward (\(g = 9.8\text{ m/s}^2\), unless a problem specifies \(10\text{ m/s}^2\)).</li>
+        <li>Air resistance and Earth curvature/rotation are negligible.</li>
+      </ul>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="min-w-0 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1 text-center">
+          <strong class="font-display text-slate-900 dark:text-white block">Horizontally (\(x\)-axis)</strong>
+          <div class="math-scroll font-mono font-bold text-brand-700 dark:text-brand-400">$$a_x = 0 \implies v_x = u_x = \text{constant}$$</div>
+        </div>
+        <div class="min-w-0 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1 text-center">
+          <strong class="font-display text-slate-900 dark:text-white block">Vertically (\(y\)-axis, up \(+\))</strong>
+          <div class="math-scroll font-mono font-bold text-rose-600 dark:text-rose-400">$$a_y = -g = -9.8\text{ m/s}^2$$</div>
+        </div>
+      </div>
+
+      <!-- Essential Sign Convention Note -->
+      <div class="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs space-y-1.5 text-amber-950 dark:text-amber-200">
+        <strong class="font-bold flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
+          <i data-lucide="compass" class="w-4 h-4"></i> Essential Sign Convention Rule (Upward = Positive)
+        </strong>
+        <ul class="list-disc pl-5 space-y-1">
+          <li><strong>Acceleration:</strong> Gravity always pulls downward, so \(a_y = -g = -9.8\text{ m/s}^2\) throughout the entire flight (going up, at the peak, and going down).</li>
+          <li><strong>Vertical Displacement (\(\Delta y = y - y_0\)):</strong> If the projectile lands <em>above</em> its launch point, \(\Delta y &gt; 0\). If it lands at the <em>same</em> height, \(\Delta y = 0\). If it lands <em>below</em> (e.g., off a cliff of height \(h\)), \(\Delta y = -h\).</li>
+          <li><strong>Launch Angle:</strong> If thrown <em>above</em> the horizontal, \(u_y = +u\sin\theta\). If thrown <em>horizontally</em>, \(\theta = 0^\circ \implies u_y = 0\). If thrown <em>below</em> the horizontal, \(u_y = -u\sin\theta\).</li>
+        </ul>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/CijaQmZm81s4uUky7H_WAwAJ8Jy0VE90_fiUeeyTXg-RU8Ce2YlzHFpXyZGRX7iTCMw4Zhxi_TBaWoqPPNrmzbEvAng_4YaOEH_UAUUSOQcC0JdjFCWivUxWOQtXGbzyDVr4c7AGl7AGk2sE-7nG1WnF2LPlnPh-FzapFwpDHaNqE-n0hG0SGpt-CyJIWHjJ?purpose=fullsize', 'Horizontal vs Vertical Velocity and Acceleration Vectors')">
+        <img src="https://images.openai.com/static-rsc-4/CijaQmZm81s4uUky7H_WAwAJ8Jy0VE90_fiUeeyTXg-RU8Ce2YlzHFpXyZGRX7iTCMw4Zhxi_TBaWoqPPNrmzbEvAng_4YaOEH_UAUUSOQcC0JdjFCWivUxWOQtXGbzyDVr4c7AGl7AGk2sE-7nG1WnF2LPlnPh-FzapFwpDHaNqE-n0hG0SGpt-CyJIWHjJ?purpose=fullsize" alt="Velocity and Acceleration in 2D" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+        </div>
+      </figure>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-4">Horizontal Motion</th><th class="py-2 px-4">Vertical Motion</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-4">No acceleration (\(a_x = 0\))</td><td class="py-2 px-4">Constant downward acceleration (\(a_y = -g\))</td></tr>
+            <tr><td class="py-2 px-4">Horizontal velocity stays constant</td><td class="py-2 px-4">Vertical velocity changes continuously</td></tr>
+            <tr><td class="py-2 px-4 font-mono font-bold text-brand-700 dark:text-brand-400">\(v_x = u\cos\theta\)</td><td class="py-2 px-4 font-mono font-bold text-rose-600 dark:text-rose-400">\(v_y = u\sin\theta - gt\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. Resolving Initial Velocity -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>First Essential Skill: Resolving Initial Velocity</span>
+      </h2>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/5x7xVh6QkH8Gvzq687MGZvDZME0XHBGrln-PRUWckVkPRHB2fhJfS9dArKCzLtDcYOZrmiW7GFW1Yw2FWQqREQQK8s427kAA3SN4kqQEAzXkt3bzG7yXDjedOXmvxH1rrhb9cdTcOkby_QoXXGLhkJdKVJfTOF1IeFXmJc_Eue7rPG0ctptGtJsD7bozXmLn?purpose=fullsize', 'Resolving Initial Velocity into Horizontal and Vertical Components')">
+        <img src="https://images.openai.com/static-rsc-4/5x7xVh6QkH8Gvzq687MGZvDZME0XHBGrln-PRUWckVkPRHB2fhJfS9dArKCzLtDcYOZrmiW7GFW1Yw2FWQqREQQK8s427kAA3SN4kqQEAzXkt3bzG7yXDjedOXmvxH1rrhb9cdTcOkby_QoXXGLhkJdKVJfTOF1IeFXmJc_Eue7rPG0ctptGtJsD7bozXmLn?purpose=fullsize" alt="Initial Velocity Resolution" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+        </div>
+      </figure>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs font-mono text-center">
+        <div class="min-w-0 p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-bold">
+          Horizontal: <div class="math-scroll">$$\boxed{u_x = u\cos\theta}$$</div>
+        </div>
+        <div class="min-w-0 p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-bold">
+          Vertical: <div class="math-scroll">$$\boxed{u_y = u\sin\theta}$$</div>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 font-mono text-xs space-y-2">
+        <div class="font-sans font-semibold text-slate-700 dark:text-slate-200">Quick Example (\(u = 20\text{ m/s},\; \theta = 30^\circ\)):</div>
+        <div class="step-scroll"><div class="step-scroll-line">\(u_x = 20\cos 30^\circ = \mathbf{17.32\text{ m/s}}\) &nbsp;|&nbsp; \(u_y = 20\sin 30^\circ = \mathbf{10\text{ m/s}}\)</div></div>
+        <div class="step-scroll text-emerald-600 dark:text-emerald-400"><div class="step-scroll-line">Reconstruction check: \(u = \sqrt{u_x^2 + u_y^2} = \sqrt{17.32^2 + 10^2} = \mathbf{20\text{ m/s}}\)</div></div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-indigo-50/90 dark:bg-indigo-500/10 border-l-4 border-indigo-500 text-xs sm:text-sm space-y-2 text-indigo-950 dark:text-indigo-200">
+        <strong class="font-display font-bold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
+          <i data-lucide="help-circle" class="w-4 h-4"></i> Critical-Thinking Question 1
+        </strong>
+        <p>If the angle of projection increases from \(30^\circ\) to \(60^\circ\) while initial speed remains \(20\text{ m/s}\):</p>
+        <ul class="list-disc pl-5 text-xs space-y-0.5">
+          <li>Does horizontal velocity increase or decrease?</li>
+          <li>Does vertical velocity increase or decrease?</li>
+          <li>Which component becomes larger?</li>
+        </ul>
+        <details class="pt-1 text-xs">
+          <summary class="cursor-pointer font-bold text-indigo-700 dark:text-indigo-300 hover:underline">Show Answer</summary>
+          <div class="mt-2 p-2.5 rounded-lg bg-white/80 dark:bg-slate-900/60 space-y-1 text-slate-700 dark:text-slate-300">
+            <div>&bull; <strong>Horizontal velocity decreases</strong> (from \(20\cos 30^\circ = 17.32\text{ m/s}\) down to \(20\cos 60^\circ = 10\text{ m/s}\)).</div>
+            <div>&bull; <strong>Vertical velocity increases</strong> (from \(20\sin 30^\circ = 10\text{ m/s}\) up to \(20\sin 60^\circ = 17.32\text{ m/s}\)).</div>
+            <div>&bull; At \(60^\circ\), the <strong>vertical component (\(u_y\))</strong> becomes larger (above \(45^\circ\), \(u_y &gt; u_x\)).</div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 4. Fundamental Equations, Peak Behavior & Core Derivations -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Fundamental Equations, Peak Analysis &amp; Derivations</span>
+      </h2>
+
+      <!-- Four Component Equations -->
+      <div class="grid sm:grid-cols-2 gap-2.5 font-mono text-xs">
+        <div class="min-w-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-sans block text-slate-900 dark:text-white mb-1">A. Horizontal Position</strong>
+          <div class="math-scroll">$$\boxed{x = (u\cos\theta)\,t}$$</div>
+        </div>
+        <div class="min-w-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-sans block text-slate-900 dark:text-white mb-1">B. Vertical Position</strong>
+          <div class="math-scroll">$$\boxed{\Delta y = (u\sin\theta)\,t - \frac{1}{2}gt^2}$$</div>
+        </div>
+        <div class="min-w-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-sans block text-slate-900 dark:text-white mb-1">C. Horizontal Velocity</strong>
+          <div class="math-scroll">$$\boxed{v_x = u\cos\theta}$$</div>
+        </div>
+        <div class="min-w-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-sans block text-slate-900 dark:text-white mb-1">D. Vertical Velocity</strong>
+          <div class="math-scroll">$$\boxed{v_y = u\sin\theta - gt}$$</div>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+        <strong class="font-display text-slate-900 dark:text-white block">Time-Independent Vertical Relation &amp; Instantaneous Speed</strong>
+        <div class="step-scroll font-mono">
+          <div class="step-scroll-line">\(v_y^2 = (u\sin\theta)^2 - 2g\Delta y\) &nbsp;&nbsp;|&nbsp;&nbsp; Speed: \(v = \sqrt{v_x^2 + v_y^2}\) &nbsp;&nbsp;|&nbsp;&nbsp; Angle: \(\phi = \tan^{-1}\!\left(\frac{v_y}{v_x}\right)\)</div>
+        </div>
+      </div>
+
+      <!-- Peak Analysis -->
+      <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">What Happens at the Highest Point?</h3>
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/JkRBTtT5TC684_igXdaDcpDSveaqV6L3apCfr9XjQnCKECbV4vohSQiWlr_JFX397D440AgboUNeWtn1EgxwKnVXcKqTTsGOy5KV2sQB47b398sMW32pIqfcnJ6nC8RN1wHnbr5tGmX_x1CDr-xk9QVH1LFS-wvSujWt4bWtdZATFojpR6FCZz7Gc3WvnmQh?purpose=fullsize', 'At Peak: Vertical Velocity vy = 0 while Horizontal Velocity vx != 0')">
+          <img src="https://images.openai.com/static-rsc-4/JkRBTtT5TC684_igXdaDcpDSveaqV6L3apCfr9XjQnCKECbV4vohSQiWlr_JFX397D440AgboUNeWtn1EgxwKnVXcKqTTsGOy5KV2sQB47b398sMW32pIqfcnJ6nC8RN1wHnbr5tGmX_x1CDr-xk9QVH1LFS-wvSujWt4bWtdZATFojpR6FCZz7Gc3WvnmQh?purpose=fullsize" alt="Highest Point Analysis" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-2 px-4">Quantity at Peak</th><th class="py-2 px-4">Value</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1.5 px-4 font-bold">Vertical velocity (\(v_y\))</td><td class="py-1.5 px-4 font-mono">Zero (\(0\))</td></tr>
+              <tr><td class="py-1.5 px-4 font-bold">Horizontal velocity (\(v_x\))</td><td class="py-1.5 px-4 font-mono">Constant, nonzero (\(u\cos\theta\)) unless vertical launch</td></tr>
+              <tr><td class="py-1.5 px-4 font-bold">Total velocity</td><td class="py-1.5 px-4">Equal strictly to horizontal velocity (\(u\cos\theta\))</td></tr>
+              <tr><td class="py-1.5 px-4 font-bold">Acceleration (\(a_y\))</td><td class="py-1.5 px-4 font-mono">Downward, \(9.8\text{ m/s}^2\) (\(a_y = -9.8\text{ m/s}^2\))</td></tr>
+              <tr><td class="py-1.5 px-4 font-bold">Speed</td><td class="py-1.5 px-4">Minimum speed during flight (\(= u\cos\theta\)), not zero</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200">
+          <strong>Exam Trap:</strong> If an MCQ claims <em>&ldquo;The velocity of a projectile at its highest point is zero,&rdquo;</em> that statement is generally <strong>FALSE</strong>—only its vertical component (\(v_y\)) is zero.
+        </div>
+      </div>
+
+      <!-- Derivations: t_up, H, T, R -->
+      <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+        <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-2.5">
+          <strong class="font-display text-sm text-brand-900 dark:text-white block">Key Derivations (Same Launch &amp; Landing Height)</strong>
+          <div class="space-y-2 font-mono">
+            <div class="step-scroll"><div class="step-scroll-line"><strong>1. Time to Peak (\(v_y = 0\)):</strong> \(0 = u\sin\theta - gt_{\text{up}} \implies \boxed{t_{\text{up}} = \frac{u\sin\theta}{g}}\)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line"><strong>2. Maximum Height (\(v_y^2 = u_y^2 - 2gy\)):</strong> \(0 = u^2\sin^2\theta - 2gH \implies \boxed{H = \frac{u^2\sin^2\theta}{2g}}\)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line"><strong>3. Total Time of Flight (\(\Delta y = 0\)):</strong> \(0 = T\!\left(u\sin\theta - \frac{1}{2}gT\right) \implies \boxed{T = \frac{2u\sin\theta}{g}}\)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line"><strong>4. Horizontal Range (\(R = u_x T\)):</strong> \(R = u\cos\theta\!\left(\frac{2u\sin\theta}{g}\right) = \frac{u^2(2\sin\theta\cos\theta)}{g} \implies \boxed{R = \frac{u^2\sin 2\theta}{g}}\)</div></div>
+          </div>
+          <p class="text-[11px] font-bold text-rose-600 dark:text-rose-400">
+            Important Condition: The formulas for \(T\) and \(R\) above apply ONLY when the projectile lands at the exact same vertical height from which it was launched!
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="min-w-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="font-display text-slate-900 dark:text-white block">Maximum Possible Range</strong>
+            <p class="text-slate-600 dark:text-slate-300">Maximum occurs when \(\sin 2\theta = 1 \implies 2\theta = 90^\circ \implies \mathbf{\theta = 45^\circ}\):</p>
+            <div class="math-scroll font-mono font-bold text-emerald-600 dark:text-emerald-400">$$R_{\max} = \frac{u^2}{g}$$</div>
+          </div>
+          <div class="min-w-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="font-display text-slate-900 dark:text-white block">Complementary Angles (\(\theta_1 + \theta_2 = 90^\circ\))</strong>
+            <p class="text-slate-600 dark:text-slate-300">Pairs like \(30^\circ \&amp; 60^\circ\), \(20^\circ \&amp; 70^\circ\), or \(40^\circ \&amp; 50^\circ\) yield <strong>equal range</strong> (since \(\sin 2\theta_1 = \sin 2\theta_2\)), but the steeper angle reaches a <strong>higher maximum height</strong> and stays airborne longer!</p>
+          </div>
+        </div>
+
+        <!-- Symmetry & H/R Shortcut -->
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1.5">
+          <strong class="font-display text-emerald-900 dark:text-emerald-300 block">Symmetry Rules &amp; Useful Exam Shortcut (Level Ground)</strong>
+          <ul class="list-disc pl-4 space-y-1 text-slate-700 dark:text-slate-300">
+            <li><strong>Time Symmetry:</strong> Time going up equals time coming down (\(t_{\text{up}} = t_{\text{down}} = \frac{T}{2}\)).</li>
+            <li><strong>Velocity Symmetry:</strong> At any equal height on the way up and down, speed is identical, \(v_y\) is equal in magnitude and opposite in sign, and impact speed equals launch speed (\(v_{\text{land}} = u\) at angle \(-\theta\)).</li>
+            <li><strong>Height-to-Range Ratio Shortcut:</strong> <span class="font-mono font-bold text-emerald-700 dark:text-emerald-300">\(\frac{H}{R} = \frac{\tan\theta}{4}\)</span> (so at \(\theta = 45^\circ\), \(R_{\max} = 4H\)).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Seven Complete Worked Examples -->
+    <section class="card p-4 sm:p-6 space-y-6">
+      <div class="space-y-1 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <h2 class="section-heading !border-b-0 !pb-0 !mb-0">
+          <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+          <span>Complete Worked Examples (Basic to Advanced)</span>
+        </h2>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 pl-9">
+          <i data-lucide="move-horizontal" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 shrink-0"></i>
+          <span>Swipe any long formula or calculation step left/right on mobile to view the full line.</span>
+        </p>
+      </div>
+
+      <!-- Example 1 -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 1 — Standard Angled Projection (Level Ground)</strong>
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed">
+          A football is kicked from ground level with an initial speed of \(u = 20\text{ m/s}\) at an angle \(\theta = 30^\circ\) above the horizontal (\(g = 9.8\text{ m/s}^2\)).
+        </p>
+        <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1">
+          <div><strong>Given:</strong> \(u = 20\text{ m/s}\), &nbsp;\(\theta = 30^\circ\), &nbsp;\(\Delta y = 0\text{ m}\), &nbsp;\(g = 9.8\text{ m/s}^2\)</div>
+          <div><strong>Find:</strong> (a) Horizontal &amp; vertical initial velocity components, &nbsp;(b) Total time of flight (\(T\)), &nbsp;(c) Maximum height (\(H\)), &nbsp;(d) Horizontal range (\(R\)).</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 font-mono space-y-3 border border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 1 · Resolve initial velocity</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(u_x = u\cos\theta = 20\cos 30^\circ = \mathbf{17.32\text{ m/s}}\)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line">\(u_y = u\sin\theta = 20\sin 30^\circ = \mathbf{10.0\text{ m/s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 2 · Total time of flight (same level)</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(T = \frac{2u\sin\theta}{g} = \frac{2(20)(0.5)}{9.8} = \frac{20}{9.8} = \mathbf{2.04\text{ s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 3 · Maximum height</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(H = \frac{u^2\sin^2\theta}{2g} = \frac{20^2(0.5)^2}{2(9.8)} = \frac{100}{19.6} = \mathbf{5.10\text{ m}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 4 · Horizontal range</div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">\(R = \frac{u^2\sin 2\theta}{g} = \frac{20^2\sin 60^\circ}{9.8} = \frac{400(0.8660)}{9.8} = \mathbf{35.35\text{ m}}\)</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Example 2 -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 2 — Horizontal Projection From a Cliff</strong>
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed">
+          A ball is projected horizontally with a speed of \(15\text{ m/s}\) from the top of a cliff \(45\text{ m}\) high (\(g = 9.8\text{ m/s}^2\)).
+        </p>
+        <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1">
+          <div><strong>Given:</strong> \(u = 15\text{ m/s}\), &nbsp;\(\theta = 0^\circ\), &nbsp;cliff height \(h = 45\text{ m}\) (\(\Delta y = -45\text{ m}\)), &nbsp;\(g = 9.8\text{ m/s}^2\)</div>
+          <div><strong>Find:</strong> (a) Time of flight (\(t\)), &nbsp;(b) Horizontal distance from the base (\(x\)), &nbsp;(c) Vertical velocity at impact (\(v_y\)), &nbsp;(d) Resultant impact speed (\(v\)) and angle.</div>
+        </div>
+        <figure class="cursor-pointer group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/GhVa8aKE81vYDk0d-nKgeBjrUrWh59fQQRGugt8d1Xuwk-hPU64CY540JKju6eGldFuiEe4HmBsDq_UZllo4pScS6heoX1B79SpznSclhBJLWMCspAvVoKUaHwrh4CwDn292GrW7V7jpIkwCF6AeFG4poVo30EAJbWl4KHtAQ2I7OO07dOxd-M9zjMH76bS8?purpose=fullsize', 'Horizontal Projection From a 45 m Cliff')">
+          <img src="https://images.openai.com/static-rsc-4/GhVa8aKE81vYDk0d-nKgeBjrUrWh59fQQRGugt8d1Xuwk-hPU64CY540JKju6eGldFuiEe4HmBsDq_UZllo4pScS6heoX1B79SpznSclhBJLWMCspAvVoKUaHwrh4CwDn292GrW7V7jpIkwCF6AeFG4poVo30EAJbWl4KHtAQ2I7OO07dOxd-M9zjMH76bS8?purpose=fullsize" alt="Horizontal Cliff Launch" class="w-full max-h-44 object-contain" />
+          <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 font-mono space-y-3 border border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 1 · Identify initial components</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(u_x = 15\cos 0^\circ = \mathbf{15\text{ m/s}},\quad u_y = 15\sin 0^\circ = \mathbf{0\text{ m/s}},\quad \Delta y = -45\text{ m}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 2 · Find time of flight using vertical displacement</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(\Delta y = u_y t - \frac{1}{2}gt^2 \implies -45 = 0 - \frac{1}{2}(9.8)t^2 \implies 4.9t^2 = 45\)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line">\(t^2 = \frac{45}{4.9} = 9.184 \implies \mathbf{t = 3.03\text{ s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 3 · Find horizontal distance from cliff base</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(x = u_x t = 15 \times 3.03 = \mathbf{45.45\text{ m}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 4 · Find vertical velocity at impact</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(v_y = u_y - gt = 0 - 9.8(3.03) = \mathbf{-29.7\text{ m/s}}\) (downward)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 5 · Resultant impact speed &amp; direction</div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">\(v = \sqrt{v_x^2 + v_y^2} = \sqrt{15^2 + (-29.7)^2} = \sqrt{1107.09} \approx \mathbf{33.3\text{ m/s}}\)</div></div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400"><div class="step-scroll-line">Angle below horizontal: \(\phi = \tan^{-1}\!\left(\frac{29.7}{15}\right) \approx \mathbf{63.2^\circ\text{ below horizontal}}\)</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Example 3 -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 3 — Elevated Angled Projection (Quadratic Solution)</strong>
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed">
+          A stone is launched from the edge of a \(20\text{ m}\) high cliff with an initial speed of \(15\text{ m/s}\) at an angle of \(30^\circ\) above the horizontal (\(g = 9.8\text{ m/s}^2\)).
+        </p>
+        <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1">
+          <div><strong>Given:</strong> \(u = 15\text{ m/s}\), &nbsp;\(\theta = 30^\circ\), &nbsp;cliff height \(h = 20\text{ m}\) (\(\Delta y = -20\text{ m}\)), &nbsp;\(g = 9.8\text{ m/s}^2\)</div>
+          <div><strong>Find:</strong> (a) Total time of flight (\(t\)), &nbsp;(b) Horizontal distance from the base (\(x\)), &nbsp;(c) Speed upon hitting the ground (\(v\)).</div>
+        </div>
+        <figure class="cursor-pointer group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/gWQmbD03FAGjQcKmsZxAvLoHmUtcdk8QJkSsQoiFLd5ABHlQAWPZ02iJKR0ONyzcHKKJiKQDcOw56EnkqGeWJoxgPXPJQYjRHhKUDNTi4M1OoGVFPffCF_WVPn1qdiRoNfhvXmXCjGc6fbMtQgTiuvMb_0EtP1U8Op4HJpF-4VLr2TyWZCucLU8VwcAoJ12l?purpose=fullsize', 'Elevated Angled Launch From Cliff Edge')">
+          <img src="https://images.openai.com/static-rsc-4/gWQmbD03FAGjQcKmsZxAvLoHmUtcdk8QJkSsQoiFLd5ABHlQAWPZ02iJKR0ONyzcHKKJiKQDcOw56EnkqGeWJoxgPXPJQYjRHhKUDNTi4M1OoGVFPffCF_WVPn1qdiRoNfhvXmXCjGc6fbMtQgTiuvMb_0EtP1U8Op4HJpF-4VLr2TyWZCucLU8VwcAoJ12l?purpose=fullsize" alt="Elevated Angled Launch" class="w-full max-h-44 object-contain" />
+          <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 font-mono space-y-3 border border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 1 · Resolve initial velocity</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(u_x = 15\cos 30^\circ = \mathbf{12.99\text{ m/s}},\quad u_y = 15\sin 30^\circ = \mathbf{7.5\text{ m/s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 2 · Set up vertical quadratic equation (\(\Delta y = -20\text{ m}\))</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(-20 = 7.5t - \frac{1}{2}(9.8)t^2 \implies -20 = 7.5t - 4.9t^2 \implies \mathbf{4.9t^2 - 7.5t - 20 = 0}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 3 · Solve using quadratic formula (\(a = 4.9,\; b = -7.5,\; c = -20\))</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(t = \frac{-(-7.5) \pm \sqrt{(-7.5)^2 - 4(4.9)(-20)}}{2(4.9)} = \frac{7.5 \pm \sqrt{56.25 + 392}}{9.8} = \frac{7.5 \pm 21.17}{9.8}\)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line">\(t_1 = \frac{28.67}{9.8} = \mathbf{2.93\text{ s}}\) &nbsp; (reject negative root \(t_2 = -1.39\text{ s}\))</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 4 · Find horizontal distance &amp; vertical impact velocity</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(x = u_x t = 12.99 \times 2.93 = \mathbf{38.1\text{ m}}\)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line">\(v_y = u_y - gt = 7.5 - 9.8(2.93) = \mathbf{-21.21\text{ m/s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 5 · Find impact speed</div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">\(v = \sqrt{v_x^2 + v_y^2} = \sqrt{12.99^2 + (-21.21)^2} = \sqrt{618.6} \approx \mathbf{24.9\text{ m/s}}\)</div></div>
+          </div>
+        </div>
+        <p class="text-[11px] font-bold text-rose-600 dark:text-rose-400">Critical Exam Lesson: Never use \(T = \frac{2u\sin\theta}{g}\) here because the landing height differs from the launch height.</p>
+      </div>
+
+      <!-- Example 4 -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 4 — Finding Position &amp; Motion State at a Given Time (Rocket)</strong>
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed">
+          A rocket is fired from the ground with initial speed \(u = 100\text{ m/s}\) at an angle \(\theta = 55^\circ\) above the horizontal, and explodes on a mountainside \(t = 12\text{ s}\) later (\(g = 9.8\text{ m/s}^2\)).
+        </p>
+        <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1">
+          <div><strong>Given:</strong> \(u = 100\text{ m/s}\), &nbsp;\(\theta = 55^\circ\), &nbsp;\(t = 12\text{ s}\), &nbsp;\(g = 9.8\text{ m/s}^2\)</div>
+          <div><strong>Find:</strong> (a) Coordinates \((x, y)\) of the explosion relative to launch, &nbsp;(b) Whether the rocket is rising or falling at \(t = 12\text{ s}\).</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 font-mono space-y-3 border border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 1 · Horizontal position (\(x\)) at \(t = 12\text{ s}\)</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(x = (u\cos\theta)\,t = 100\cos 55^\circ \times 12 = 57.36 \times 12 = \mathbf{688.3\text{ m}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 2 · Vertical position (\(y\)) at \(t = 12\text{ s}\)</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(y = (u\sin\theta)\,t - \frac{1}{2}gt^2 = 100\sin 55^\circ(12) - \frac{1}{2}(9.8)(12^2)\)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line">\(y = 983.0 - 705.6 = \mathbf{277.4\text{ m}}\)</div></div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">Explosion coordinates: \((x, y) = \mathbf{(688.3,\; 277.4)\text{ m}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 3 · Check vertical velocity (\(v_y\)) to see if rising or falling</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(v_y = u\sin\theta - gt = 100\sin 55^\circ - 9.8(12) = 81.92 - 117.6 = \mathbf{-35.68\text{ m/s}}\)</div></div>
+            <div class="font-sans text-slate-600 dark:text-slate-300">Since \(v_y &lt; 0\), the rocket is <strong>descending</strong> (falling) when it hits the mountainside.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Example 5 -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 5 — Package Dropped From an Airplane</strong>
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed">
+          An airplane flies horizontally at a constant speed of \(40\text{ m/s}\) at an altitude of \(100\text{ m}\) when a relief package is released (\(g = 9.8\text{ m/s}^2\)).
+        </p>
+        <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1">
+          <div><strong>Given:</strong> \(u_x = 40\text{ m/s}\), &nbsp;\(u_y = 0\text{ m/s}\), &nbsp;altitude \(h = 100\text{ m}\) (\(\Delta y = -100\text{ m}\)), &nbsp;\(g = 9.8\text{ m/s}^2\)</div>
+          <div><strong>Find:</strong> (a) Time taken for the package to reach the ground (\(t\)), &nbsp;(b) Horizontal distance traveled ahead of the release point (\(x\)).</div>
+        </div>
+        <figure class="cursor-pointer group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/BgczQWKY3BHsyfQ1i376LxNLaOhaY4h9WSX4lejFfDfqnvJZigzkItxHzXKjYG1jGS6aFCaXvAPjVvIGYnuRC1UDTtAQ_0mgYfAnV348yOOM7-M3tCo4ivF4MvruEBBo5u3-_70boVbAFxTvc2AmUlC8hnjoMpFN73tVCqh2cv480NxXYgJkWobDpMiHInH8?purpose=fullsize', 'Package Dropped From Moving Airplane')">
+          <img src="https://images.openai.com/static-rsc-4/BgczQWKY3BHsyfQ1i376LxNLaOhaY4h9WSX4lejFfDfqnvJZigzkItxHzXKjYG1jGS6aFCaXvAPjVvIGYnuRC1UDTtAQ_0mgYfAnV348yOOM7-M3tCo4ivF4MvruEBBo5u3-_70boVbAFxTvc2AmUlC8hnjoMpFN73tVCqh2cv480NxXYgJkWobDpMiHInH8?purpose=fullsize" alt="Package Dropped From Airplane" class="w-full max-h-44 object-contain" />
+          <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 font-mono space-y-3 border border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 1 · Initial velocity inherited from plane</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(u_x = \mathbf{40\text{ m/s}},\quad u_y = \mathbf{0\text{ m/s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 2 · Falling time</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(-100 = 0 - \frac{1}{2}(9.8)t^2 \implies 4.9t^2 = 100 \implies t^2 = 20.408 \implies \mathbf{t = 4.52\text{ s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 3 · Horizontal landing distance</div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">\(x = u_x t = 40 \times 4.52 = \mathbf{180.8\text{ m} \approx 181\text{ m}}\)</div></div>
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-indigo-50/90 dark:bg-indigo-500/10 border-l-4 border-indigo-500 text-xs space-y-1 text-indigo-950 dark:text-indigo-200">
+          <p class="font-semibold">Critical Question 2: If the airplane moves at \(40\text{ m/s}\), why doesn't the package fall straight down underneath the release spot?</p>
+          <details class="pt-1">
+            <summary class="cursor-pointer font-bold text-indigo-700 dark:text-indigo-300 hover:underline">Show Answer</summary>
+            <p class="mt-1.5 text-slate-700 dark:text-slate-300">By Newton's First Law (inertia), at the instant of release the package already has a horizontal velocity of \(40\text{ m/s}\). Because no horizontal force acts on it (neglecting air resistance), it keeps moving forward at \(40\text{ m/s}\) while falling—staying directly beneath the airplane the entire time!</p>
+          </details>
+        </div>
+      </div>
+
+      <!-- Example 6 -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 6 — Velocity Magnitude &amp; Direction at Any Instant</strong>
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed">
+          A projectile is launched from the ground with initial speed \(u = 25\text{ m/s}\) at an angle \(\theta = 53^\circ\) above the horizontal (\(g = 9.8\text{ m/s}^2\)).
+        </p>
+        <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1">
+          <div><strong>Given:</strong> \(u = 25\text{ m/s}\), &nbsp;\(\theta = 53^\circ\), &nbsp;\(t = 2\text{ s}\), &nbsp;\(g = 9.8\text{ m/s}^2\)</div>
+          <div><strong>Find:</strong> (a) Horizontal &amp; vertical velocity components at \(t = 2\text{ s}\), &nbsp;(b) Speed (\(v\)) and direction angle (\(\phi\)) of the projectile at \(t = 2\text{ s}\).</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 font-mono space-y-3 border border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 1 · Resolve initial velocity</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(u_x = 25\cos 53^\circ = \mathbf{15.05\text{ m/s}},\quad u_y = 25\sin 53^\circ = \mathbf{19.97\text{ m/s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 2 · Velocity components at \(t = 2\text{ s}\)</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(v_x = u_x = \mathbf{15.05\text{ m/s}}\) (constant)</div></div>
+            <div class="step-scroll"><div class="step-scroll-line">\(v_y = u_y - gt = 19.97 - 9.8(2) = 19.97 - 19.6 = \mathbf{0.37\text{ m/s}}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 3 · Speed &amp; direction angle</div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">\(v = \sqrt{v_x^2 + v_y^2} = \sqrt{15.05^2 + 0.37^2} \approx \mathbf{15.05\text{ m/s}}\)</div></div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">\(\phi = \tan^{-1}\!\left(\frac{v_y}{v_x}\right) = \tan^{-1}\!\left(\frac{0.37}{15.05}\right) \approx \mathbf{1.4^\circ\text{ above horizontal}}\)</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Example 7 & Trajectory Equation -->
+      <div class="p-4 rounded-2xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-3 text-xs">
+        <strong class="font-display text-sm text-brand-900 dark:text-white block">Equation of Trajectory &amp; Example 7</strong>
+        <p class="text-slate-700 dark:text-slate-300">Eliminating time \(t = \frac{x}{u\cos\theta}\) inside \(y = (u\sin\theta)\,t - \frac{1}{2}gt^2\) gives the parabolic trajectory equation:</p>
+        <div class="math-scroll font-mono font-bold text-center text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{y = x\tan\theta - \frac{gx^2}{2u^2\cos^2\theta}}$$
+        </div>
+
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed pt-1">
+          <strong>Example 7:</strong> A ball is launched from ground level at \(u = 20\text{ m/s}\) at an angle \(\theta = 45^\circ\) above the horizontal (\(g = 9.8\text{ m/s}^2\)).
+        </p>
+        <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-brand-200 dark:border-brand-500/30 space-y-1">
+          <div><strong>Given:</strong> \(u = 20\text{ m/s}\), &nbsp;\(\theta = 45^\circ\), &nbsp;\(x = 20\text{ m}\), &nbsp;\(g = 9.8\text{ m/s}^2\)</div>
+          <div><strong>Find:</strong> The height (\(y\)) of the ball when it has traveled a horizontal distance of \(x = 20\text{ m}\).</div>
+        </div>
+        <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 font-mono space-y-3 border border-slate-200 dark:border-slate-800">
+          <div class="space-y-1">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 1 · Substitute into trajectory equation</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(y = 20\tan 45^\circ - \frac{9.8(20)^2}{2(20)^2\cos^2 45^\circ}\)</div></div>
+          </div>
+          <div class="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div class="font-sans font-bold text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider">Step 2 · Simplify (\(\tan 45^\circ = 1,\; \cos^2 45^\circ = 0.5\))</div>
+            <div class="step-scroll"><div class="step-scroll-line">\(y = 20(1) - \frac{3920}{2(400)(0.5)} = 20 - \frac{3920}{400} = 20 - 9.8\)</div></div>
+            <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">\(y = \mathbf{10.2\text{ m}}\)</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Advanced Scaling & Examination Traps -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Scaling Laws &amp; Common Examination Traps</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="min-w-0 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Speed Scaling (\(R \propto u^2,\; H \propto u^2,\; T \propto u\))</strong>
+          <ul class="list-disc pl-4 space-y-0.5 text-slate-600 dark:text-slate-300">
+            <li>Double initial speed &rarr; <strong>4&times; range</strong> &amp; <strong>4&times; height</strong> (2&times; flight time)</li>
+            <li>Triple initial speed &rarr; <strong>9&times; range</strong> &amp; <strong>9&times; height</strong></li>
+            <li>Halve initial speed &rarr; <strong>1/4 range</strong> &amp; <strong>1/4 height</strong></li>
+          </ul>
+        </div>
+        <div class="min-w-0 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Gravity Effect (\(R \propto 1/g,\; H \propto 1/g\))</strong>
+          <p class="text-slate-600 dark:text-slate-300">Both range and maximum height are inversely proportional to gravity: smaller \(g\) yields larger range and height (e.g., on the Moon where \(g \approx g_{\text{Earth}}/6\), jumps go <strong>6&times; farther</strong> and <strong>6&times; higher</strong>).</p>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-indigo-50/90 dark:bg-indigo-500/10 border-l-4 border-indigo-500 text-xs space-y-1.5 text-indigo-950 dark:text-indigo-200">
+        <div><strong>Critical-Thinking Challenge 3:</strong> Comparing \(30^\circ\) and \(60^\circ\) launches at identical speed on level ground: which throw spends more time in the air, and why? Use the time-of-flight equation to prove your answer.</div>
+        <details class="pt-1">
+          <summary class="cursor-pointer font-bold text-indigo-700 dark:text-indigo-300 hover:underline">Show Answer</summary>
+          <div class="mt-2 p-2.5 rounded-lg bg-white/80 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 space-y-1">
+            <div>The <strong>\(60^\circ\)</strong> throw spends more time in the air.</div>
+            <div class="step-scroll font-mono"><div class="step-scroll-line">Since \(T = \frac{2u\sin\theta}{g}\) and \(\sin 60^\circ (0.866) &gt; \sin 30^\circ (0.500)\), \(T_{60^\circ} = 1.732\,T_{30^\circ}\).</div></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Traps Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-3 sm:px-4">Exam Statement</th><th class="py-2 px-3 sm:px-4">Correct Understanding</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3 sm:px-4">Horizontal velocity decreases during flight</td><td class="py-2 px-3 sm:px-4 font-semibold text-rose-600">False in the ideal model (\(v_x = \text{const}\))</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4">Vertical acceleration becomes zero at the peak</td><td class="py-2 px-3 sm:px-4 font-semibold text-rose-600">False (\(a_y = -g\) everywhere)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4">Velocity at the peak is always zero</td><td class="py-2 px-3 sm:px-4 font-semibold text-rose-600">False (\(v_x \neq 0\) unless launched straight up)</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4">Maximum range always occurs at \(45^\circ\)</td><td class="py-2 px-3 sm:px-4">Only for equal launch/landing heights without air resistance</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4">Time of flight is always \(T = \frac{2u\sin\theta}{g}\)</td><td class="py-2 px-3 sm:px-4">Only for equal launch and landing heights</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4">A dropped package has zero horizontal velocity</td><td class="py-2 px-3 sm:px-4 font-semibold text-rose-600">False if the aircraft is moving</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4">Horizontal &amp; vertical motions take different times</td><td class="py-2 px-3 sm:px-4 font-semibold text-rose-600">False; they share identical elapsed time</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4">A projectile follows a parabolic path</td><td class="py-2 px-3 sm:px-4 font-semibold text-emerald-600">True under ideal assumptions</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. University-Level Challenge Problems & Solutions -->
+    <section class="card p-4 sm:p-6 space-y-4 border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-950/20">
+      <h2 class="section-heading !text-indigo-700 dark:!text-indigo-300">
+        <span class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-extrabold shrink-0">7</span>
+        <span>Challenge Problems (With Step-by-Step Solutions)</span>
+      </h2>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20 space-y-2">
+          <div><strong>Challenge 1 — The Unknown Angle:</strong> A projectile is launched from level ground at \(30\text{ m/s}\) and lands at the same height \(6\text{ s}\) later (\(g = 9.8\text{ m/s}^2\)). Find its vertical initial velocity, launch angle, horizontal velocity, and horizontal range.</div>
+          <details>
+            <summary class="cursor-pointer font-bold text-indigo-700 dark:text-indigo-300 hover:underline">Show Solution</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 font-mono space-y-1.5">
+              <div class="step-scroll"><div class="step-scroll-line">1. \(T = \frac{2u_y}{g} \implies u_y = \frac{gT}{2} = \frac{9.8(6)}{2} = \mathbf{29.4\text{ m/s}}\)</div></div>
+              <div class="step-scroll"><div class="step-scroll-line">2. \(\sin\theta = \frac{u_y}{u} = \frac{29.4}{30} = 0.98 \implies \theta = \sin^{-1}(0.98) \approx \mathbf{78.5^\circ}\)</div></div>
+              <div class="step-scroll"><div class="step-scroll-line">3. \(u_x = u\cos\theta = 30\cos 78.5^\circ \approx \mathbf{5.97\text{ m/s}}\)</div></div>
+              <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">4. \(R = u_x T = 5.97 \times 6 \approx \mathbf{35.8\text{ m}}\)</div></div>
+            </div>
+          </details>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20 space-y-2">
+          <div><strong>Challenge 2 — Cliff Quadratic:</strong> Launched from a \(45\text{ m}\) cliff at \(20\text{ m/s}\) at \(30^\circ\) above horizontal (\(g = 9.8\text{ m/s}^2\)). Calculate flight time, range from cliff base, impact speed, and impact angle.</div>
+          <details>
+            <summary class="cursor-pointer font-bold text-indigo-700 dark:text-indigo-300 hover:underline">Show Solution</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 font-mono space-y-1.5">
+              <div class="step-scroll"><div class="step-scroll-line">1. \(u_x = 20\cos 30^\circ = 17.32\text{ m/s},\quad u_y = 20\sin 30^\circ = 10\text{ m/s}\)</div></div>
+              <div class="step-scroll"><div class="step-scroll-line">2. \(-45 = 10t - 4.9t^2 \implies 4.9t^2 - 10t - 45 = 0 \implies t = \frac{10 + \sqrt{100 + 882}}{9.8} \approx \mathbf{4.22\text{ s}}\)</div></div>
+              <div class="step-scroll"><div class="step-scroll-line">3. \(x = 17.32 \times 4.22 \approx \mathbf{73.1\text{ m}}\)</div></div>
+              <div class="step-scroll"><div class="step-scroll-line">4. \(v_y = 10 - 9.8(4.22) = -31.34\text{ m/s} \implies v = \sqrt{17.32^2 + (-31.34)^2} \approx \mathbf{35.8\text{ m/s}}\)</div></div>
+              <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">5. \(\phi = \tan^{-1}\!\left(\frac{31.34}{17.32}\right) \approx \mathbf{61.1^\circ\text{ below horizontal}}\)</div></div>
+            </div>
+          </details>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20 space-y-2">
+          <div><strong>Challenge 3 — Same Range Mystery:</strong> Projected at \(25\text{ m/s}\) at \(25^\circ\) above horizontal (\(g = 9.8\text{ m/s}^2\)). Find the complementary angle yielding identical range on level ground and compute that range.</div>
+          <details>
+            <summary class="cursor-pointer font-bold text-indigo-700 dark:text-indigo-300 hover:underline">Show Solution</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 font-mono space-y-1.5">
+              <div class="step-scroll"><div class="step-scroll-line">1. Complementary angle: \(\theta_2 = 90^\circ - 25^\circ = \mathbf{65^\circ}\)</div></div>
+              <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">2. \(R = \frac{u^2\sin(2\theta)}{g} = \frac{25^2\sin 50^\circ}{9.8} = \frac{625(0.7660)}{9.8} \approx \mathbf{48.9\text{ m}}\)</div></div>
+            </div>
+          </details>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20 space-y-2">
+          <div><strong>Challenge 4 — Specified Position:</strong> Projected at \(30\text{ m/s}\) at \(40^\circ\) above horizontal (\(g = 9.8\text{ m/s}^2\)). Find its height and vertical velocity when its horizontal distance is \(50\text{ m}\).</div>
+          <details>
+            <summary class="cursor-pointer font-bold text-indigo-700 dark:text-indigo-300 hover:underline">Show Solution</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 font-mono space-y-1.5">
+              <div class="step-scroll"><div class="step-scroll-line">1. \(u_x = 30\cos 40^\circ = 22.98\text{ m/s},\quad u_y = 30\sin 40^\circ = 19.28\text{ m/s}\)</div></div>
+              <div class="step-scroll"><div class="step-scroll-line">2. Time to reach \(x = 50\text{ m}\): \(t = \frac{x}{u_x} = \frac{50}{22.98} = \mathbf{2.176\text{ s}}\)</div></div>
+              <div class="step-scroll"><div class="step-scroll-line">3. Height: \(y = 19.28(2.176) - 4.9(2.176)^2 = 41.95 - 23.20 = \mathbf{18.75\text{ m}}\)</div></div>
+              <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">4. Vertical velocity: \(v_y = 19.28 - 9.8(2.176) = \mathbf{-2.04\text{ m/s}}\) (descending)</div></div>
+            </div>
+          </details>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20 space-y-2">
+          <div><strong>Challenge 5 — Planet Gravity Problem:</strong> An astronaut on a strange planet jumps a maximum horizontal distance of \(15\text{ m}\) with an initial speed of \(3\text{ m/s}\). Calculate the planet's gravitational acceleration \(g\).</div>
+          <details>
+            <summary class="cursor-pointer font-bold text-indigo-700 dark:text-indigo-300 hover:underline">Show Solution</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/80 font-mono space-y-1.5">
+              <div class="step-scroll"><div class="step-scroll-line">1. Maximum range occurs at \(45^\circ\): \(R_{\max} = \frac{u^2}{g}\)</div></div>
+              <div class="step-scroll text-emerald-600 dark:text-emerald-400 font-bold"><div class="step-scroll-line">2. \(g = \frac{u^2}{R_{\max}} = \frac{3^2}{15} = \frac{9}{15} = \mathbf{0.6\text{ m/s}^2}\)</div></div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Formula Revision Sheet -->
+    <section class="card p-4 sm:p-6 space-y-3">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+          <i data-lucide="bookmark-check" class="w-4 h-4"></i>
+        </span>
+        <span>Quick Exam Formula Sheet</span>
+      </h2>
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-3.5">Quantity</th><th class="py-2 px-3.5">Formula</th><th class="py-2 px-3.5">Condition</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3.5 font-semibold">Horizontal position &amp; velocity</td><td class="py-2 px-3.5 font-mono">\(x = (u\cos\theta)t,\; v_x = u\cos\theta\)</td><td class="py-2 px-3.5">Always valid (ideal)</td></tr>
+            <tr><td class="py-2 px-3.5 font-semibold">Vertical position &amp; velocity</td><td class="py-2 px-3.5 font-mono">\(\Delta y = (u\sin\theta)t - \frac{1}{2}gt^2,\; v_y = u\sin\theta - gt\)</td><td class="py-2 px-3.5">Always valid (up \(+\))</td></tr>
+            <tr><td class="py-2 px-3.5 font-semibold">Time to peak &amp; Max height</td><td class="py-2 px-3.5 font-mono">\(t_{\text{up}} = \frac{u\sin\theta}{g},\; H = \frac{u^2\sin^2\theta}{2g}\)</td><td class="py-2 px-3.5">Measured from launch point</td></tr>
+            <tr><td class="py-2 px-3.5 font-semibold">Total flight time &amp; Range</td><td class="py-2 px-3.5 font-mono">\(T = \frac{2u\sin\theta}{g},\; R = \frac{u^2\sin 2\theta}{g}\)</td><td class="py-2 px-3.5 font-semibold text-rose-600 dark:text-rose-400">Same launch &amp; land height only</td></tr>
+            <tr><td class="py-2 px-3.5 font-semibold">Trajectory equation</td><td class="py-2 px-3.5 font-mono">\(y = x\tan\theta - \frac{gx^2}{2u^2\cos^2\theta}\)</td><td class="py-2 px-3.5">Origin at launch point</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8. Challenging Examination MCQs (8 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Challenge Examination Practice</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">8 high-difficulty exam questions with full solution breakdowns</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 8</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 8 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Projectile Motion
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. A projectile is launched at 20 m/s at 30° above the horizontal. What is its velocity at the highest point, neglecting air resistance?",
+        options: ["A. Zero", "B. 10 m/s horizontally", "C. 17.32 m/s horizontally", "D. 20 m/s vertically"],
+        correct: 2,
+        exp: "At the peak, vy = 0, while horizontal velocity remains constant: vx = 20 cos(30°) = 17.32 m/s horizontally."
+      },
+      {
+        q: "Question 2. Two projectiles are launched at the same speed on level ground at 35° and 55°. Which statement is correct?",
+        options: ["A. The 35° projectile has greater range", "B. The 55° projectile has greater range", "C. They have equal range but different maximum heights", "D. They have equal range and equal maximum heights"],
+        correct: 2,
+        exp: "35° + 55° = 90° (complementary angles), yielding equal horizontal range R = u²sin(2θ)/g, while the steeper 55° projectile reaches a higher peak."
+      },
+      {
+        q: "Question 3. A ball is launched horizontally at 14 m/s from a 19.6 m cliff. Neglecting air resistance, how far from the cliff base does it land?",
+        options: ["A. 14 m", "B. 19.6 m", "C. 28 m", "D. 39.2 m"],
+        correct: 2,
+        exp: "Vertical drop: 19.6 = ½(9.8)t² → t² = 4 → t = 2 s. Horizontal distance: x = vx × t = 14 × 2 = 28 m."
+      },
+      {
+        q: "Question 4. A projectile is launched from ground level and lands at the same level. If its initial speed is doubled while the launch angle stays unchanged, what happens to its range?",
+        options: ["A. It doubles", "B. It becomes four times as large", "C. It becomes half", "D. It remains unchanged"],
+        correct: 1,
+        exp: "Because R = u²sin(2θ)/g, range is proportional to u². Doubling u produces 2² = 4 times the range."
+      },
+      {
+        q: "Question 5. A projectile is launched at 25 m/s at 53° above horizontal. Approximately what is its vertical velocity after 2 seconds? (Use sin 53° = 0.8 and g = 10 m/s²)",
+        options: ["A. +20 m/s", "B. +10 m/s", "C. 0 m/s", "D. −10 m/s"],
+        correct: 2,
+        exp: "uy = 25 × 0.8 = 20 m/s. After t = 2 s: vy = uy − gt = 20 − 10(2) = 0 m/s (exactly at peak)."
+      },
+      {
+        q: "Question 6. A projectile is launched at 20 m/s at 30° from a point 20 m above the ground. Which method correctly finds its flight time?",
+        options: ["A. Always use T = 2u sin θ / g", "B. Set vertical displacement to −20 m in the vertical motion equation and solve for t", "C. Use horizontal motion only", "D. Set both velocity components to zero at impact"],
+        correct: 1,
+        exp: "T = 2u sinθ / g only works for level launches. For a 20 m drop, substitute Δy = −20 m into Δy = uyt − ½gt² and solve the quadratic equation."
+      },
+      {
+        q: "Question 7. At the highest point of an ideal projectile's path, which statement is correct?",
+        options: ["A. Its acceleration is zero because it stops rising", "B. Its horizontal velocity is zero", "C. Its vertical velocity is zero, but its acceleration is downward", "D. Its total velocity is zero"],
+        correct: 2,
+        exp: "Only the vertical component vy momentarily hits zero at the peak; gravity still accelerates the projectile downward at g = 9.8 m/s²."
+      },
+      {
+        q: "Question 8. An astronaut jumps with speed 3 m/s and achieves a maximum horizontal range of 15 m on a planet. Assuming equal launch and landing heights, what is the planet's gravitational acceleration?",
+        options: ["A. 0.3 m/s²", "B. 0.6 m/s²", "C. 1.5 m/s²", "D. 3.0 m/s²"],
+        correct: 1,
+        exp: "Maximum range is R_max = u²/g. Solving for g: g = u²/R_max = 3² / 15 = 9 / 15 = 0.6 m/s²."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Projectile Motion!" : "Excellent work! You have mastered projectile kinematics, cliff launches, and exam traps.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the elevated launch quadratic steps and scaling laws above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully work through the 7 worked examples and exam trap table above, then retake the quiz.";
+      }
+      resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

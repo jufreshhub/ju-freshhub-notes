@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Free Fall Motion — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .math-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · Vertical Motion
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Free Fall Motion</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Gravitational Acceleration (\(g\)), Sign Conventions, Vertical Launch Symmetry, and Vacuum Equivalence</p>
+      </div>
+    </section>
+
+    <!-- 1. What is Free Fall? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Free Fall?</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition:</strong>
+        <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+          <strong>Free fall</strong> is the motion of an object near Earth's surface under the influence of gravity alone. When air resistance is absent, all objects fall with a constant downward acceleration \(g\) directed toward Earth's surface:
+        </p>
+        <div class="math-scroll font-mono text-center text-base font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{g = 9.8\text{ m/s}^2}$$
+        </div>
+      </div>
+
+      <!-- Figure 1 -->
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/q2G133hbK2v_vRcd9qwfzsZZTXMmMM6go8FU51fqqI4C9x__CG-EwwL2EQzEwKA2YgCUHrWinz2e1pEEfuZOIaqn8chdWdENPx6iLewGbdlTuwaIYkgJrivv_f3fajAS1X3RFc1Tlmub0560Fmjg3BJ_Jkq9Ehw4t-UCVDLZQ54woqDqdFQo3Ku5sSzgqeki?purpose=fullsize', 'Motion of Free Fall under Constant Gravity')">
+        <img src="https://images.openai.com/static-rsc-4/q2G133hbK2v_vRcd9qwfzsZZTXMmMM6go8FU51fqqI4C9x__CG-EwwL2EQzEwKA2YgCUHrWinz2e1pEEfuZOIaqn8chdWdENPx6iLewGbdlTuwaIYkgJrivv_f3fajAS1X3RFc1Tlmub0560Fmjg3BJ_Jkq9Ehw4t-UCVDLZQ54woqDqdFQo3Ku5sSzgqeki?purpose=fullsize" alt="Motion of Free Fall" class="w-full max-h-56 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+        </div>
+      </figure>
+
+      <!-- What 9.8 m/s² means -->
+      <div class="space-y-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">What Does \(9.8\text{ m/s}^2\) Mean?</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+          It means an object's downward velocity changes by \(9.8\text{ m/s}\) every single second (assuming no air resistance). For an object dropped from rest:
+        </p>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 max-w-sm mx-auto">
+          <table class="w-full text-center text-xs sm:text-sm font-mono">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-sans font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-2 px-4">Time (\(t\))</th><th class="py-2 px-4">Downward Speed</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1.5 px-4">0 s</td><td class="py-1.5 px-4 font-bold text-brand-600">0 m/s</td></tr>
+              <tr><td class="py-1.5 px-4">1 s</td><td class="py-1.5 px-4 font-bold text-brand-600">9.8 m/s</td></tr>
+              <tr><td class="py-1.5 px-4">2 s</td><td class="py-1.5 px-4 font-bold text-brand-600">19.6 m/s</td></tr>
+              <tr><td class="py-1.5 px-4">3 s</td><td class="py-1.5 px-4 font-bold text-brand-600">29.4 m/s</td></tr>
+              <tr><td class="py-1.5 px-4">4 s</td><td class="py-1.5 px-4 font-bold text-brand-600">39.2 m/s</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200">
+          <strong>Important Distinction:</strong> Gravity (\(g\)) is an <strong>acceleration</strong>, not the object's velocity. The velocity continuously changes as time passes.
+        </div>
+      </div>
+
+      <!-- Heavy vs Light Object -->
+      <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Does a Heavy Object Fall Faster Than a Light Object?</h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          If you drop a small stone and a heavy stone simultaneously from the same height (neglecting air resistance), <strong>they reach the ground together</strong> because gravitational acceleration \(g\) is identical for both. In real air, a feather falls more slowly only because air resistance affects it much more strongly. In a <strong>vacuum</strong>, even a feather and a hammer (or bowling ball) fall side by side with identical acceleration!
+        </p>
+
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/wgrIm-FcAx41LE77ggbDM1nY-xAN-1nFZdSCKo8heRBEOTcSYlnMksrdouoUwu6MndebGAVQaBpEYISk0zhQ11Y-wb3X8tNf212FC9LobP7mA81EfbpYsV9cuofmxQda1eiMr5PpGDoR_-yds4cS0b1XRyDWYH9iZpP5fNUlJM0ed9ZLl2d4wTl7QFdql_HV?purpose=fullsize', 'Free Fall in Vacuum: Bowling Ball and Feather Fall Together')">
+          <img src="https://images.openai.com/static-rsc-4/wgrIm-FcAx41LE77ggbDM1nY-xAN-1nFZdSCKo8heRBEOTcSYlnMksrdouoUwu6MndebGAVQaBpEYISk0zhQ11Y-wb3X8tNf212FC9LobP7mA81EfbpYsV9cuofmxQda1eiMr5PpGDoR_-yds4cS0b1XRyDWYH9iZpP5fNUlJM0ed9ZLl2d4wTl7QFdql_HV?purpose=fullsize" alt="Vacuum Fall: Bowling Ball and Feather" class="w-full max-h-56 object-contain group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 2. Sign Conventions -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Direction of Gravity &amp; Sign Conventions</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Gravity <strong>always points downward</strong> near Earth's surface. Whether we write \(g\) with a positive or negative sign depends purely on the coordinate axis we choose:
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="text-slate-900 dark:text-white font-display block">Case A: Upward as Positive (\(+\))</strong>
+          <div class="font-mono font-bold text-rose-600 dark:text-rose-400 text-sm">$$a = -g = -9.8\text{ m/s}^2$$</div>
+          <figure class="cursor-pointer group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/49x3yFxkAxNUp8pQEf6PN2Z9SScvtaQjz2JaAC9GcltpBhh1Gg8Nu6YPhMEq_FFjWWvTCU3IhKwGW6kwbGvoPgHro4jxGCWYqtogvPBQLMRIhDuPngIhJbmYzeKe4Z_w2c_Oe9zbE0ajPRf-xvVCqe4GlFuMZO6C3zuNSMnpPjyPbXJS3YGLuJ5EkybGQerh?purpose=fullsize', 'Case A: Choosing Upward as Positive (a = -g)')">
+            <img src="https://images.openai.com/static-rsc-4/49x3yFxkAxNUp8pQEf6PN2Z9SScvtaQjz2JaAC9GcltpBhh1Gg8Nu6YPhMEq_FFjWWvTCU3IhKwGW6kwbGvoPgHro4jxGCWYqtogvPBQLMRIhDuPngIhJbmYzeKe4Z_w2c_Oe9zbE0ajPRf-xvVCqe4GlFuMZO6C3zuNSMnpPjyPbXJS3YGLuJ5EkybGQerh?purpose=fullsize" alt="Upward Positive Sign Convention" class="w-full max-h-40 object-contain group-hover:scale-105 transition duration-300" />
+          </figure>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="text-slate-900 dark:text-white font-display block">Case B: Downward as Positive (\(+\))</strong>
+          <div class="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">$$a = +g = +9.8\text{ m/s}^2$$</div>
+          <figure class="cursor-pointer group relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/3FJoLHCWllimohr4x_mC1O4zJaqdl7LEAwh6EWXPhB0TiZhDN5Kgcbs-3Dugi_1Lc_auo-HaKyws46jPY_8TZrGbylbz07-OppnNroXSEyt4ggSdVFlvJmF2liyyjqeRGbE2SYlzyKJKAje8oolzAbL6dyRQHJVUXpUQ6F9kOCMbhQ0R61q98iey2J9DhHTe?purpose=fullsize', 'Case B: Choosing Downward as Positive (a = +g)')">
+            <img src="https://images.openai.com/static-rsc-4/3FJoLHCWllimohr4x_mC1O4zJaqdl7LEAwh6EWXPhB0TiZhDN5Kgcbs-3Dugi_1Lc_auo-HaKyws46jPY_8TZrGbylbz07-OppnNroXSEyt4ggSdVFlvJmF2liyyjqeRGbE2SYlzyKJKAje8oolzAbL6dyRQHJVUXpUQ6F9kOCMbhQ0R61q98iey2J9DhHTe?purpose=fullsize" alt="Downward Positive Sign Convention" class="w-full max-h-40 object-contain group-hover:scale-105 transition duration-300" />
+          </figure>
+        </div>
+      </div>
+
+      <p class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+        Exam Rule: Both choices are valid. Pick one positive direction at the start, then stay completely consistent throughout your solution!
+      </p>
+    </section>
+
+    <!-- 3. The Three Situations of Free Fall -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>The Three Common Situations of Free Fall</span>
+      </h2>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/hI0qYKLZ-4nt0R1f5jTaeq_xNfx_u-A3PomyZdK5PAia_x3Dr7J4bsKTwL0Jkj9bOHvkit9ynmD_7cV_EDWVy9t4le5mXPmky2_hMSF8PmDmpiYEYyryjsh33O4FkPlfEbgnXyc_XLpERPyvFKy-pbtseibHDf1xWT5GcXgUd8zrqvZy7DbSnroWm95-rW7v?purpose=fullsize', 'Three Common Free Fall Scenarios')">
+        <img src="https://images.openai.com/static-rsc-4/hI0qYKLZ-4nt0R1f5jTaeq_xNfx_u-A3PomyZdK5PAia_x3Dr7J4bsKTwL0Jkj9bOHvkit9ynmD_7cV_EDWVy9t4le5mXPmky2_hMSF8PmDmpiYEYyryjsh33O4FkPlfEbgnXyc_XLpERPyvFKy-pbtseibHDf1xWT5GcXgUd8zrqvZy7DbSnroWm95-rW7v?purpose=fullsize" alt="Three Free Fall Situations" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+        </div>
+      </figure>
+
+      <div class="grid sm:grid-cols-3 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">1. Object Dropped</strong>
+          <p class="text-slate-600 dark:text-slate-300">Starts from rest (\(u = 0\)); downward speed increases under gravity.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/gueZzbEzh2zO9S6m4Q4W67iL7T_Ddv-9ygq3Dn18sUUx3YQC0-D1SwiSb_4lCRoKlD5t-DIIsTAvtnHYzeMhYTVG-C4AYMah7seH6aYnjDXhcFcyVu2uhjNLgXhobF3-WbGmCiEkeWvdbY0StTaR7DcFeiSxMM_A7yKhzaGIpOL2tfUipTpLaHlgDi5oWT--?purpose=fullsize', 'Situation 1: Object Dropped from Rest (u = 0)')">
+            <img src="https://images.openai.com/static-rsc-4/gueZzbEzh2zO9S6m4Q4W67iL7T_Ddv-9ygq3Dn18sUUx3YQC0-D1SwiSb_4lCRoKlD5t-DIIsTAvtnHYzeMhYTVG-C4AYMah7seH6aYnjDXhcFcyVu2uhjNLgXhobF3-WbGmCiEkeWvdbY0StTaR7DcFeiSxMM_A7yKhzaGIpOL2tfUipTpLaHlgDi5oWT--?purpose=fullsize" alt="Object Dropped" class="w-full h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">2. Thrown Upward</strong>
+          <p class="text-slate-600 dark:text-slate-300">Initial velocity is upward, while acceleration remains downward (\(a = -9.8\text{ m/s}^2\)).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/7HyE9gKChRXNknMCb3z6S2mcgHy2EPwzjVh-MrBl1jJdWWpn9zCPW6eHvMiHnGvC4wKLOpI2SVD1boBuW1q3y4a2pWDb_ULmwVbomnDzNCrZoifpDN7mYL45f0v4d4vGeSp2aUE0a3lDF01oJCN_hGXru7yBgQzSvuF2ALhRlfm4wAKY1G1IXbyyN2pim0JL?purpose=fullsize', 'Situation 2: Object Thrown Vertically Upward')">
+            <img src="https://images.openai.com/static-rsc-4/7HyE9gKChRXNknMCb3z6S2mcgHy2EPwzjVh-MrBl1jJdWWpn9zCPW6eHvMiHnGvC4wKLOpI2SVD1boBuW1q3y4a2pWDb_ULmwVbomnDzNCrZoifpDN7mYL45f0v4d4vGeSp2aUE0a3lDF01oJCN_hGXru7yBgQzSvuF2ALhRlfm4wAKY1G1IXbyyN2pim0JL?purpose=fullsize" alt="Object Thrown Upward" class="w-full h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">3. Falling Downward</strong>
+          <p class="text-slate-600 dark:text-slate-300">Object moves downward and speeds up under gravity. If upward is positive, both \(v\) and \(a\) are negative.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Equations of Free Fall -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Applying Constant-Acceleration Equations to Free Fall</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+        When upward is chosen as the positive direction, substitute \(a = -g\) into the four standard kinematic equations (neglecting air resistance):
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 font-mono text-xs">
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30">
+          <span class="font-sans font-bold text-slate-800 dark:text-white block mb-1">1. Final Velocity</span>
+          $$\boxed{v = u - gt}$$
+        </div>
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30">
+          <span class="font-sans font-bold text-slate-800 dark:text-white block mb-1">2. Vertical Displacement</span>
+          $$\boxed{y - y_i = ut - \frac{1}{2}gt^2}$$
+        </div>
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30">
+          <span class="font-sans font-bold text-slate-800 dark:text-white block mb-1">3. Velocity Without Time</span>
+          $$\boxed{v^2 = u^2 - 2g(y - y_i)}$$
+        </div>
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30">
+          <span class="font-sans font-bold text-slate-800 dark:text-white block mb-1">4. Average Velocity Displacement</span>
+          $$\boxed{y - y_i = \frac{u + v}{2}t}$$
+        </div>
+      </div>
+
+      <!-- Worked Example 1 -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-slate-900 dark:text-white font-display block">Worked Example 1: Dropped From Rest</strong>
+        <p class="text-xs text-slate-600 dark:text-slate-300">
+          A stone is dropped from rest (\(u = 0\)) from a building. Find its velocity and distance fallen after \(t = 3\text{ s}\):
+        </p>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1 border border-slate-200 dark:border-slate-800">
+          <div>Velocity: \(v = 0 - (9.8)(3) = \mathbf{-29.4\text{ m/s}}\) <span class="font-sans text-slate-500">(negative means downward; speed = \(29.4\text{ m/s}\))</span></div>
+          <div>Distance fallen: \(y - y_i = 0 - \frac{1}{2}(9.8)(3^2) = \mathbf{-44.1\text{ m}}\) <span class="font-sans text-slate-500">(fallen \(44.1\text{ m}\))</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Vertical Throw & Maximum Height -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Ball Thrown Vertically Upward &amp; Maximum Height</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        A girl throws a ball vertically upward with an initial speed of \(15\text{ m/s}\) (neglecting air resistance). Find the time taken to return to her hand, its return velocity, and the maximum height reached.
+      </p>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/nhgWY136mG0hrozHrT0fu5oKhKa9oggUD_JX7gA5lDuF80OE7sWg8k9-ovZYipiI0RPvsyDDUrVDjKSUF4TTGFLUJP9zj8O0bFOniwH3WIAVaxggu-WWEnNMkpatnXZUgSWWcBEI-o3XcsscPaGegE0017LS6C1k92jCXDM-yCeS6CzNRAO5LiAU7A_T5e-8?purpose=fullsize', 'Vertical Launch Trajectory: Upward Deceleration and Return')">
+        <img src="https://images.openai.com/static-rsc-4/nhgWY136mG0hrozHrT0fu5oKhKa9oggUD_JX7gA5lDuF80OE7sWg8k9-ovZYipiI0RPvsyDDUrVDjKSUF4TTGFLUJP9zj8O0bFOniwH3WIAVaxggu-WWEnNMkpatnXZUgSWWcBEI-o3XcsscPaGegE0017LS6C1k92jCXDM-yCeS6CzNRAO5LiAU7A_T5e-8?purpose=fullsize" alt="Vertical Launch Trajectory" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+        </div>
+      </figure>
+
+      <div class="p-3.5 rounded-xl bg-rose-50/80 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs text-rose-950 dark:text-rose-200">
+        <strong>Crucial Peak Concept:</strong> Moving upward, speed decreases; at maximum height, instantaneous velocity \(v = 0\); moving downward, speed increases. However, <strong>acceleration is NEVER zero at the highest point</strong>—gravity still pulls the ball downward at \(a = -9.8\text{ m/s}^2\)!
+      </div>
+
+      <!-- Step-by-Step Solution -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 font-mono text-xs space-y-2">
+        <div><strong>Given (Upward = \(+\)):</strong> \(u = +15\text{ m/s},\; a = -9.8\text{ m/s}^2,\; \Delta y = 0\) (returns to launch height)</div>
+        <div>
+          <strong>Total Return Time:</strong> \(0 = 15t - \frac{1}{2}(9.8)t^2 = t(15 - 4.9t)\)<br>
+          \(t = 0\) (launch) or \(15 - 4.9t = 0 \implies t = \frac{15}{4.9} \approx \mathbf{3.06\text{ s} \approx 3.1\text{ s}}\)
+        </div>
+        <div>
+          <strong>Return Velocity:</strong> \(v = 15 - (9.8)(3.06) \approx \mathbf{-15\text{ m/s}}\) <span class="font-sans text-slate-500">(same speed, downward)</span>
+        </div>
+        <div class="text-emerald-600 dark:text-emerald-400 font-bold">
+          <strong>Maximum Height (\(v_{\text{top}} = 0\)):</strong> \(0 = 15^2 - 2(9.8)h \implies 19.6h = 225 \implies \mathbf{h = 11.48\text{ m} \approx 11.5\text{ m}}\)
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/7nIWhuIL35LFsxSG3oldVrKAFA4v0Eu2R83dibDwaS1zb0z0PEpVW_p4aYEIrnkCa9wYYf1j_Qw7WXknvnaAF66GtpTLha6Qu0001k8QrNa-mItK2us7Cs-KZYdi9t_Dff7llJX8q3NQ6B2C8YvVRY109RdPNHjldVMkM0ddn14GpBdzHYu4Rx1bIQs_BDXK?purpose=fullsize', 'Peak Analysis: Velocity is Zero while Acceleration remains -g')">
+        <img src="https://images.openai.com/static-rsc-4/7nIWhuIL35LFsxSG3oldVrKAFA4v0Eu2R83dibDwaS1zb0z0PEpVW_p4aYEIrnkCa9wYYf1j_Qw7WXknvnaAF66GtpTLha6Qu0001k8QrNa-mItK2us7Cs-KZYdi9t_Dff7llJX8q3NQ6B2C8YvVRY109RdPNHjldVMkM0ddn14GpBdzHYu4Rx1bIQs_BDXK?purpose=fullsize" alt="Maximum Height v=0 a=-g" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+        </div>
+      </figure>
+
+      <!-- Three Symmetry Results -->
+      <div class="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-xs space-y-1">
+        <strong class="text-emerald-900 dark:text-emerald-300 font-display block">Three Vertical Symmetry Results (Equal Launch &amp; Return Height):</strong>
+        <ul class="list-disc pl-5 space-y-0.5 text-slate-700 dark:text-slate-300">
+          <li>Time going up \(=\) Time coming down.</li>
+          <li>Speed upon return \(=\) Initial launch speed.</li>
+          <li>At maximum height, velocity \(= 0\), while acceleration \(= g\) downward.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. Critical-Thinking Laboratory (Left for Student) -->
+    <section class="card p-4 sm:p-6 space-y-4 border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-950/20">
+      <h2 class="section-heading !text-indigo-700 dark:!text-indigo-300">
+        <span class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Critical-Thinking Laboratory</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Challenge your physical intuition by investigating these five conceptual questions:</p>
+
+      <div class="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+        <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20">
+          <strong>Question 1 (The Highest Point):</strong> A ball is thrown vertically upward. At its highest point, its velocity is zero. If acceleration is still downward, why doesn't the ball immediately have a large downward velocity at that exact instant? Think about what velocity means at a particular instant.
+        </div>
+        <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20">
+          <strong>Question 2 (The Two Balls):</strong> You drop a heavy metal ball and a light metal ball simultaneously from the same height in a vacuum. Which one reaches the ground first? Can you explain why mass does not determine the falling acceleration in this situation?
+        </div>
+        <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20">
+          <strong>Question 3 (The Elevator):</strong> An elevator is moving upward but slowing down. Does its acceleration point upward or downward? Compare this with a ball thrown upward.
+        </div>
+        <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20">
+          <strong>Question 4 (The Height Problem):</strong> A ball is thrown vertically upward at \(20\text{ m/s}\). Without calculating the exact answer yet, predict: Will its maximum height be greater than or less than the height of the \(15\text{ m/s}\) ball? Will its time to return be greater or smaller? Explain your reasoning.
+        </div>
+        <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-900/60 border border-indigo-100 dark:border-indigo-500/20">
+          <strong>Question 5 (The Air-Resistance Challenge):</strong> Why does a parachutist eventually stop increasing in speed while falling, even though gravity continues acting?
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Interactive Self-Assessment Quiz -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and step-by-step explanation</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Lightbox Modal (Optimized for Mobile Viewports) -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Free Fall Motion
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. A stone is dropped from rest. Neglecting air resistance and taking downward as positive, what is its velocity after 2 seconds?",
+        options: [
+          "A. 9.8 m/s",
+          "B. 19.6 m/s",
+          "C. 4.9 m/s",
+          "D. 39.2 m/s"
+        ],
+        correct: 1,
+        exp: "With downward positive, u = 0 and a = +9.8 m/s². Using v = u + at: v = 0 + (9.8)(2) = 19.6 m/s."
+      },
+      {
+        q: "Question 2. A ball is thrown vertically upward. At its maximum height, which statement is scientifically accurate?",
+        options: [
+          "A. Velocity and acceleration are both zero",
+          "B. Velocity is maximum and acceleration is zero",
+          "C. Velocity is zero, but acceleration is downward",
+          "D. Velocity and acceleration are both upward"
+        ],
+        correct: 2,
+        exp: "At the peak, the ball momentarily stops rising (v = 0), while gravity continues pulling it downward with acceleration g = 9.8 m/s² downward."
+      },
+      {
+        q: "Question 3. A ball is thrown vertically upward at 19.6 m/s. How long does it take to reach its maximum height?",
+        options: [
+          "A. 1 s",
+          "B. 2 s",
+          "C. 3 s",
+          "D. 4 s"
+        ],
+        correct: 1,
+        exp: "At maximum height, v = 0. Using v = u − gt: 0 = 19.6 − 9.8t → 9.8t = 19.6 → t = 2 s."
+      },
+      {
+        q: "Question 4. A ball is thrown upward at 10 m/s. Choosing upward as positive and neglecting air resistance, what is its acceleration throughout the entire flight?",
+        options: [
+          "A. +10 m/s²",
+          "B. 0 m/s²",
+          "C. −9.8 m/s²",
+          "D. +9.8 m/s²"
+        ],
+        correct: 2,
+        exp: "Gravity pulls downward continuously on the way up, at the peak, and on the way down. With upward chosen as positive, a = −g = −9.8 m/s² everywhere."
+      },
+      {
+        q: "Question 5. Two objects of different masses are dropped simultaneously in a vacuum from the exact same height. Which reaches the ground first?",
+        options: [
+          "A. The heavier object",
+          "B. The lighter object",
+          "C. They reach together",
+          "D. It depends strictly on their shapes"
+        ],
+        correct: 2,
+        exp: "In a vacuum (zero air resistance), gravitational acceleration g = 9.8 m/s² is completely independent of mass or shape, so both objects hit simultaneously."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on Free Fall Motion."
+          : "Great performance! You understand gravitational acceleration, peak dynamics, and sign conventions.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Remember that gravity never turns off at the top of a throw (a = −9.8 m/s² everywhere).";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the sign conventions and worked vertical throw example above, then retake the quiz.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+
+      img.src = src;
+      img.alt = alt;
+      caption.innerText = alt;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox-modal') closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>
