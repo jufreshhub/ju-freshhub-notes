@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Open Propositions and Quantifiers — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax for mathematical notation and equations -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Lesson Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Chapter 1 · Propositional Logic
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">Open Propositions and Quantifiers</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">Predicates, Universe of Discourse, Quantifier Laws, and Nested Quantifiers</p>
+      </div>
+    </section>
+
+    <!-- Intro Card -->
+    <section class="card p-5 sm:p-6 space-y-3">
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200 space-y-1.5">
+        <p><strong class="text-emerald-800 dark:text-emerald-300">Introductory Question:</strong> Is the mathematical expression \(x + 2 = 5\) True or False?</p>
+        <p>&bull; It is impossible to assign a truth value without knowing what numerical value is assigned to \(x\).</p>
+        <p>&bull; If \(x = 3\), the sentence evaluates to <strong>True</strong> (\(3 + 2 = 5\)).</p>
+        <p>&bull; If \(x = 1\), the sentence evaluates to <strong>False</strong> (\(1 + 2 = 3 \neq 5\)).</p>
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-300">Expressions of this kind form the foundation of predicate logic.</p>
+    </section>
+
+    <!-- 1. Open Propositions (Predicates) -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">1</span>
+        <span>Open Propositions (Predicates)</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> An <strong>open proposition</strong> (or <em>predicate</em>) is a declarative sentence containing one or more variables that becomes a true or false proposition only when specific values from a given domain are substituted for the variables.
+      </div>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">Predicates are symbolized by a capital letter followed by the variable(s) in parentheses, such as \(P(x)\), \(Q(x, y)\), or \(R(x)\).</p>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Example: \(P(x): x + 2 = 5\)</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-center text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs font-bold text-slate-600 dark:text-slate-300">
+              <tr><th class="py-2.5 px-4">Value Assigned to \(x\)</th><th class="py-2.5 px-4">Substituted Statement \(P(x)\)</th><th class="py-2.5 px-4">Truth Value</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2 px-4">\(x = 1\)</td><td class="py-2 px-4">\(1 + 2 = 5\)</td><td class="py-2 px-4 font-bold text-rose-600 dark:text-rose-400">False</td></tr>
+              <tr><td class="py-2 px-4">\(x = 2\)</td><td class="py-2 px-4">\(2 + 2 = 5\)</td><td class="py-2 px-4 font-bold text-rose-600 dark:text-rose-400">False</td></tr>
+              <tr><td class="py-2 px-4">\(x = 3\)</td><td class="py-2 px-4">\(3 + 2 = 5\)</td><td class="py-2 px-4 font-bold text-emerald-600 dark:text-emerald-400">True</td></tr>
+              <tr><td class="py-2 px-4">\(x = 4\)</td><td class="py-2 px-4">\(4 + 2 = 5\)</td><td class="py-2 px-4 font-bold text-rose-600 dark:text-rose-400">False</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Example: \(P(x): x \text{ is an even integer}\)</h3>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(P(2)\): "\(2\) is an even integer" &rarr; <span class="font-bold text-emerald-600 dark:text-emerald-400">True</span></li>
+          <li>\(P(3)\): "\(3\) is an even integer" &rarr; <span class="font-bold text-rose-600 dark:text-rose-400">False</span></li>
+          <li>\(P(4)\): "\(4\) is an even integer" &rarr; <span class="font-bold text-emerald-600 dark:text-emerald-400">True</span></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Proposition vs. Open Proposition Comparison:</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-3 px-4">Feature</th><th class="py-3 px-4">Proposition (Statement)</th><th class="py-3 px-4">Open Proposition (Predicate)</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr>
+                <td class="py-2.5 px-4 font-bold">Truth Status</td>
+                <td class="py-2.5 px-4">Has a definite, fixed truth value (T or F)</td>
+                <td class="py-2.5 px-4">Truth value depends on the assigned variable value</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 font-bold">Example</td>
+                <td class="py-2.5 px-4">\(2 + 2 = 4\) (<span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>)</td>
+                <td class="py-2.5 px-4">\(x + 2 = 4\) (Undetermined until \(x\) is fixed)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Universe of Discourse (Domain) -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">2</span>
+        <span>Universe of Discourse (Domain)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">Given an open proposition \(P(x): x > 5\), which values are permissible for substitution?</p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The <strong>universe of discourse</strong> (also termed the <em>universal set</em> or <em>domain</em>, denoted \(U\)) is the set of all allowable values that can be substituted for the variable in an open proposition.
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Impact of Domain Selection:</h3>
+        <ul class="space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
+          <li class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <strong>Example A — Domain of Natural Numbers (\(\mathbb{N}\)):</strong><br>
+            \(U = \{1, 2, 3, 4, 5, 6, \dots\}\)<br>
+            For \(P(x): x > 5\), only values \(x \in \{6, 7, 8, \dots\}\) yield <span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>.
+          </li>
+          <li class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <strong>Example B — Domain of Integers (\(\mathbb{Z}\)):</strong><br>
+            \(U = \{\dots, -2, -1, 0, 1, 2, \dots\}\)<br>
+            Negative integers, zero, and positive integers are all eligible candidates.
+          </li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Exam Golden Rule:</strong> Always identify the specified <strong>universe of discourse</strong> before evaluating the truth or falsity of a quantified statement. Changing the domain can reverse the truth value!
+      </div>
+    </section>
+
+    <!-- 3. The Two Fundamental Quantifiers -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">3</span>
+        <span>The Two Fundamental Quantifiers</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">A <strong>quantifier</strong> binds the variable in an open proposition, transforming it into a complete, testable proposition.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 border-t-4 border-t-brand-500 space-y-1.5 text-sm">
+          <div class="font-display font-bold text-slate-900 dark:text-white">Universal Quantifier (\(\forall\))</div>
+          <p class="text-xs"><strong>Symbol:</strong> \(\forall\) ("For all", "For every", "For each")</p>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Asserts that \(P(x)\) is true for <strong>every single element</strong> in the domain \(U\).</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 border-t-4 border-t-sky-500 space-y-1.5 text-sm">
+          <div class="font-display font-bold text-slate-900 dark:text-white">Existential Quantifier (\(\exists\))</div>
+          <p class="text-xs"><strong>Symbol:</strong> \(\exists\) ("There exists", "For some", "At least one")</p>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Asserts that \(P(x)\) is true for <strong>at least one element</strong> in the domain \(U\).</p>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">A. Universal Quantifier (\(\forall\)) in Detail</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300">Let \(P(x): x + 0 = x\) with domain \(U = \mathbb{R}\). Since adding zero to any real number leaves it unchanged, the statement holds for every member of the domain:</p>
+        <div class="p-3 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300">
+          \(\forall x \in \mathbb{R}, \; x + 0 = x \quad (\text{True})\)
+        </div>
+
+        <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm text-slate-700 dark:text-slate-200">
+          <strong class="text-emerald-800 dark:text-emerald-300">Institutional Analogy:</strong> A university regulation mandates: <em>"Every registered student must possess a student ID card."</em> The rule is universal: if even one student is found without an ID, the universal assertion is broken.
+        </div>
+
+        <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white pt-1">The Counterexample Principle:</h4>
+        <p class="text-sm text-slate-600 dark:text-slate-300">To prove that a universal statement \(\forall x \, P(x)\) is <strong>False</strong>, you only need to produce <strong>ONE single counterexample</strong> (an element \(a \in U\) for which \(P(a)\) is False).</p>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-sm space-y-1">
+          <strong class="block text-slate-900 dark:text-white">Disproof Example:</strong>
+          <p>Evaluate \(\forall x \in \mathbb{R}, \; x^2 > x\).</p>
+          <p>&bull; Test the candidate value \(x = 0 \in \mathbb{R}\):</p>
+          <p>&bull; \(0^2 > 0 \implies 0 > 0 \quad (\text{False}!)\)</p>
+          <p>&bull; Because \(x = 0\) fails the condition, \(x = 0\) serves as a <strong>counterexample</strong>.</p>
+          <p class="font-bold text-rose-600 dark:text-rose-400 pt-1">Therefore, \(\forall x \in \mathbb{R}, \; x^2 > x\) is conclusively FALSE.</p>
+        </div>
+      </div>
+
+      <div class="space-y-3 pt-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">B. Existential Quantifier (\(\exists\)) in Detail</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300">Consider the statement: \(\exists x \in \mathbb{R}, \; x^2 = 9\)</p>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400"><em>Read as:</em> "There exists a real number \(x\) such that \(x^2 = 9\)."</p>
+        <p class="text-sm text-slate-600 dark:text-slate-300">To prove that an existential statement is <strong>True</strong>, you only need to demonstrate <strong>ONE valid example</strong>:</p>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>Choosing \(x = 3 \in \mathbb{R}\) gives \(3^2 = 9\) (<span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>).</li>
+          <li>Therefore, \(\exists x \in \mathbb{R}, \; x^2 = 9\) is conclusively <span class="font-bold text-emerald-600 dark:text-emerald-400">TRUE</span>.</li>
+        </ul>
+
+        <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200 space-y-1">
+          <strong class="block">Verification &amp; Disproof Summary:</strong>
+          <p>&bull; <strong>To prove \(\forall x \, P(x)\) True:</strong> You must prove it works for every member of \(U\).</p>
+          <p>&bull; <strong>To prove \(\forall x \, P(x)\) False:</strong> Provide just <strong>one counterexample</strong>.</p>
+          <p>&bull; <strong>To prove \(\exists x \, P(x)\) True:</strong> Provide just <strong>one successful example</strong>.</p>
+          <p>&bull; <strong>To prove \(\exists x \, P(x)\) False:</strong> You must show that <strong>every single member</strong> of \(U\) fails.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Summary Comparison -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">4</span>
+        <span>Summary Comparison of Quantifiers</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-3 px-4">Criterion</th><th class="py-3 px-4">Universal Quantifier (\(\forall\))</th><th class="py-3 px-4">Existential Quantifier (\(\exists\))</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2.5 px-4 font-bold">Standard Phrases</td><td class="py-2.5 px-4">"For all", "For every", "For each"</td><td class="py-2.5 px-4">"There exists", "For some", "At least one"</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">Condition to be True</td><td class="py-2.5 px-4">\(P(x)\) must be true for <strong>all</strong> \(x \in U\)</td><td class="py-2.5 px-4">\(P(x)\) is true for <strong>at least one</strong> \(x \in U\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">Condition to be False</td><td class="py-2.5 px-4"><strong>One counterexample</strong> \(P(a)\) is false</td><td class="py-2.5 px-4">\(P(x)\) is false for <strong>all</strong> \(x \in U\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">Testing Analogy</td><td class="py-2.5 px-4">Every candidate must pass the exam</td><td class="py-2.5 px-4">At least one candidate must pass the exam</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Negation of Quantifiers -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">5</span>
+        <span>Negation of Quantifiers (De Morgan's Laws)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">When a quantified statement is negated, the quantifier changes type and the inner predicate is negated:</p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm font-bold text-brand-800 dark:text-brand-300 space-y-2">
+        <p>1. Negation of Universal: \(\neg (\forall x \, P(x)) \equiv \exists x \, \neg P(x)\)</p>
+        <p>2. Negation of Existential: \(\neg (\exists x \, P(x)) \equiv \forall x \, \neg P(x)\)</p>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Linguistic and Mathematical Illustrations:</h3>
+        <ul class="space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
+          <li class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <strong>Negating "All students passed the examination":</strong><br>
+            Original: \(\forall x \, P(x)\) ("Every student passed")<br>
+            Negation: \(\exists x \, \neg P(x)\) &rarr; <em>"There exists at least one student who did not pass the examination."</em>
+          </li>
+          <li class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <strong>Negating "Some students passed the examination":</strong><br>
+            Original: \(\exists x \, P(x)\) ("Some student passed")<br>
+            Negation: \(\forall x \, \neg P(x)\) &rarr; <em>"Every student did not pass"</em> (i.e., <em>"No student passed the examination"</em>).
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-1.5">Negation of Inequalities:</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-2">Consider negating the statement \(\forall x, \; x > 2\):</p>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center font-bold text-sm sm:text-base">
+          \(\neg (\forall x, \; x > 2) \equiv \exists x, \; \neg(x > 2) \equiv \exists x, \; x \le 2\)
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200 space-y-1">
+        <strong class="block">Two-Step Negation Rule:</strong>
+        <p>1. Flip the quantifier: \(\forall\) becomes \(\exists\), and \(\exists\) becomes \(\forall\).</p>
+        <p>2. Negate the inner open proposition: \(P(x)\) becomes \(\neg P(x)\) (e.g., \(>\) flips to \(\le\), \(=\) flips to \(\neq\)).</p>
+      </div>
+    </section>
+
+    <!-- 6. Nested Quantifiers -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">6</span>
+        <span>Nested Quantifiers (Order Matters!)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">When multiple quantifiers are combined in a single statement, their relative order is critical.</p>
+
+      <div class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Case 1: \(\forall x \exists y, \; x < y\) (over \(\mathbb{R}\))</h3>
+        <p><em>Read as:</em> "For every real number \(x\), there exists a real number \(y\) such that \(x < y\) (i.e., every real number has a strictly greater number)."</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Given any choice of \(x\), choose \(y = x + 1\).</li>
+          <li>If \(x = 5\), choose \(y = 6\); if \(x = -10\), choose \(y = -9\); if \(x = 100\), choose \(y = 101\).</li>
+          <li>Since an appropriate \(y\) can always be chosen for any \(x\), the statement is <span class="font-bold text-emerald-600 dark:text-emerald-400">TRUE</span>.</li>
+        </ul>
+      </div>
+
+      <div class="space-y-2 text-sm text-slate-700 dark:text-slate-300 pt-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Case 2: \(\exists y \forall x, \; x < y\) (over \(\mathbb{R}\))</h3>
+        <p><em>Read as:</em> "There exists a single real number \(y\) that is strictly greater than every real number \(x\) simultaneously."</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Here, a single fixed \(y\) must be chosen first to satisfy all possible real numbers \(x\).</li>
+          <li>If you claim \(y = 1000\), we can immediately pick \(x = 1001\), making \(1001 < 1000\) False.</li>
+          <li>No such universal maximum real number exists. Hence, the statement is <span class="font-bold text-rose-600 dark:text-rose-400">FALSE</span>.</li>
+        </ul>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-3 px-4">Nested Expression</th><th class="py-3 px-4">English Interpretation</th><th class="py-3 px-4 text-center">Truth over \(\mathbb{R}\)</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-2.5 px-4 font-bold">\(\forall x \exists y, \; x < y\)</td>
+              <td class="py-2.5 px-4">Every real number has some number strictly greater than it</td>
+              <td class="py-2.5 px-4 text-center font-bold text-emerald-600 dark:text-emerald-400">TRUE</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-4 font-bold">\(\exists y \forall x, \; x < y\)</td>
+              <td class="py-2.5 px-4">There exists one fixed real number greater than all real numbers</td>
+              <td class="py-2.5 px-4 text-center font-bold text-rose-600 dark:text-rose-400">FALSE</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200 space-y-1">
+        <strong class="block">Commutativity Rules for Quantifiers:</strong>
+        <p>&bull; Identical quantifiers can be swapped without changing meaning: \(\forall x \forall y \, P(x, y) \equiv \forall y \forall x \, P(x, y)\) and \(\exists x \exists y \, P(x, y) \equiv \exists y \exists x \, P(x, y)\).</p>
+        <p>&bull; Mixed quantifiers <strong>CANNOT</strong> be freely interchanged: \(\forall x \exists y \, P(x, y) \not\equiv \exists y \forall x \, P(x, y)\).</p>
+      </div>
+    </section>
+
+    <!-- 7. Self-Assessment Quiz -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an option to check your answer immediately</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 7</span>
+      </div>
+
+      <!-- Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 7 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Image Lightbox Modal -->
+  <div id="img-lightbox" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeLightbox()">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition" aria-label="Close image">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[88vh] object-contain rounded-2xl shadow-2xl" onclick="event.stopPropagation()" />
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Open Propositions and Quantifiers
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. Which of the following expressions represents an open proposition (predicate)?",
+        options: [
+          "A. 2 + 3 = 5",
+          "B. Ethiopia is in Africa",
+          "C. x + 4 = 10",
+          "D. 7 is a prime number"
+        ],
+        correct: 2,
+        exp: "'x + 4 = 10' contains a free variable x and cannot be assigned a truth value until a numerical value is substituted for x."
+      },
+      {
+        q: "Question 2. Let P(x): x² = 16, where the domain of discourse is the set of integers ℤ. Which of the following statements is TRUE?",
+        options: [
+          "A. ∀x P(x)",
+          "B. ∃x P(x)",
+          "C. P(3)",
+          "D. None of them"
+        ],
+        correct: 1,
+        exp: "'∃x P(x)' is True because there exist integers (namely x = 4 and x = -4) such that x² = 16. However, not all integers satisfy it, so ∀x P(x) is False."
+      },
+      {
+        q: "Question 3. What is sufficient to prove that a universally quantified statement ∀x P(x) is FALSE?",
+        options: [
+          "A. Every single element in the domain must fail",
+          "B. Finding a single counterexample",
+          "C. Finding one successful example",
+          "D. Changing the variable name"
+        ],
+        correct: 1,
+        exp: "A universal assertion claims the predicate holds for all members. Finding just one counterexample immediately disproves it."
+      },
+      {
+        q: "Question 4. What is the logically valid negation of the statement: 'Every student passed the exam'?",
+        options: [
+          "A. Every student failed the exam",
+          "B. No student passed the exam",
+          "C. At least one student did not pass the exam",
+          "D. At least one student passed the exam"
+        ],
+        correct: 2,
+        exp: "The negation of ∀x P(x) ('all passed') is ∃x ¬P(x) ('there exists at least one student who did not pass')."
+      },
+      {
+        q: "Question 5. Which symbolic expression correctly represents: 'There exists a real number x such that x² = 25'?",
+        options: [
+          "A. ∀x ∈ ℝ, x² = 25",
+          "B. ∃x ∈ ℝ, x² = 25",
+          "C. ∀x ∈ ℝ, x² ≠ 25",
+          "D. ∃x ∈ ℝ, x² ≠ 25"
+        ],
+        correct: 1,
+        exp: "'There exists' is translated by the existential quantifier ∃, giving ∃x ∈ ℝ, x² = 25."
+      },
+      {
+        q: "Question 6. Over the universe of real numbers ℝ, which of the following nested quantified statements is TRUE?",
+        options: [
+          "A. ∃y ∀x, x < y",
+          "B. ∀x ∃y, x < y",
+          "C. ∀x ∀y, x < y",
+          "D. ∃x ∀y, x < y"
+        ],
+        correct: 1,
+        exp: "'∀x ∃y, x < y' is True because for any real number x, one can always pick y = x + 1 such that x < y. In contrast, '∃y ∀x, x < y' is False because no single number is greater than all real numbers."
+      },
+      {
+        q: "Question 7. According to quantifier negation laws, what is the equivalent negation of ∃x P(x)?",
+        options: [
+          "A. ∃x ¬P(x)",
+          "B. ∀x P(x)",
+          "C. ∀x ¬P(x)",
+          "D. ¬∀x ¬P(x)"
+        ],
+        correct: 2,
+        exp: "Negating an existential quantifier flips it to a universal quantifier and negates the inner predicate: ¬(∃x P(x)) ≡ ∀x ¬P(x)."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! You scored 100% and mastered Open Propositions and Quantifiers."
+          : "Great job! You have a strong grasp of quantifiers, negation, and nested order.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the highlighted explanations above to reach 100%.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Keep practicing! Review universal/existential negation and nested quantifier rules above, then retake the quiz.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function initImageLightbox() {
+      document.querySelectorAll("main img").forEach((img) => {
+        img.classList.add("cursor-zoom-in");
+        img.addEventListener("click", () => {
+          document.getElementById("lightbox-img").src = img.src;
+          document.getElementById("img-lightbox").classList.remove("hidden");
+          lucide.createIcons();
+        });
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeLightbox();
+      });
+    }
+
+    function closeLightbox() {
+      const lb = document.getElementById("img-lightbox");
+      if (lb) lb.classList.add("hidden");
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+      initImageLightbox();
+    });
+  </script>
+</body>
+</html>

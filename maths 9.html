@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Set Operations — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax for set theory and algebraic notation -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Lesson Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Chapter 1 · Set Theory
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">Set Operations</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">Union, Intersection, Set Difference, Complements, and Symmetric Difference</p>
+      </div>
+    </section>
+
+    <!-- 1. The Reference Universe and Sets -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">1</span>
+        <span>The Reference Universe and Sets</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">To clearly observe how each operation behaves, we use a single consistent reference framework:</p>
+
+      <div class="p-4 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300 space-y-1 text-sm sm:text-base">
+        <p>\[U = \{1, 2, 3, 4, 5, 6, 7, 8, 9, 10\}\]</p>
+        <p>\[A = \{1, 2, 3, 4, 5\} \quad \text{and} \quad B = \{4, 5, 6, 7\}\]</p>
+      </div>
+
+      <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+        <div class="relative p-2 bg-white">
+          <img src="https://images.openai.com/static-rsc-4/oZ47EVqrdnc_YrLBGmbgR6M3t2_8yh5cf4FwQQpP50GxuyQMqdDhYU7k0LDYXVjFAdvJnj4z9e9LIUdaFBwTcuEJksDgD4nEKaoAD2uBKQI4YANthdRKBLhIfN961hsuvYtC_8NBMWy35xGLo6Vw8OIH4nAGjTxYDJJrft7aqeYtQcaHFhIxLRJvUR5AKTTb?purpose=fullsize" alt="Universal Set and Subsets" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+          <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950/75 text-white text-[11px] font-semibold backdrop-blur">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i> Tap to enlarge
+          </span>
+        </div>
+        <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+          Venn Diagram layout: Elements in \(A\), elements in \(B\), overlap, and exterior within \(U\)
+        </figcaption>
+      </figure>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Partition Analysis:</h3>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li><strong>Elements in \(A\) only:</strong> \(\{1, 2, 3\}\)</li>
+          <li><strong>Elements in both \(A\) and \(B\):</strong> \(\{4, 5\}\)</li>
+          <li><strong>Elements in \(B\) only:</strong> \(\{6, 7\}\)</li>
+          <li><strong>Elements outside both \(A\) and \(B\) (in \(U\)):</strong> \(\{8, 9, 10\}\)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. Union -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">2</span>
+        <span>Union (\(A \cup B\))</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The <strong>union</strong> of two sets \(A\) and \(B\), denoted by \(A \cup B\), is the set of all elements that belong to \(A\), or to \(B\), or to both:
+        <div class="text-center font-bold pt-1.5">\[A \cup B = \{x \mid x \in A \lor x \in B\}\]</div>
+      </div>
+
+      <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+        <div class="relative p-2 bg-white">
+          <img src="https://images.openai.com/static-rsc-4/N-xKcxEm5Vh0EFFMtmjo_XwRwB7I43LZUjYeEbCzkSkJI0uO2JLvX1z9JlEorMisI_yj-aFRetzpLfAhl2XqnGGXoT7_nboGtqYHGrAGzsSoZ_qAjjFxzPkyIYIe9J0A6ZbhFAjUxes7wgFDubum2Y6ThEy-Ccqi9cN4rsiWgGvmfKznGvgSgBHtZ1OsGx-X?purpose=fullsize" alt="Union of Sets Venn Diagram" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+          <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950/75 text-white text-[11px] font-semibold backdrop-blur">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i> Tap to enlarge
+          </span>
+        </div>
+        <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+          Union \(A \cup B\): Entire combined shaded region of both sets
+        </figcaption>
+      </figure>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">Using our reference sets: combine all elements without repeating the shared elements \(4\) and \(5\):</p>
+      <div class="p-3 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300">
+        \[A \cup B = \{1, 2, 3, 4, 5, 6, 7\}\]
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Logic Connection:</strong> Set union (\(\cup\)) corresponds directly to the logical inclusive disjunction (\(\lor\)).
+      </div>
+    </section>
+
+    <!-- 3. Intersection & Disjoint Sets -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">3</span>
+        <span>Intersection (\(A \cap B\)) and Disjoint Sets</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The <strong>intersection</strong> of two sets \(A\) and \(B\), denoted by \(A \cap B\), is the set of elements that belong to <strong>both</strong> \(A\) and \(B\) simultaneously:
+        <div class="text-center font-bold pt-1.5">\[A \cap B = \{x \mid x \in A \land x \in B\}\]</div>
+      </div>
+
+      <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+        <div class="relative p-2 bg-white">
+          <img src="https://images.openai.com/static-rsc-4/KFlQytKvu7fBraSXJV2vTNh_RDqG39tRT6IF4S2YdQ5g1Glff-9S5A7wZ_0t0fSeSDDFmNUI1xDqSwDXaewhxMb2poPYjWX9e2kPFCGEGGqbt05f10eIQMez8MvrA3bt8E71WDxykpmHC508xWMhHFykO-k_rwWbbEkrOYRjcODO4WabU3IE5-0mNPZlx3-P?purpose=fullsize" alt="Intersection Venn Diagram" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+          <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950/75 text-white text-[11px] font-semibold backdrop-blur">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i> Tap to enlarge
+          </span>
+        </div>
+        <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+          Intersection \(A \cap B\): Shaded central overlapping region shared by both sets
+        </figcaption>
+      </figure>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">Identifying the common members between \(A = \{1, 2, 3, 4, 5\}\) and \(B = \{4, 5, 6, 7\}\):</p>
+      <div class="p-3 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300">
+        \[A \cap B = \{4, 5\}\]
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Logic Connection:</strong> Set intersection (\(\cap\)) corresponds directly to the logical conjunction (\(\land\)).
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Disjoint Sets</h3>
+        <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+          Two sets \(A\) and \(B\) are called <strong>disjoint</strong> (mutually exclusive) if and only if they have no common elements:
+          <div class="text-center font-bold pt-1">\[A \cap B = \varnothing\]</div>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300"><em>Example:</em> Let \(C = \{1, 3, 5\}\) (odd integers) and \(D = \{2, 4, 6\}\) (even integers). Then \(C \cap D = \varnothing\); sets \(C\) and \(D\) are disjoint.</p>
+      </div>
+    </section>
+
+    <!-- 4. Set Difference -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">4</span>
+        <span>Set Difference (Relative Complement)</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The <strong>difference</strong> of two sets \(A\) and \(B\) (also read as "\(A\) minus \(B\)"), denoted by \(A - B\) (or \(A \setminus B\)), is the set of all elements that belong to \(A\) but do <strong>not</strong> belong to \(B\):
+        <div class="text-center font-bold pt-1.5">\[A - B = \{x \mid x \in A \land x \notin B\}\]</div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+          <div class="relative p-2 bg-white">
+            <img src="https://images.openai.com/static-rsc-4/tOdDBmlVFr3kF7Mslehfkl4pxvH7iO3WC53Kz-np1LNIxAAP98EVdsVbt9FVjLqp0HbzVCaLgIh1_L6ESH-0YWLMJXKqejG9FU0mi9ya2q-O9ZwYkEbgd6LiHjtQGz5gefq4uQtc-GORseL4Jy8swG5bPF7a8BHrUkW6ouxezl3NPYx3rcoX6obWkR8Y7iZA?purpose=fullsize" alt="Set Difference A minus B" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+            <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-950/75 text-white text-[10px] font-semibold backdrop-blur">
+              <i data-lucide="maximize-2" class="w-3 h-3"></i> Zoom
+            </span>
+          </div>
+          <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+            \(A - B\): Elements exclusively in \(A\) with overlap removed
+          </figcaption>
+        </figure>
+
+        <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+          <div class="relative p-2 bg-white">
+            <img src="https://images.openai.com/static-rsc-4/Wg3-5RkTDCrQuY9GpRgZ5BBqDfGtX5NJwkcU2CNbvQQkiQu2UexJL5HhdgGufZw2NMg6FgAYjyhc5cTRT0ntWjj9d2DerIE61759lIEflQfTqlEy6LlGzF3ls_RaL6JRfRT6DZPOsjKqDx6yfQRpA_2m9Q0pD1oaLBsRjq90b4KxshNN4PvxzdN73Usrejgf?purpose=fullsize" alt="Set Difference B minus A" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+            <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-950/75 text-white text-[10px] font-semibold backdrop-blur">
+              <i data-lucide="maximize-2" class="w-3 h-3"></i> Zoom
+            </span>
+          </div>
+          <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+            \(B - A\): Elements exclusively in \(B\) with overlap removed
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+        <p>Using our reference sets:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>To find \(A - B\): Take \(A = \{1, 2, 3, 4, 5\}\) and remove the elements that also belong to \(B\) (\(4\) and \(5\)):
+            <div class="p-2.5 mt-1 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300">
+              \[A - B = \{1, 2, 3\}\]
+            </div>
+          </li>
+          <li>To find \(B - A\): Take \(B = \{4, 5, 6, 7\}\) and remove the elements that also belong to \(A\) (\(4\) and \(5\)):
+            <div class="p-2.5 mt-1 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300">
+              \[B - A = \{6, 7\}\]
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Non-Commutative Property:</strong> Set difference is <strong>NOT commutative</strong>:
+        <div class="text-center font-bold py-1">\[A - B \neq B - A \quad (\text{unless } A = B)\]</div>
+        The order in which the sets are written strictly matters!
+      </div>
+    </section>
+
+    <!-- 5. Absolute Complement -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">5</span>
+        <span>Absolute Complement (\(A'\))</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The <strong>absolute complement</strong> of a set \(A\), denoted by \(A'\) (or \(A^c\), \(\overline{A}\)), is the set of all elements in the universal set \(U\) that are <strong>not</strong> in \(A\):
+        <div class="text-center font-bold pt-1.5">\[A' = U - A = \{x \in U \mid x \notin A\}\]</div>
+      </div>
+
+      <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+        <div class="relative p-2 bg-white">
+          <img src="https://images.openai.com/static-rsc-4/yQ3Fe7cJJ6LlKgkdt7lBXfOgXuCh6mbLoSTttcpt8CSdLkD9pi8IfE2EUUD3ac2e6TZFOTj7KshjiabA0GNf-1gycdAcV8VIKkHh917NKqkWt9G-iVW9pefKkBUE3xXnUY96pj-A91oZsa5i3wCgmqG4VqPn7N2--7sH2ei5vCS3L91hN1S41Tw45WtXgLxW?purpose=fullsize" alt="Complement of Set A" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+          <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950/75 text-white text-[11px] font-semibold backdrop-blur">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i> Tap to enlarge
+          </span>
+        </div>
+        <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+          Complement \(A'\): Everything inside the universal set \(U\) outside circle \(A\)
+        </figcaption>
+      </figure>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">Using our universal set \(U = \{1, 2, 3, 4, 5, 6, 7, 8, 9, 10\}\) and \(A = \{1, 2, 3, 4, 5\}\):</p>
+      <div class="p-3 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300">
+        \[A' = \{6, 7, 8, 9, 10\}\]
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Domain Dependence:</strong> An absolute complement is fundamentally dependent upon the specified universal set \(U\). If the universal set changes, the resulting complement changes accordingly.
+      </div>
+    </section>
+
+    <!-- 6. Symmetric Difference -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">6</span>
+        <span>Symmetric Difference (\(A \triangle B\))</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The <strong>symmetric difference</strong> of two sets \(A\) and \(B\), denoted by \(A \triangle B\) (or \(A \oplus B\)), is the set of elements that belong to \(A\) or to \(B\), but <strong>NOT to both</strong>:
+        <div class="text-center font-bold pt-1.5">\[A \triangle B = (A - B) \cup (B - A) = (A \cup B) - (A \cap B)\]</div>
+      </div>
+
+      <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+        <div class="relative p-2 bg-white">
+          <img src="https://images.openai.com/static-rsc-4/ci0pxBLx_Zf1cikx3LhZXCZ1wd4eErKXG9qzrFL0zMZYpfpQSbKPbjcUJpYLb-zsAAHfEKUVl7Ex0qYFZyqmJ-PMEh8EGIk2ud1wfBaYdFKKBg6G8rmsSvJWCloddIyO9LbDPJwh6lg3TmxoOGndpNBHI-70gHviBjKulYsGHlKhzR8AWqGd_UWyJMIXBZ-B?purpose=fullsize" alt="Symmetric Difference Venn Diagram" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+          <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950/75 text-white text-[11px] font-semibold backdrop-blur">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i> Tap to enlarge
+          </span>
+        </div>
+        <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+          \(A \triangle B\): Elements in exactly one set; central intersection excluded
+        </figcaption>
+      </figure>
+
+      <div class="text-sm text-slate-600 dark:text-slate-300 space-y-2">
+        <p>Evaluating using our reference values:</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>\(A - B = \{1, 2, 3\}\)</li>
+          <li>\(B - A = \{6, 7\}\)</li>
+        </ul>
+        <div class="p-3 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300">
+          \[A \triangle B = \{1, 2, 3\} \cup \{6, 7\} = \{1, 2, 3, 6, 7\}\]
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400"><em>(Notice that the shared intersection elements \(4\) and \(5\) are completely excluded).</em></p>
+      </div>
+    </section>
+
+    <!-- 7. Fundamental Algebraic Laws -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">7</span>
+        <span>Fundamental Algebraic Laws of Set Operations</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">These identities govern algebraic simplifications of complex set expressions:</p>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-3 px-4">Law Category</th><th class="py-3 px-4">Set Identity Formula</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2.5 px-4 font-bold">Commutative Laws</td><td class="py-2.5 px-4">\(A \cup B = B \cup A\)<br>\(A \cap B = B \cap A\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">Associative Laws</td><td class="py-2.5 px-4">\((A \cup B) \cup C = A \cup (B \cup C)\)<br>\((A \cap B) \cap C = A \cap (B \cap C)\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">Distributive Laws</td><td class="py-2.5 px-4">\(A \cap (B \cup C) = (A \cap B) \cup (A \cap C)\)<br>\(A \cup (B \cap C) = (A \cup B) \cap (A \cup C)\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">De Morgan's Laws</td><td class="py-2.5 px-4">\((A \cup B)' = A' \cap B'\)<br>\((A \cap B)' = A' \cup B'\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">Complement Laws</td><td class="py-2.5 px-4">\(A \cup A' = U\)<br>\(A \cap A' = \varnothing\)<br>\((A')' = A\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">Identity Laws</td><td class="py-2.5 px-4">\(A \cup \varnothing = A\)<br>\(A \cap U = A\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8. Comprehensive Operations Reference Table -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">8</span>
+        <span>Comprehensive Operations Reference Table</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-3 px-4">Operation</th><th class="py-3 px-4">Set-Theoretic Meaning</th><th class="py-3 px-4">Result from Reference Example</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2.5 px-4 font-bold">\(A \cup B\)</td><td class="py-2.5 px-4">Elements in \(A\) OR \(B\) or both</td><td class="py-2.5 px-4">\(\{1, 2, 3, 4, 5, 6, 7\}\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">\(A \cap B\)</td><td class="py-2.5 px-4">Elements in BOTH \(A\) and \(B\)</td><td class="py-2.5 px-4">\(\{4, 5\}\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">\(A - B\)</td><td class="py-2.5 px-4">Elements in \(A\), but NOT in \(B\)</td><td class="py-2.5 px-4">\(\{1, 2, 3\}\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">\(B - A\)</td><td class="py-2.5 px-4">Elements in \(B\), but NOT in \(A\)</td><td class="py-2.5 px-4">\(\{6, 7\}\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">\(A'\)</td><td class="py-2.5 px-4">Elements outside \(A\) (in \(U\))</td><td class="py-2.5 px-4">\(\{6, 7, 8, 9, 10\}\)</td></tr>
+            <tr><td class="py-2.5 px-4 font-bold">\(A \triangle B\)</td><td class="py-2.5 px-4">Elements in exactly ONE set (not both)</td><td class="py-2.5 px-4">\(\{1, 2, 3, 6, 7\}\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9. Self-Assessment Quiz (8 Questions) -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an option to check your answer immediately</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 8</span>
+      </div>
+
+      <!-- Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 8 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Image Lightbox Modal (Dark dimmed background on tap) -->
+  <div id="img-lightbox" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4" onclick="closeLightbox()">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition" aria-label="Close image">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[82vh] object-contain rounded-2xl shadow-2xl bg-white p-1.5 border border-white/10" onclick="event.stopPropagation()" />
+    <p id="lightbox-caption" class="hidden mt-3 text-xs sm:text-sm text-slate-200 text-center max-w-xl px-4"></p>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Set Operations
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. If set A = {1, 2, 3} and set B = {3, 4, 5}, what is the union A ∪ B?",
+        options: [
+          "A. {3}",
+          "B. {1, 2, 3, 4, 5}",
+          "C. {1, 2}",
+          "D. {4, 5}"
+        ],
+        correct: 1,
+        exp: "The union combines all distinct elements from both sets without duplicate repetitions: {1, 2, 3, 4, 5}."
+      },
+      {
+        q: "Question 2. If set A = {1, 2, 3} and set B = {3, 4, 5}, what is the intersection A ∩ B?",
+        options: [
+          "A. {1, 2, 3, 4, 5}",
+          "B. {1, 2}",
+          "C. {3}",
+          "D. ∅"
+        ],
+        correct: 2,
+        exp: "The intersection contains only elements common to both sets, which is exclusively {3}."
+      },
+      {
+        q: "Question 3. If A = {1, 2, 3, 4} and B = {3, 4, 5}, what is the set difference A − B?",
+        options: [
+          "A. {3, 4}",
+          "B. {5}",
+          "C. {1, 2}",
+          "D. {1, 2, 5}"
+        ],
+        correct: 2,
+        exp: "A − B contains elements that are in A but not in B. Removing {3, 4} from A leaves {1, 2}."
+      },
+      {
+        q: "Question 4. If A = {1, 2, 3} and B = {3, 4}, what is the set difference B − A?",
+        options: [
+          "A. {1, 2}",
+          "B. {3}",
+          "C. {4}",
+          "D. {1, 2, 4}"
+        ],
+        correct: 2,
+        exp: "B − A contains elements in B that are not in A. Removing 3 from B leaves {4}."
+      },
+      {
+        q: "Question 5. Given the universal set U = {1, 2, 3, 4, 5, 6} and subset A = {2, 4, 6}, what is the absolute complement A'?",
+        options: [
+          "A. {2, 4, 6}",
+          "B. {1, 3, 5}",
+          "C. {1, 2, 3}",
+          "D. ∅"
+        ],
+        correct: 1,
+        exp: "The complement A' = U − A consists of all elements in U not in A, which are {1, 3, 5}."
+      },
+      {
+        q: "Question 6. Two sets A and B are defined as disjoint if and only if:",
+        options: [
+          "A. A = B",
+          "B. A ∪ B = ∅",
+          "C. A ∩ B = ∅",
+          "D. A − B = ∅"
+        ],
+        correct: 2,
+        exp: "Disjoint sets have no members in common; their intersection is the empty set (A ∩ B = ∅)."
+      },
+      {
+        q: "Question 7. Which of the following fundamental set operations is NOT commutative in general?",
+        options: [
+          "A. Set Union (A ∪ B)",
+          "B. Set Intersection (A ∩ B)",
+          "C. Set Difference (A − B)",
+          "D. Symmetric Difference (A △ B)"
+        ],
+        correct: 2,
+        exp: "Set difference is non-commutative: in general, A − B ≠ B − A."
+      },
+      {
+        q: "Question 8. The symmetric difference A △ B contains elements that belong to:",
+        options: [
+          "A. Only the common intersection region",
+          "B. Exactly one of the two sets (either A or B, but not both)",
+          "C. All elements in both sets including common elements",
+          "D. Only elements situated outside both sets in U"
+        ],
+        correct: 1,
+        exp: "By definition, A △ B = (A − B) ∪ (B − A) = (A ∪ B) − (A ∩ B), isolating elements belonging to exactly one set."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! You scored 100% and mastered Set Operations."
+          : "Great job! You have a strong grasp of union, intersection, difference, and complements.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the highlighted explanations above to reach 100%.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Keep practicing! Review the reference table and Venn diagrams above, then retake the quiz.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    // Image Lightbox (Enlarge image with dark dimmed background on tap)
+    function initImageLightbox() {
+      document.querySelectorAll("main img").forEach((img) => {
+        img.classList.add("cursor-zoom-in");
+        img.addEventListener("click", () => {
+          document.getElementById("lightbox-img").src = img.src;
+          const cap = img.closest("figure")?.querySelector("figcaption")?.innerText || img.alt || "";
+          const capEl = document.getElementById("lightbox-caption");
+          if (capEl) {
+            capEl.innerText = cap;
+            capEl.classList.toggle("hidden", !cap);
+          }
+          document.getElementById("img-lightbox").classList.remove("hidden");
+          lucide.createIcons();
+        });
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeLightbox();
+      });
+    }
+
+    function closeLightbox() {
+      const lb = document.getElementById("img-lightbox");
+      if (lb) lb.classList.add("hidden");
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+      initImageLightbox();
+    });
+  </script>
+</body>
+</html>

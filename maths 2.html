@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>The Five Logical Connectives — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax for mathematical symbols and truth tables -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Lesson Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Chapter 1 · Propositional Logic
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">The Five Logical Connectives</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">Compound Propositions, Truth Tables, and Logical Operators</p>
+      </div>
+    </section>
+
+    <!-- Intro Card -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">In propositional logic, simple statements can be modified or connected using <strong>logical connectives (operators)</strong> to construct <strong>compound propositions</strong>.</p>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-emerald-800 dark:text-emerald-300">Mathematical Operator Analogy:</strong> Just as arithmetic operators (\(+\), \(-\), \(\times\)) act on numbers to produce new numerical values, logical connectives act on truth values of propositions to generate new propositions.
+      </div>
+
+      <div>
+        <p class="text-sm text-slate-700 dark:text-slate-300 mb-2">Consider two atomic propositions:</p>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(p\): <em>Jimma is in Ethiopia.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>)</li>
+          <li>\(q\): <em>Addis Ababa is the capital of Ethiopia.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>)</li>
+        </ul>
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-300">There are five fundamental logical connectives used to manipulate these statements.</p>
+    </section>
+
+    <!-- 1. Negation -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">1</span>
+        <span>Negation (NOT)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">The negation of a proposition \(p\), denoted by \(\neg p\) (or \(\sim p\)), reverses the original truth value of the proposition.</p>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Example:</h3>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(p\): <em>\(2\) is an even number.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>)</li>
+          <li>\(\neg p\): <em>\(2\) is NOT an even number.</em> (<span class="font-bold text-rose-600 dark:text-rose-400">False</span>)</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Truth Table for Negation:</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-center text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs font-bold text-slate-600 dark:text-slate-300">
+              <tr><th class="py-2.5 px-4">\(p\)</th><th class="py-2.5 px-4">\(\neg p\)</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Memory Rule:</strong> \(\neg p\) always yields the exact opposite truth value of \(p\).
+      </div>
+    </section>
+
+    <!-- 2. Conjunction -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">2</span>
+        <span>Conjunction (AND)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">The conjunction of propositions \(p\) and \(q\), denoted by \(p \land q\), is the compound proposition formed by connecting them with <strong>AND</strong>.</p>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Example:</h3>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(p\): <em>\(4\) is even.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">T</span>)</li>
+          <li>\(q\): <em>\(5\) is odd.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">T</span>)</li>
+          <li>\(p \land q\): <em>\(4\) is even AND \(5\) is odd.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">T</span>)</li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">The Conjunction Rule:</strong> \(p \land q\) is <strong>TRUE only when BOTH \(p\) and \(q\) are TRUE</strong>. In all other cases, it is False.
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Truth Table for Conjunction:</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-center text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs font-bold text-slate-600 dark:text-slate-300">
+              <tr><th class="py-2.5 px-4">\(p\)</th><th class="py-2.5 px-4">\(q\)</th><th class="py-2.5 px-4">\(p \land q\)</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-emerald-800 dark:text-emerald-300">Academic Analogy:</strong> Suppose passing a pre-medical entrance examination requires passing Biology <strong>AND</strong> Chemistry. If a candidate fails either one (or both), the requirement is not met.
+      </div>
+    </section>
+
+    <!-- 3. Disjunction -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">3</span>
+        <span>Disjunction (OR)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">The disjunction of propositions \(p\) and \(q\), denoted by \(p \lor q\), is the compound proposition formed by connecting them with <strong>OR</strong>.</p>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Example:</h3>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(p\): <em>\(4\) is even.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">T</span>)</li>
+          <li>\(q\): <em>\(5\) is even.</em> (<span class="font-bold text-rose-600 dark:text-rose-400">F</span>)</li>
+          <li>\(p \lor q\): <em>\(4\) is even OR \(5\) is even.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">T</span>)</li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">The Disjunction Rule:</strong> \(p \lor q\) is <strong>FALSE only when BOTH \(p\) and \(q\) are FALSE</strong>. If at least one statement is true, the compound proposition is True.
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Truth Table for Disjunction:</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-center text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs font-bold text-slate-600 dark:text-slate-300">
+              <tr><th class="py-2.5 px-4">\(p\)</th><th class="py-2.5 px-4">\(q\)</th><th class="py-2.5 px-4">\(p \lor q\)</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Inclusive OR vs. Exclusive OR:</strong> In formal mathematical logic, the connective "OR" (\(\lor\)) is <strong>inclusive</strong>. This means \(p \lor q\) is True when \(p\) is true, when \(q\) is true, and also when <strong>both</strong> are true simultaneously.
+      </div>
+    </section>
+
+    <!-- 4. Implication -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">4</span>
+        <span>Implication / Conditional (IF... THEN)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">The conditional statement (implication), denoted by \(p \to q\) (or \(p \implies q\)), represents the statement: <strong>"If \(p\), then \(q\)"</strong>.</p>
+      <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+        <li>\(p\) is called the <strong>hypothesis</strong> (or <em>antecedent</em> / <em>premise</em>).</li>
+        <li>\(q\) is called the <strong>conclusion</strong> (or <em>consequent</em>).</li>
+      </ul>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-1">Example:</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-2"><em>"If a number is divisible by \(4\), then it is even."</em></p>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(p\): A number is divisible by \(4\).</li>
+          <li>\(q\): It is even.</li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">The Implication Rule:</strong> \(p \to q\) is <strong>FALSE in exactly one case: when \(p\) is TRUE and \(q\) is FALSE</strong> (\(\text{T} \to \text{F}\)). In all other three cases, it evaluates to <strong>True</strong>.
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Truth Table for Implication:</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-center text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs font-bold text-slate-600 dark:text-slate-300">
+              <tr><th class="py-2.5 px-4">\(p\)</th><th class="py-2.5 px-4">\(q\)</th><th class="py-2.5 px-4">\(p \to q\)</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200 space-y-1.5">
+        <strong class="text-emerald-800 dark:text-emerald-300 block">The Broken Promise Analogy:</strong>
+        <p>A father promises his son: <em>"If you pass the university entrance exam (\(p\)), then I will buy you a smartphone (\(q\))."</em></p>
+        <ul class="space-y-1 text-xs sm:text-sm pt-1">
+          <li>&bull; <strong>T &rarr; T:</strong> The son passes; the father buys the phone &rarr; Promise kept (<span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>).</li>
+          <li>&bull; <strong>T &rarr; F:</strong> The son passes; the father fails to buy the phone &rarr; <strong>Promise broken (<span class="font-bold text-rose-600 dark:text-rose-400">False</span>)</strong>.</li>
+          <li>&bull; <strong>F &rarr; T:</strong> The son does not pass; the father buys the phone anyway &rarr; Promise not broken (<span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>).</li>
+          <li>&bull; <strong>F &rarr; F:</strong> The son does not pass; the father does not buy the phone &rarr; Promise not broken (<span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>).</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Alternative Linguistic Expressions for \(p \to q\):</h3>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>"If \(p\), then \(q\)"</li>
+          <li>"\(p\) implies \(q\)"</li>
+          <li>"\(p\) is <strong>sufficient</strong> for \(q\)"</li>
+          <li>"\(q\) is <strong>necessary</strong> for \(p\)"</li>
+          <li>"\(p\) only if \(q\)"</li>
+          <li>"\(q\) if \(p\)"</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5. Bi-implication -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">5</span>
+        <span>Bi-implication / Biconditional (IF AND ONLY IF)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">The bi-implication, denoted by \(p \leftrightarrow q\) (or \(p \iff q\)), represents: <strong>"\(p\) if and only if \(q\)"</strong> (abbreviated as "\(p\) iff \(q\)").</p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">The Bi-implication Rule:</strong> \(p \leftrightarrow q\) is <strong>TRUE when both \(p\) and \(q\) have the SAME truth value</strong> (both True or both False). It is False when they have opposite truth values.
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Truth Table for Bi-implication:</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-center text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs font-bold text-slate-600 dark:text-slate-300">
+              <tr><th class="py-2.5 px-4">\(p\)</th><th class="py-2.5 px-4">\(q\)</th><th class="py-2.5 px-4">\(p \leftrightarrow q\)</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">F</td><td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">T</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Example:</h3>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(p\): <em>\(3\) is odd.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">T</span>)</li>
+          <li>\(q\): <em>\(2\) is prime.</em> (<span class="font-bold text-emerald-600 dark:text-emerald-400">T</span>)</li>
+          <li>Since both propositions are True, \(p \leftrightarrow q\) is <span class="font-bold text-emerald-600 dark:text-emerald-400">True</span>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. Summary Table -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">6</span>
+        <span>Summary of the Five Connectives</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-3 px-4">Connective</th>
+              <th class="py-3 px-4">Name</th>
+              <th class="py-3 px-4 text-center">Symbol</th>
+              <th class="py-3 px-4">When is it TRUE?</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-3 px-4 font-bold">NOT</td>
+              <td class="py-3 px-4">Negation</td>
+              <td class="py-3 px-4 text-center">\(\neg p\)</td>
+              <td class="py-3 px-4">When \(p\) is <strong>False</strong></td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-bold">AND</td>
+              <td class="py-3 px-4">Conjunction</td>
+              <td class="py-3 px-4 text-center">\(p \land q\)</td>
+              <td class="py-3 px-4">When <strong>both</strong> \(p\) and \(q\) are <strong>True</strong></td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-bold">OR</td>
+              <td class="py-3 px-4">Disjunction</td>
+              <td class="py-3 px-4 text-center">\(p \lor q\)</td>
+              <td class="py-3 px-4">When <strong>at least one</strong> of \(p\) or \(q\) is <strong>True</strong></td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-bold">IF... THEN</td>
+              <td class="py-3 px-4">Implication</td>
+              <td class="py-3 px-4 text-center">\(p \to q\)</td>
+              <td class="py-3 px-4">Always <strong>except</strong> when \(\text{T} \to \text{F}\)</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-bold">IFF</td>
+              <td class="py-3 px-4">Bi-implication</td>
+              <td class="py-3 px-4 text-center">\(p \leftrightarrow q\)</td>
+              <td class="py-3 px-4">When \(p\) and \(q\) have the <strong>same truth value</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. Self-Assessment Quiz -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an option to check your answer immediately</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 5</span>
+      </div>
+
+      <!-- Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; The Five Logical Connectives
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. If proposition p is FALSE, what is the truth value of ¬p?",
+        options: [
+          "A. True",
+          "B. False",
+          "C. Cannot be determined",
+          "D. Both true and false"
+        ],
+        correct: 0,
+        exp: "Negation inverts the truth value: ¬F = True."
+      },
+      {
+        q: "Question 2. Under what condition is the conjunction p ∧ q FALSE?",
+        options: [
+          "A. Only when both p and q are true",
+          "B. When at least one of p or q is false",
+          "C. Only when both p and q are false",
+          "D. Only when p is true"
+        ],
+        correct: 1,
+        exp: "Conjunction requires both components to be true; if either p or q is false, p ∧ q evaluates to False."
+      },
+      {
+        q: "Question 3. In formal propositional logic, when does the disjunction p ∨ q evaluate to FALSE?",
+        options: [
+          "A. When both p and q are true",
+          "B. When p is true and q is false",
+          "C. When both p and q are false",
+          "D. Whenever either one is true"
+        ],
+        correct: 2,
+        exp: "Inclusive disjunction is false only when both constituent propositions are False (F ∨ F = False)."
+      },
+      {
+        q: "Question 4. Which truth assignment makes the conditional implication p → q FALSE?",
+        options: [
+          "A. T → T",
+          "B. T → F",
+          "C. F → T",
+          "D. F → F"
+        ],
+        correct: 1,
+        exp: "An implication is false in exactly one scenario: when the antecedent (hypothesis) is True and the consequent (conclusion) is False (T → F = False)."
+      },
+      {
+        q: "Question 5. If p is FALSE and q is FALSE, what is the truth value of the bi-implication p ↔ q?",
+        options: [
+          "A. True",
+          "B. False",
+          "C. Cannot be determined",
+          "D. Neither"
+        ],
+        correct: 0,
+        exp: "Bi-implication evaluates to True whenever both components share identical truth values (F ↔ F = True)."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! You scored 100% and mastered The Five Logical Connectives."
+          : "Great job! You have a solid command of truth tables and connectives.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the highlighted explanations above to reach 100%.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Keep practicing! Review the truth tables above, especially implication (T → F), then retake the quiz.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // Smart Back Navigation to Dashboard
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    // Theme helpers matching index.html
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

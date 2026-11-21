@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>The Concept of a Set — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax for set theory notation -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Lesson Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Chapter 1 · Set Theory
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">The Concept of a Set</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">Well-Defined Collections, Elements, Membership Relations, and Set Notations</p>
+      </div>
+    </section>
+
+    <!-- 1. What is a set? -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">1</span>
+        <span>What is a Set?</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> A <strong>set</strong> is a well-defined collection of distinct objects that share a specified property or rule. The objects belonging to a set are called its <strong>elements</strong> (or <em>members</em>).
+      </div>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-emerald-800 dark:text-emerald-300">Classroom Illustration:</strong> Imagine a lecture hall of 40 students. If you form a group consisting strictly of <em>"students currently wearing eyeglasses"</em>, that collection forms a set because anyone can verify unambiguously whether a given student wears glasses or not.
+      </div>
+
+      <!-- Zoomable Figure -->
+      <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 relative group">
+        <div class="relative">
+          <img src="https://images.openai.com/static-rsc-4/1s9yvPXnpVi_BKd48zfCqrAs5rJWRcIcn1f-AC4QdT5zEGA4qfBzP9CNeIyJCkyyjefNB5NBGENgIKQvCjlKd_MBvZ4horzqdv_zvWSPIIBeJVEMl1BS9LcF8SbQyFRq_FpCDmHa0HvsIoJeScgOBTbyQqEtrqo3OX-DnDITcqZ2PvealIt08SLKaMmdh22N?purpose=fullsize" alt="Students in Classroom" class="w-full h-auto block object-cover transition duration-300 group-hover:scale-[1.01]" />
+          <span class="pointer-events-none absolute bottom-2.5 right-2.5 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950/75 text-white text-[11px] font-semibold backdrop-blur">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i> Tap to enlarge
+          </span>
+        </div>
+        <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+          Well-defined collection: Students in a classroom possessing an identifiable property
+        </figcaption>
+      </figure>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Mathematical Example:</h3>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center font-bold text-base mb-2">
+          \[A = \{2, 4, 6, 8, 10\}\]
+        </div>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(A\) is the <strong>label/name</strong> of the set.</li>
+          <li>\(2, 4, 6, 8, 10\) are the individual <strong>elements</strong> (members) of the set.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-1.5">What Does "Well-Defined" Mean?</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">A collection is <strong>well-defined</strong> if there exists an objective criterion that makes it possible to determine conclusively whether any given object belongs to the collection or not.</p>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-3 px-4">Collection</th><th class="py-3 px-4">Is it a Set?</th><th class="py-3 px-4">Reasoning</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr>
+                <td class="py-2.5 px-4">Even integers less than \(10\)</td>
+                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">Yes</td>
+                <td class="py-2.5 px-4">Objective: \(\{2, 4, 6, 8\}\) are clearly identifiable.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4">Students taller than \(180\text{ cm}\)</td>
+                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">Yes</td>
+                <td class="py-2.5 px-4">Measurable, objective quantitative criterion.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4">"Beautiful" students in a class</td>
+                <td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">No (Not well-defined)</td>
+                <td class="py-2.5 px-4">Subjective: beauty depends on personal opinion; no objective rule exists.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4">Positive integers</td>
+                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">Yes</td>
+                <td class="py-2.5 px-4">Objective: \(\{1, 2, 3, 4, \dots\}\) is clearly defined.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Exam Trap:</strong> A set does not need to be small, finite, or simple. It only needs to be <strong>well-defined</strong>. Subjective adjectives like "interesting", "difficult", "clever", or "beautiful" never form sets.
+      </div>
+    </section>
+
+    <!-- 2. Elements and Membership Relations -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">2</span>
+        <span>Elements and Membership Relations</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">To state whether an object belongs or does not belong to a set, two fundamental relational symbols are used:</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center space-y-1">
+          <div class="text-3xl font-bold text-brand-600 dark:text-brand-400">\(\in\)</div>
+          <div class="font-display font-bold text-sm text-slate-900 dark:text-white">Belongs to / Is an element of</div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">\(x \in A\) asserts that \(x\) is in set \(A\)</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center space-y-1">
+          <div class="text-3xl font-bold text-brand-600 dark:text-brand-400">\(\notin\)</div>
+          <div class="font-display font-bold text-sm text-slate-900 dark:text-white">Does not belong to / Is not an element of</div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">\(x \notin A\) asserts that \(x\) is not in set \(A\)</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-1.5">Application:</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-2">Let \(A = \{2, 4, 6, 8, 10\}\). Evaluate the following statements:</p>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>\(2 \in A\) &rarr; <span class="font-bold text-emerald-600 dark:text-emerald-400">True</span> (\(2\) is explicitly listed in \(A\)).</li>
+          <li>\(5 \in A\) &rarr; <span class="font-bold text-rose-600 dark:text-rose-400">False</span> (\(5\) is not in \(A\)).</li>
+          <li>\(7 \notin A\) &rarr; <span class="font-bold text-emerald-600 dark:text-emerald-400">True</span> (\(7\) is indeed not a member of \(A\)).</li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>The Law of Excluded Middle in Set Theory:</strong> For any arbitrary object \(x\) and any given set \(A\), <strong>exactly one</strong> of the following statements is True:
+        <div class="text-center font-bold py-1.5">\[x \in A \quad \text{or} \quad x \notin A\]</div>
+        They can never be true simultaneously, nor can both be false.
+      </div>
+    </section>
+
+    <!-- 3. Set-Theoretic Notations -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">3</span>
+        <span>Set-Theoretic Notations</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">Standard mathematical conventions govern how sets and their components are written:</p>
+      <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+        <li><strong>Capital Latin letters</strong> denote sets: \(A, B, C, X, Y, Z\).</li>
+        <li><strong>Lowercase Latin letters</strong> denote individual elements: \(a, b, c, x, y, z\).</li>
+      </ul>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Example:</h3>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center font-bold text-base mb-2">
+          \[B = \{a, b, c, d\}\]
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300">Here, \(B\) is the set identifier, braces \(\{\dots\}\) enclose the collection, and \(a, b, c, d\) are the elements separated by commas.</p>
+      </div>
+    </section>
+
+    <!-- 4. A Set as an Element of Another Set -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">4</span>
+        <span>A Set as an Element of Another Set (High Yield)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">In set theory, an element inside a set can itself be an entire set. Compare the following two sets carefully:</p>
+
+      <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center font-bold text-base">
+        \[A = \{1, 2, 3\} \quad \text{versus} \quad B = \{1, \{2, 3\}\}\]
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-1.5">
+          <h3 class="font-display font-bold text-slate-900 dark:text-white">Analysis of Set \(A\):</h3>
+          <ul class="list-disc pl-5 space-y-1 text-slate-700 dark:text-slate-300">
+            <li>Set \(A\) contains three elements: \(1\), \(2\), and \(3\).</li>
+            <li>Cardinality of \(A\) is \(|A| = 3\).</li>
+          </ul>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-1.5">
+          <h3 class="font-display font-bold text-slate-900 dark:text-white">Analysis of Set \(B\):</h3>
+          <p class="text-slate-700 dark:text-slate-300">Set \(B\) contains exactly <strong>two elements</strong>:</p>
+          <ol class="list-decimal pl-5 space-y-0.5 text-slate-700 dark:text-slate-300">
+            <li>The number \(1\)</li>
+            <li>The set \(\{2, 3\}\) (a single packaged entity)</li>
+          </ol>
+          <p class="text-slate-700 dark:text-slate-300 pt-0.5">Cardinality of \(B\) is \(|B| = 2\).</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Truth Value Verification:</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-3 px-4">Statement</th><th class="py-3 px-4">Truth Value</th><th class="py-3 px-4">Explanation</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr>
+                <td class="py-2.5 px-4 font-bold">\(2 \in A\)</td>
+                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">True</td>
+                <td class="py-2.5 px-4">\(2\) is an individual element of \(A\).</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 font-bold">\(2 \in B\)</td>
+                <td class="py-2.5 px-4 font-bold text-rose-600 dark:text-rose-400">False</td>
+                <td class="py-2.5 px-4">\(2\) is NOT an element of \(B\); only the set \(\{2, 3\}\) is an element.</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 font-bold">\(2 \notin B\)</td>
+                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">True</td>
+                <td class="py-2.5 px-4">Correct, because \(2\) is not listed on the outer tier of \(B\).</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 px-4 font-bold">\(\{2, 3\} \in B\)</td>
+                <td class="py-2.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">True</td>
+                <td class="py-2.5 px-4">The whole subset \(\{2, 3\}\) is directly an element of \(B\).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Summary Review -->
+    <section class="card p-5 sm:p-6 space-y-3">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">5</span>
+        <span>Summary Review</span>
+      </h2>
+      <ul class="list-disc pl-5 space-y-1.5 text-sm text-slate-700 dark:text-slate-300">
+        <li>A <strong>set</strong> is a well-defined collection of distinct objects.</li>
+        <li>Objects contained within a set are called <strong>elements</strong> or members.</li>
+        <li>Uppercase letters denote sets (\(A, B\)); lowercase letters denote elements (\(x, y\)).</li>
+        <li>\(\in\) indicates membership ("belongs to"); \(\notin\) indicates non-membership ("does not belong to").</li>
+        <li>An entire set can act as a single element inside another set (e.g., in \(\{1, \{2, 3\}\}\)).</li>
+      </ul>
+    </section>
+
+    <!-- 6. Self-Assessment Quiz -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an option to check your answer immediately</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 6</span>
+      </div>
+
+      <!-- Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 6 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Image Lightbox Modal (Dark dimmed background on tap) -->
+  <div id="img-lightbox" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4" onclick="closeLightbox()">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition" aria-label="Close image">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[82vh] object-contain rounded-2xl shadow-2xl border border-white/10" onclick="event.stopPropagation()" />
+    <p id="lightbox-caption" class="hidden mt-3 text-xs sm:text-sm text-slate-200 text-center max-w-xl px-4"></p>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; The Concept of a Set
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. Which of the following collections represents a mathematically well-defined set?",
+        options: [
+          "A. The collection of all beautiful people in a city",
+          "B. The collection of intelligent university students",
+          "C. The collection of positive integers less than 6",
+          "D. The collection of interesting novels"
+        ],
+        correct: 2,
+        exp: "'Positive integers less than 6' ({1, 2, 3, 4, 5}) is based on an unambiguous mathematical rule. 'Beautiful', 'intelligent', and 'interesting' are subjective terms."
+      },
+      {
+        q: "Question 2. Given the set A = {2, 4, 6, 8}, which of the following statements is TRUE?",
+        options: [
+          "A. 3 ∈ A",
+          "B. 4 ∉ A",
+          "C. 6 ∈ A",
+          "D. 8 ∉ A"
+        ],
+        correct: 2,
+        exp: "6 is an element of set A, so 6 ∈ A is True. (3 is not in A, 4 is in A, and 8 is in A)."
+      },
+      {
+        q: "Question 3. Which mathematical symbol represents the relation 'is not an element of'?",
+        options: [
+          "A. ∈",
+          "B. ∉",
+          "C. ⊆",
+          "D. ="
+        ],
+        correct: 1,
+        exp: "The symbol ∉ denotes non-membership ('does not belong to' or 'is not an element of')."
+      },
+      {
+        q: "Question 4. If set B is defined as B = {1, {2, 3}}, how many elements are contained in B?",
+        options: [
+          "A. 1 element",
+          "B. 2 elements",
+          "C. 3 elements",
+          "D. 4 elements"
+        ],
+        correct: 1,
+        exp: "Set B contains exactly two elements: the number 1, and the set {2, 3} treated as a single element."
+      },
+      {
+        q: "Question 5. Given set A = {a, b, c}, which of the following expressions is syntactically and logically correct?",
+        options: [
+          "A. A is an element of a",
+          "B. a ∈ A",
+          "C. A ∈ b",
+          "D. c ∉ A"
+        ],
+        correct: 1,
+        exp: "The lowercase letter a is an element of the uppercase set A, represented as a ∈ A."
+      },
+      {
+        q: "Question 6. For any arbitrary mathematical object x and any set A, which statement is universally guaranteed to be true?",
+        options: [
+          "A. x ∈ A and x ∉ A",
+          "B. x ∈ A or x ∉ A, but not both",
+          "C. Every object x belongs to set A",
+          "D. No object x belongs to set A"
+        ],
+        correct: 1,
+        exp: "By the fundamental principle of set membership, exactly one of the two statements (x ∈ A or x ∉ A) must be True."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! You scored 100% and mastered The Concept of a Set."
+          : "Great job! You have a strong grasp of well-defined sets and element membership.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the highlighted explanations above to reach 100%.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Keep practicing! Review set membership symbols (∈, ∉) and nested sets above, then retake the quiz.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    // Image Lightbox (Enlarge image with dark dimmed background on tap)
+    function initImageLightbox() {
+      document.querySelectorAll("main img").forEach((img) => {
+        img.classList.add("cursor-zoom-in");
+        img.addEventListener("click", () => {
+          document.getElementById("lightbox-img").src = img.src;
+          const cap = img.closest("figure")?.querySelector("figcaption")?.innerText || img.alt || "";
+          const capEl = document.getElementById("lightbox-caption");
+          if (capEl) {
+            capEl.innerText = cap;
+            capEl.classList.toggle("hidden", !cap);
+          }
+          document.getElementById("img-lightbox").classList.remove("hidden");
+          lucide.createIcons();
+        });
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeLightbox();
+      });
+    }
+
+    function closeLightbox() {
+      const lb = document.getElementById("img-lightbox");
+      if (lb) lb.classList.add("hidden");
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+      initImageLightbox();
+    });
+  </script>
+</body>
+</html>

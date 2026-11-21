@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Description and Relationships of Sets — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax for mathematical notation and set theory -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Lesson Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i> Chapter 1 · Set Theory
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">Description and Relationships of Sets</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">Methods of Describing Sets, Set Classification, Subsets, and Power Sets</p>
+      </div>
+    </section>
+
+    <!-- PART 1: FOUR METHODS OF DESCRIBING SETS -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">P1</span>
+        <span>Four Methods of Describing Sets</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">There are four distinct mathematical methods used to describe and specify sets:</p>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-1.5">1. Verbal Method (Statement Form)</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-2">A set is described using a clear descriptive sentence in ordinary language.</p>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li><em>"The set of counting numbers less than \(6\)."</em> &rarr; Defines \(A = \{1, 2, 3, 4, 5\}\).</li>
+          <li><em>"The set of vowels in the English alphabet."</em> &rarr; Defines \(V = \{a, e, i, o, u\}\).</li>
+          <li><em>"The set of countries in Africa."</em></li>
+          <li><em>"The set of positive even numbers less than \(12\)."</em></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-1.5">2. Roster (Complete Listing) Method</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-2">Every individual element of the set is explicitly listed inside curly brackets \(\{\dots\}\), separated by commas.</p>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center font-bold text-sm sm:text-base mb-3">
+          \[A = \{1, 2, 3, 4, 5\} \quad \text{and} \quad B = \{1, 2, 3, 4, 6, 12\}\]
+        </div>
+        <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200 space-y-1">
+          <strong class="block">Three Fundamental Rules of the Roster Method:</strong>
+          <ol class="list-decimal pl-5 space-y-1">
+            <li>Every member must be included in the listing.</li>
+            <li><strong>No repetition:</strong> Writing an element multiple times does not change the set: \(\{1, 1, 2, 2, 3\} = \{1, 2, 3\}\).</li>
+            <li><strong>Order does not matter:</strong> Rearranging elements leaves the set identical: \(\{1, 2, 3\} = \{3, 2, 1\}\).</li>
+          </ol>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-1.5">3. Partial Listing Method</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-2">Used when a set contains too many elements to list completely, or infinitely many elements that follow a distinct, established pattern. An ellipsis (three dots: \(\dots\)) indicates continuation.</p>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-3 px-4">Description</th><th class="py-3 px-4">Partial Listing Notation</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2.5 px-4">Counting numbers (Natural numbers)</td><td class="py-2.5 px-4">\(\{1, 2, 3, 4, 5, \dots\}\)</td></tr>
+              <tr><td class="py-2.5 px-4">Non-positive integers</td><td class="py-2.5 px-4">\(\{\dots, -3, -2, -1, 0\}\)</td></tr>
+              <tr><td class="py-2.5 px-4">Positive multiples of \(5\)</td><td class="py-2.5 px-4">\(\{5, 10, 15, 20, \dots\}\)</td></tr>
+              <tr><td class="py-2.5 px-4">Positive odd integers less than \(100\)</td><td class="py-2.5 px-4">\(\{1, 3, 5, \dots, 97, 99\}\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">4. Set-Builder Method</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300">Instead of listing elements, a variable and a characterizing predicate (condition) that uniquely describes all members are stated.</p>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center font-bold text-sm sm:text-base">
+          \[A = \{x \mid x \text{ is an even positive integer less than } 10\}\]
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300"><em>Read as:</em> "The set of all \(x\) <strong>such that</strong> (\(\mid\)) \(x\) is an even positive integer less than \(10\)."</p>
+        <p class="text-sm text-slate-600 dark:text-slate-300">Evaluating this yields \(A = \{2, 4, 6, 8\}\). (A colon \(:\) can be used interchangeably with the vertical bar \(\mid\)). Another example: \(B = \{x \in \mathbb{N} \mid x < 5\} = \{1, 2, 3, 4\}\).</p>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Comparison of All Four Methods (Positive even integers &lt; 10):</h3>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-3 px-4">Method</th><th class="py-3 px-4">Representation</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2.5 px-4 font-bold">Verbal</td><td class="py-2.5 px-4">The positive even integers less than \(10\).</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold">Roster</td><td class="py-2.5 px-4">\(\{2, 4, 6, 8\}\)</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold">Partial Listing</td><td class="py-2.5 px-4 text-slate-500 dark:text-slate-400">Not needed (the set is small and finite).</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold">Set-Builder</td><td class="py-2.5 px-4">\(\{x \mid x \text{ is an even integer and } 0 < x < 10\}\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 2: EMPTY, FINITE, AND INFINITE SETS -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">P2</span>
+        <span>Empty, Finite, and Infinite Sets</span>
+      </h2>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">5. Empty Set (Null Set)</h3>
+        <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200 mb-3">
+          <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> A set containing no elements at all is called the <strong>empty set</strong> (or <em>null set</em>). It is symbolized by:
+          <div class="text-center font-bold text-base pt-1.5">\[\varnothing \quad \text{or} \quad \{\}\]</div>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-3"><em>Example:</em> \(A = \{x \in \mathbb{N} \mid x < 0\}\). Since no natural number is negative, \(A = \varnothing\).</p>
+        <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200 space-y-1">
+          <strong class="block">Vital Exam Distinction:</strong>
+          <div class="text-center font-bold text-base py-1">\[\varnothing \neq \{\varnothing\}\]</div>
+          <p>&bull; \(\varnothing\) has <strong>zero elements</strong> (empty).</p>
+          <p>&bull; \(\{\varnothing\}\) is a non-empty set with <strong>one element</strong>: namely, the empty set itself.</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">6. Finite vs. Infinite Sets</h3>
+        <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+          <li><strong>Finite Set:</strong> A set whose elements can be completely counted and matched with \(\{1, 2, \dots, n\}\) for some integer \(n \ge 0\).<br>
+          <em>Example:</em> \(A = \{1, 2, 3, 4\}\) (Cardinality \(|A| = 4\)).</li>
+          <li><strong>Infinite Set:</strong> A set with an unlimited number of elements whose counting process never terminates.<br>
+          <em>Example:</em> \(\mathbb{N} = \{1, 2, 3, 4, \dots\}\) (The counting numbers continue indefinitely).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PART 3: RELATIONSHIPS BETWEEN TWO SETS -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">P3</span>
+        <span>Relationships Between Sets</span>
+      </h2>
+
+      <div class="space-y-3">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">7. Subsets</h3>
+        <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+          <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> Set \(A\) is a <strong>subset</strong> of set \(B\), denoted by \(A \subseteq B\), if and only if every element of \(A\) is also an element of \(B\):
+          <div class="text-center font-bold pt-1.5">\[A \subseteq B \iff \forall x \, (x \in A \to x \in B)\]</div>
+        </div>
+
+        <!-- Zoomable Subset Venn Diagram -->
+        <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+          <div class="relative p-2 bg-white">
+            <img src="https://images.openai.com/static-rsc-4/7WORqQCK54egGc1Rz-iQjYrlc7qeL8FrVQueSMxy45gqzAExCQliJPKe_m2XTflR9L71aJ8Sth_RYIjJT1u6ZPVYOsSsa2OW38uHiCovDQsYRWpc9LgsA8chTTwRxYyNcNDKN15ekDe7-K0sz6VtkfdIVovmIXcdSGsNcDFgceJqUVcqww174ddwO2pp4Meb?purpose=fullsize" alt="Subset Venn Diagram" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+            <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950/75 text-white text-[11px] font-semibold backdrop-blur">
+              <i data-lucide="maximize-2" class="w-3 h-3"></i> Tap to enlarge
+            </span>
+          </div>
+          <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+            Venn Diagram: Region A is completely contained inside Region B (\(A \subseteq B\))
+          </figcaption>
+        </figure>
+
+        <p class="text-sm text-slate-600 dark:text-slate-300"><em>Example:</em> Let \(A = \{1, 2\}\) and \(B = \{1, 2, 3, 4\}\). Here, \(A \subseteq B\), but \(B \not\subseteq A\) (since \(3, 4 \in B\) but \(3, 4 \notin A\)).</p>
+
+        <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200 space-y-1">
+          <strong class="block">Universal Subset Theorems:</strong>
+          <p>For any arbitrary set \(A\):</p>
+          <p>1. \(\varnothing \subseteq A\) &nbsp;(The empty set is a subset of every set).</p>
+          <p>2. \(A \subseteq A\) &nbsp;(Every set is a subset of itself — reflexivity).</p>
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">8. Equal Sets</h3>
+        <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+          <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> Two sets \(A\) and \(B\) are <strong>equal</strong> (\(A = B\)) if and only if they contain precisely the same elements. Symbolically:
+          <div class="text-center font-bold pt-1.5">\[A = B \iff (A \subseteq B \land B \subseteq A)\]</div>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300"><em>Example:</em> \(A = \{1, 2, 3\}\) and \(B = \{3, 2, 1, 1\}\). Since order and repetition are irrelevant, \(A = B\).</p>
+      </div>
+
+      <div class="space-y-3 pt-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">9. Equivalent Sets</h3>
+        <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+          <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> Two sets \(A\) and \(B\) are <strong>equivalent</strong> (denoted \(A \sim B\)) if there exists a <strong>one-to-one correspondence</strong> (bijection) between their elements. For finite sets, this means they have the exact same number of elements (\(|A| = |B|\)).
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300"><em>Example:</em> \(A = \{a, b, c\}\) and \(B = \{1, 2, 3\}\). We can match \(a \leftrightarrow 1\), \(b \leftrightarrow 2\), and \(c \leftrightarrow 3\). Thus, \(A \sim B\).</p>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-3 px-4">Relationship</th><th class="py-3 px-4">Defining Criterion</th><th class="py-3 px-4">Illustrative Example</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2.5 px-4 font-bold">Equal Sets (\(A = B\))</td><td class="py-2.5 px-4">Identical elements</td><td class="py-2.5 px-4">\(\{1, 2\} = \{2, 1\}\)</td></tr>
+              <tr><td class="py-2.5 px-4 font-bold">Equivalent Sets (\(A \sim B\))</td><td class="py-2.5 px-4">Identical number of elements (\(|A| = |B|\))</td><td class="py-2.5 px-4">\(\{a, b\} \sim \{1, 2\}\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+          <strong>Rule:</strong> Equal sets are always equivalent. However, equivalent sets are <strong>not necessarily equal</strong>!
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">10. Proper Subset</h3>
+        <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+          <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> A set \(A\) is a <strong>proper subset</strong> of \(B\), denoted by \(A \subset B\), if \(A \subseteq B\) and \(A \neq B\) (every element of \(A\) is in \(B\), and \(B\) contains at least one element not in \(A\)).
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300"><em>Example:</em> Let \(A = \{1, 2\}\) and \(B = \{1, 2, 3\}\). Then \(A \subset B\). But \(A \not\subset A\) because a set cannot be a proper subset of itself.</p>
+      </div>
+    </section>
+
+    <!-- PART 4: POWER SETS -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">P4</span>
+        <span>Power Sets</span>
+      </h2>
+
+      <div class="space-y-3">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">11. What is a Power Set?</h3>
+        <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+          <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The <strong>power set</strong> of a set \(A\), denoted by \(\mathcal{P}(A)\), is the set of all subsets of \(A\):
+          <div class="text-center font-bold pt-1.5">\[\mathcal{P}(A) = \{X \mid X \subseteq A\}\]</div>
+        </div>
+
+        <p class="text-sm text-slate-600 dark:text-slate-300">Let \(A = \{1, 2\}\). Listing all possible subsets:</p>
+        <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+          <li>Subset with 0 elements: \(\varnothing\)</li>
+          <li>Subsets with 1 element: \(\{1\}, \{2\}\)</li>
+          <li>Subset with 2 elements: \(\{1, 2\}\)</li>
+        </ul>
+        <div class="p-3 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300">
+          \(\mathcal{P}(A) = \{\varnothing, \{1\}, \{2\}, \{1, 2\}\}\)
+        </div>
+
+        <!-- Zoomable Power Set Diagram -->
+        <figure class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white relative group">
+          <div class="relative p-2 bg-white">
+            <img src="https://images.openai.com/static-rsc-4/cs-E1xFTu6RFsR99yDP1xMhU4REZJEy7JMHidGVHGiaiho8YTbxhiaw7opuZ5FRFB3lUrgB9__dG6TuxhK99n2r6O9rENO12I6DPlm20knpq-qddD3oNbJZGND5pJ9dKjDHzYeYiSTyjvp9v5iewubxwIe7_pwQk6mwptM_HkVCrE4EUJf2rkDILJNRWtuvI?purpose=fullsize" alt="Power Set Elements" class="w-full h-auto block object-contain mx-auto rounded-lg transition duration-300 group-hover:scale-[1.01]" />
+            <span class="pointer-events-none absolute bottom-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-950/75 text-white text-[11px] font-semibold backdrop-blur">
+              <i data-lucide="maximize-2" class="w-3 h-3"></i> Tap to enlarge
+            </span>
+          </div>
+          <figcaption class="text-xs text-slate-500 dark:text-slate-400 px-3 py-2 text-center bg-slate-50 dark:bg-slate-800/80">
+            Power set structure: Every member of \(\mathcal{P}(A)\) is itself a subset of \(A\)
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="space-y-3 pt-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">12. The Power-Set Counting Formulas</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300">For any finite set \(A\) containing \(n\) elements (i.e., \(|A| = n\)):</p>
+        <div class="p-4 rounded-xl bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-center font-bold text-brand-700 dark:text-brand-300 space-y-1">
+          <p>\(\text{Total number of subsets} = 2^n\)</p>
+          <p>\(\text{Total number of proper subsets} = 2^n - 1\)</p>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-center text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-2.5 px-4">Number of Elements (\(n\))</th><th class="py-2.5 px-4">Total Subsets (\(2^n\))</th><th class="py-2.5 px-4">Proper Subsets (\(2^n - 1\))</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2 px-4">\(0\) (\(\varnothing\))</td><td class="py-2 px-4 font-bold">\(2^0 = 1\)</td><td class="py-2 px-4">\(0\)</td></tr>
+              <tr><td class="py-2 px-4">\(1\)</td><td class="py-2 px-4 font-bold">\(2^1 = 2\)</td><td class="py-2 px-4">\(1\)</td></tr>
+              <tr><td class="py-2 px-4">\(2\)</td><td class="py-2 px-4 font-bold">\(2^2 = 4\)</td><td class="py-2 px-4">\(3\)</td></tr>
+              <tr><td class="py-2 px-4">\(3\)</td><td class="py-2 px-4 font-bold">\(2^3 = 8\)</td><td class="py-2 px-4">\(7\)</td></tr>
+              <tr><td class="py-2 px-4">\(4\)</td><td class="py-2 px-4 font-bold">\(2^4 = 16\)</td><td class="py-2 px-4">\(15\)</td></tr>
+              <tr><td class="py-2 px-4">\(5\)</td><td class="py-2 px-4 font-bold">\(2^5 = 32\)</td><td class="py-2 px-4">\(31\)</td></tr>
+              <tr><td class="py-2 px-4">\(6\)</td><td class="py-2 px-4 font-bold">\(2^6 = 64\)</td><td class="py-2 px-4">\(63\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-sm space-y-2">
+          <strong class="block text-slate-900 dark:text-white">Exam Problem Solving:</strong>
+          <p>&bull; <em>If a set has 64 subsets, find its cardinality:</em><br>
+          \(2^n = 64 = 2^6 \implies \mathbf{n = 6}\).</p>
+          <p>&bull; <em>If a set has 31 proper subsets, find its cardinality:</em><br>
+          \(2^n - 1 = 31 \implies 2^n = 32 = 2^5 \implies \mathbf{n = 5}\).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PART 5: UNIVERSAL SET -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">P5</span>
+        <span>Universal Set</span>
+      </h2>
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The <strong>universal set</strong> (denoted by \(U\)) is the fixed encompassing set that contains all elements under consideration in a specific mathematical context. All other sets in that discussion are subsets of \(U\).
+      </div>
+      <p class="text-sm text-slate-600 dark:text-slate-300"><em>Example:</em> If we discuss integers from \(1\) to \(10\), then \(U = \{1, 2, 3, \dots, 10\}\). Then \(A = \{2, 4, 6, 8, 10\}\) is naturally a subset of \(U\).</p>
+    </section>
+
+    <!-- PART 6: SUMMARY CLUES -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">P6</span>
+        <span>Summary Examination Clues</span>
+      </h2>
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-3 px-4">Question Clue</th><th class="py-3 px-4">Set Concept</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-4">"List all elements inside braces"</td><td class="py-2 px-4 font-bold">Roster method</td></tr>
+            <tr><td class="py-2 px-4">"Three dots (\(\dots\)) pattern"</td><td class="py-2 px-4 font-bold">Partial listing method</td></tr>
+            <tr><td class="py-2 px-4">"Such that bar (\(\mid\)) or colon"</td><td class="py-2 px-4 font-bold">Set-builder method</td></tr>
+            <tr><td class="py-2 px-4">"Zero elements"</td><td class="py-2 px-4 font-bold">Empty set (\(\varnothing\))</td></tr>
+            <tr><td class="py-2 px-4">"Every element of A is in B"</td><td class="py-2 px-4 font-bold">Subset (\(A \subseteq B\))</td></tr>
+            <tr><td class="py-2 px-4">"Exact same elements"</td><td class="py-2 px-4 font-bold">Equal sets (\(A = B\))</td></tr>
+            <tr><td class="py-2 px-4">"Exact same number of elements"</td><td class="py-2 px-4 font-bold">Equivalent sets (\(A \sim B\))</td></tr>
+            <tr><td class="py-2 px-4">"Subset but strictly not equal"</td><td class="py-2 px-4 font-bold">Proper subset (\(A \subset B\))</td></tr>
+            <tr><td class="py-2 px-4">"Set containing all subsets"</td><td class="py-2 px-4 font-bold">Power set (\(\mathcal{P}(A)\))</td></tr>
+            <tr><td class="py-2 px-4">"All elements under consideration"</td><td class="py-2 px-4 font-bold">Universal set (\(U\))</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. Self-Assessment Quiz (10 Questions) -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an option to check your answer immediately</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 10</span>
+      </div>
+
+      <!-- Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 10 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Image Lightbox Modal (Dark dimmed background on tap) -->
+  <div id="img-lightbox" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-4" onclick="closeLightbox()">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition" aria-label="Close image">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[82vh] object-contain rounded-2xl shadow-2xl bg-white p-1 border border-white/10" onclick="event.stopPropagation()" />
+    <p id="lightbox-caption" class="hidden mt-3 text-xs sm:text-sm text-slate-200 text-center max-w-xl px-4"></p>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Description and Relationships of Sets
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. Which method specifies a set by using a descriptive sentence in ordinary language?",
+        options: [
+          "A. Roster method",
+          "B. Verbal method",
+          "C. Set-builder method",
+          "D. Partial listing method"
+        ],
+        correct: 1,
+        exp: "The verbal method states the common property of the set using ordinary descriptive language."
+      },
+      {
+        q: "Question 2. What is the correct roster representation of the set of positive factors of 12?",
+        options: [
+          "A. {1, 2, 3, 4, 6, 12}",
+          "B. {2, 4, 6, 8, 10}",
+          "C. {1, 3, 5, 7, 9}",
+          "D. {12, 24, 36, ...}"
+        ],
+        correct: 0,
+        exp: "The positive integers that divide 12 without a remainder are 1, 2, 3, 4, 6, and 12."
+      },
+      {
+        q: "Question 3. What does the vertical bar symbol '|' represent in set-builder notation {x | P(x)}?",
+        options: [
+          "A. Belongs to",
+          "B. Is not equal to",
+          "C. Such that",
+          "D. Is a subset of"
+        ],
+        correct: 2,
+        exp: "In set-builder notation, the vertical bar '|' (or colon ':') is read as 'such that'."
+      },
+      {
+        q: "Question 4. Which of the following statements is universally TRUE for any arbitrary set A?",
+        options: [
+          "A. A ⊂ A",
+          "B. ∅ ⊆ A",
+          "C. A ∈ ∅",
+          "D. A = ∅"
+        ],
+        correct: 1,
+        exp: "The empty set is a subset of every set (∅ ⊆ A). Notice that A ⊂ A is false because no set is a proper subset of itself."
+      },
+      {
+        q: "Question 5. If A = {1, 2, 3} and B = {3, 2, 1, 1}, which statement is mathematically correct?",
+        options: [
+          "A. A and B are different sets",
+          "B. A is a proper subset of B",
+          "C. A = B",
+          "D. A and B are disjoint"
+        ],
+        correct: 2,
+        exp: "In sets, element repetition and ordering do not matter. B contains distinct elements {1, 2, 3}, exactly identical to A."
+      },
+      {
+        q: "Question 6. If A = {a, b, c} and B = {1, 2, 3}, then sets A and B are best classified as:",
+        options: [
+          "A. Equal sets only",
+          "B. Equivalent sets",
+          "C. Disjoint only",
+          "D. Proper subsets of each other"
+        ],
+        correct: 1,
+        exp: "Both sets have cardinality 3 (|A| = |B| = 3), meaning there is a one-to-one correspondence between them, making them equivalent."
+      },
+      {
+        q: "Question 7. If A = {1, 2} and B = {1, 2, 3}, which relation correctly describes their connection?",
+        options: [
+          "A. A is a proper subset of B (A ⊂ B)",
+          "B. B is a proper subset of A (B ⊂ A)",
+          "C. A = B",
+          "D. A is not a subset of B"
+        ],
+        correct: 0,
+        exp: "Every element of A is in B, and B contains the additional element 3. Thus, A is a proper subset of B (A ⊂ B)."
+      },
+      {
+        q: "Question 8. How many total subsets can be formed from a set containing 5 elements?",
+        options: [
+          "A. 10",
+          "B. 16",
+          "C. 25",
+          "D. 32"
+        ],
+        correct: 3,
+        exp: "The number of subsets is given by 2ⁿ. For n = 5, 2⁵ = 32."
+      },
+      {
+        q: "Question 9. How many PROPER subsets does a set containing 4 elements have?",
+        options: [
+          "A. 16",
+          "B. 15",
+          "C. 8",
+          "D. 7"
+        ],
+        correct: 1,
+        exp: "The number of proper subsets is 2ⁿ - 1. For n = 4, 2⁴ - 1 = 16 - 1 = 15."
+      },
+      {
+        q: "Question 10. A finite set possesses exactly 63 proper subsets. How many elements does the set contain?",
+        options: [
+          "A. 5 elements",
+          "B. 6 elements",
+          "C. 7 elements",
+          "D. 8 elements"
+        ],
+        correct: 1,
+        exp: "Proper subsets = 2ⁿ - 1 = 63 ⇒ 2ⁿ = 64. Since 64 = 2⁶, the number of elements is n = 6."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! You scored 100% and mastered Description and Relationships of Sets."
+          : "Great job! You have a strong command of subsets, power sets, and set notations.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the highlighted explanations above to reach 100%.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Keep practicing! Review the subset and power set formulas above, then retake the quiz.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    // Image Lightbox (Enlarge image with dark dimmed background on tap)
+    function initImageLightbox() {
+      document.querySelectorAll("main img").forEach((img) => {
+        img.classList.add("cursor-zoom-in");
+        img.addEventListener("click", () => {
+          document.getElementById("lightbox-img").src = img.src;
+          const cap = img.closest("figure")?.querySelector("figcaption")?.innerText || img.alt || "";
+          const capEl = document.getElementById("lightbox-caption");
+          if (capEl) {
+            capEl.innerText = cap;
+            capEl.classList.toggle("hidden", !cap);
+          }
+          document.getElementById("img-lightbox").classList.remove("hidden");
+          lucide.createIcons();
+        });
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeLightbox();
+      });
+    }
+
+    function closeLightbox() {
+      const lb = document.getElementById("img-lightbox");
+      if (lb) lb.classList.add("hidden");
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+      initImageLightbox();
+    });
+  </script>
+</body>
+</html>

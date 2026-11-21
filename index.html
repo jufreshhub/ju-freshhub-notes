@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>JU FreshHub — Student Study Portal</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          },
+          keyframes: {
+            toastIn: { '0%': { opacity: 0, transform: 'translateY(-8px) scale(.97)' }, '100%': { opacity: 1, transform: 'none' } },
+            floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' } },
+          },
+          animation: { toastIn: 'toastIn .25s ease-out', floaty: 'floaty 6s ease-in-out infinite' }
+        }
+      }
+    }
+  </script>
+
+  <!-- Firebase v10 Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .input { @apply w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition; }
+      .label { @apply block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-50 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .btn-ok { @apply btn text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/25; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .pulse-dot { animation: pulse 1.6s cubic-bezier(.4,0,.6,1) infinite; }
+    @keyframes pulse { 50% { opacity:.35; } }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased">
+
+  <!-- Toast Container -->
+  <div id="toast-root" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-[min(92vw,22rem)] pointer-events-none"></div>
+
+  <!-- ======================== GLOBAL AUTH LOADING SCREEN ======================== -->
+  <div id="auth-loading-screen" class="fixed inset-0 z-[200] bg-gradient-to-br from-brand-900 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-4 text-white">
+    <div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-xl shadow-brand-500/30 animate-bounce mb-4">
+      <div class="ju-logo-box w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center font-display font-extrabold text-xl">
+        <img class="ju-logo-img hidden w-full h-full object-cover scale-[1.15]" alt="JU logo" />
+        <span class="ju-logo-text">JU</span>
+      </div>
+    </div>
+    <h2 class="font-display font-bold text-lg mb-1">JU FreshHub</h2>
+    <p class="text-xs text-brand-200/80 mb-6">Loading student session...</p>
+    <div class="w-8 h-8 border-3 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- ======================== STUDENT LOGIN OVERLAY ======================== -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-brand-900 via-slate-900 to-slate-950 overflow-hidden">
+    <img id="login-bg" class="hidden absolute inset-0 w-full h-full object-cover opacity-40" alt="" />
+    <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-brand-500/30 blur-3xl animate-floaty"></div>
+    <div class="absolute -bottom-24 -right-16 w-80 h-80 rounded-full bg-brand-gold/20 blur-3xl animate-floaty" style="animation-delay:-3s"></div>
+
+    <div class="relative bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/20 dark:border-slate-700">
+      <div id="login-hero" class="hidden -mx-8 -mt-8 mb-6 h-36 rounded-t-3xl overflow-hidden relative">
+        <img id="login-hero-img" class="w-full h-full object-cover" alt="Campus view" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent"></div>
+        <p class="absolute bottom-3 left-5 text-white text-xs font-bold tracking-wide drop-shadow">Welcome to JU FreshHub</p>
+      </div>
+
+      <div class="flex items-center gap-3.5 mb-6">
+        <div class="ju-logo-box w-14 h-14 shrink-0 rounded-2xl overflow-hidden bg-gradient-to-br from-brand-600 to-brand-900 flex items-center justify-center text-white font-display font-extrabold text-xl shadow-lg shadow-brand-700/40">
+          <img class="ju-logo-img hidden w-full h-full object-cover scale-[1.15]" alt="JU logo" />
+          <span class="ju-logo-text">JU</span>
+        </div>
+        <div>
+          <h2 class="text-xl font-display font-bold text-slate-900 dark:text-white">JU FreshHub</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Freshman Tutoring &amp; Study Portal</p>
+        </div>
+      </div>
+
+      <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 text-xs font-semibold leading-relaxed border border-rose-200 dark:border-rose-500/30"></div>
+
+      <form id="login-form" onsubmit="handleStudentLogin(event)" class="space-y-4">
+        <div>
+          <label class="label" for="student-email">Student Email</label>
+          <div class="relative">
+            <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input type="email" id="student-email" required autocomplete="email" placeholder="Enter your email address" class="input pl-10" />
+          </div>
+        </div>
+        <div>
+          <label class="label" for="student-password">Password</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input type="password" id="student-password" required autocomplete="current-password" placeholder="Enter your password" class="input pl-10 pr-11" />
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" title="Show or hide password">
+              <i data-lucide="eye" id="pw-eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn-primary w-full py-3 text-sm">
+          <span>Sign In to Portal</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+
+        <div class="relative flex py-2 items-center">
+          <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+          <span class="flex-shrink mx-2 text-[10px] text-slate-400 uppercase font-bold tracking-wider">JU FreshHub Student Access</span>
+          <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================== MAIN STUDY PORTAL ======================== -->
+  <div id="app-container" class="hidden min-h-screen flex flex-col">
+
+    <!-- Sticky Header Navbar -->
+    <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="ju-logo-box w-10 h-10 shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-brand-600 to-brand-900 text-white flex items-center justify-center font-display font-extrabold text-base shadow-md shadow-brand-700/30">
+            <img class="ju-logo-img hidden w-full h-full object-cover scale-[1.15]" alt="JU logo" />
+            <span class="ju-logo-text">JU</span>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-sm sm:text-base font-display font-bold text-slate-900 dark:text-white leading-tight truncate">JU FreshHub</h1>
+            <p class="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>
+              <span>Freshman Study Portal</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div id="student-pill" class="hidden sm:flex items-center gap-2 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800">
+            <i data-lucide="user-check" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"></i>
+            <span id="student-name-display" class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[160px]">Student</span>
+          </div>
+
+          <button onclick="toggleTheme()" class="btn-ghost !px-2.5" title="Toggle dark mode">
+            <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+          </button>
+
+          <button onclick="handleSignOut()" title="Sign Out" class="btn-ghost !px-3 hover:!text-rose-600">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+      <!-- Hero Banner -->
+      <section id="dash-hero" class="hidden relative h-32 sm:h-40 rounded-3xl overflow-hidden shadow-lg shadow-slate-900/10">
+        <img id="dash-hero-img" class="w-full h-full object-cover" alt="Campus Banner" />
+        <div class="absolute inset-0 bg-gradient-to-r from-brand-900/85 via-brand-900/40 to-transparent"></div>
+        <div class="absolute inset-0 p-5 sm:p-7 flex flex-col justify-end text-white">
+          <p class="text-[11px] font-bold uppercase tracking-widest text-brand-200">Academic Tutoring &amp; Study Hub</p>
+          <p class="font-display text-xl sm:text-2xl font-extrabold">JU FreshHub</p>
+        </div>
+      </section>
+
+      <!-- Greeting & Clock -->
+      <section class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+        <div>
+          <h2 id="greeting" class="text-xl sm:text-2xl font-display font-bold text-slate-900 dark:text-white">Welcome back</h2>
+          <p id="greeting-sub" class="text-sm text-slate-500 dark:text-slate-400">Select a course below to open chapters, study notes, and quizzes.</p>
+        </div>
+        <div class="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+          <span id="live-clock"></span>
+        </div>
+      </section>
+
+      <!-- Navigation Breadcrumb & Back Bar -->
+      <div id="nav-bar" class="hidden card p-3 flex items-center gap-3">
+        <button id="btn-back" class="btn-ghost !bg-brand-50 dark:!bg-brand-500/15 !text-brand-700 dark:!text-brand-200 hover:!bg-brand-100 shrink-0">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>Back</span>
+        </button>
+        <div id="breadcrumb" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 truncate">Courses</div>
+      </div>
+
+      <!-- Search Bar -->
+      <div id="search-container" class="card p-3 sm:p-4">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input type="text" id="search-input" placeholder="Search courses, chapters, or topics (e.g. Maths, Venn, Physics)..." class="input pl-10" />
+        </div>
+      </div>
+
+      <!-- Dynamic Views Mount -->
+      <div id="app-mount"></div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-5xl w-full mx-auto px-4 sm:px-6 pb-6 pt-2">
+      <div class="card p-5 text-center space-y-1">
+        <div class="font-display font-extrabold text-sm text-brand-700 dark:text-brand-400">JU FreshHub</div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Empowering Freshman Students Through Structured Tutoring &amp; Guided Study Notes</p>
+        <p class="text-[11px] text-slate-400 dark:text-slate-500">&copy; 2026 JU FreshHub. All rights reserved.</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ======================== SCRIPT ======================== -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDhb3KHZYGtDzAxd7v7rakyUqwNL4B2YYQ",
+      authDomain: "ju-freshhub.firebaseapp.com",
+      projectId: "ju-freshhub",
+      storageBucket: "ju-freshhub.firebasestorage.app",
+      messagingSenderId: "660385131556",
+      appId: "1:660385131556:web:22a98f637d890564b13cb1"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const JU_BRANDING = {
+      logo: 'file_0000000038ec821190116c867f864f21.png',
+      loginPhoto: 'Floating Books and Bright Ideas.png',
+      dashPhoto: 'Learning Journey to the Stars.png'
+    };
+
+    const coursesDB = [
+      {
+        id: "maths",
+        title: "Mathematics for Natural Sciences",
+        desc: "Propositional logic, set theory, real and complex numbers, functions, and analytic geometry.",
+        icon: "calculator",
+        accent: "from-indigo-600 to-indigo-800",
+        badgeBg: "bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300",
+        chapters: [
+          {
+            id: "math-ch1", num: "Chapter 1", title: "Propositional Logic and Set Theory",
+            topics: [
+              { title: "Foundations of Propositional Logic", file: "maths 1.html" },
+              { title: "The Five Logical Connectives", file: "maths 2.html" },
+              { title: "Compound Propositions and Logical Equivalence", file: "maths 3.html" },
+              { title: "Tautology, Contradiction and Contingency", file: "maths 4.html" },
+              { title: "Open Propositions and Quantifiers", file: "maths 5.html" },
+              { title: "Arguments and Validity", file: "maths 6.html" },
+              { title: "The Concept of a Set", file: "maths 7.html" },
+              { title: "Description and Relationships of Sets", file: "maths 8.html" },
+              { title: "Set Operations", file: "maths 9.html" },
+              { title: "Venn Diagrams and Applications", file: "maths 10.html" }
+            ]
+          },
+          {
+            id: "math-ch2", num: "Chapter 2", title: "The Real and Complex Number Systems",
+            topics: [
+              { title: "Real Numbers, Intervals & Mathematical Induction", file: null },
+              { title: "Complex Numbers & Polar Form (De Moivre's Theorem)", file: null }
+            ]
+          },
+          {
+            id: "math-ch3", num: "Chapter 3", title: "Functions",
+            topics: [
+              { title: "Relations, Functions, Domain & Range", file: null },
+              { title: "Polynomial, Rational, Exponential & Logarithmic Functions", file: null },
+              { title: "Trigonometric & Hyperbolic Functions", file: null }
+            ]
+          },
+          {
+            id: "math-ch4", num: "Chapter 4", title: "Analytic Geometry",
+            topics: [
+              { title: "Distance, Slope & Equations of Lines", file: null },
+              { title: "Conic Sections (Circle, Parabola, Ellipse, Hyperbola)", file: null }
+            ]
+          }
+        ]
+      },
+      {
+        id: "physics",
+        title: "General Physics",
+        desc: "Measurements, vectors, mechanics, fluid dynamics, thermodynamics, waves, and electromagnetism.",
+        icon: "atom",
+        accent: "from-sky-600 to-sky-800",
+        badgeBg: "bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300",
+        chapters: [
+          { id: "phy-ch1", num: "Chapter 1", title: "Preliminaries, Measurements & Vectors", topics: [{ title: "Physical Quantities, Units & Error Analysis", file: null }, { title: "Vector Algebra", file: null }] },
+          { id: "phy-ch2", num: "Chapter 2", title: "Kinematics and Dynamics of Particles", topics: [{ title: "Motion in 1D & 2D (Projectile Motion)", file: null }, { title: "Newton's Laws of Motion & Friction", file: null }] },
+          { id: "phy-ch3", num: "Chapter 3", title: "Fluid Mechanics", topics: [{ title: "Fluid Statics, Pascal & Archimedes Principles", file: null }, { title: "Bernoulli's Equation & Fluid Dynamics", file: null }] },
+          { id: "phy-ch4", num: "Chapter 4", title: "Heat and Thermodynamics", topics: [{ title: "Temperature, Thermal Expansion & Laws of Thermodynamics", file: null }] },
+          { id: "phy-ch5", num: "Chapter 5", title: "Oscillations, Waves and Optics", topics: [{ title: "Simple Harmonic Motion & Wave Properties", file: null }] },
+          { id: "phy-ch6", num: "Chapter 6", title: "Electromagnetism and Electronics", topics: [{ title: "Coulomb's Law, Electric Fields & Circuits", file: null }] }
+        ]
+      },
+      {
+        id: "geography",
+        title: "Geography of Ethiopia & the Horn",
+        desc: "Geographical location, geological history, topography, drainage, climate, soils, and population.",
+        icon: "globe",
+        accent: "from-teal-600 to-teal-800",
+        badgeBg: "bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300",
+        chapters: [
+          { id: "geo-ch1", num: "Chapter 1", title: "Introduction (Location, Shape and Size)", topics: [{ title: "Absolute & Relative Location of Ethiopia", file: null }] },
+          { id: "geo-ch2", num: "Chapter 2", title: "The Geology of Ethiopia and the Horn", topics: [{ title: "Geological Eras & Endogenic/Exogenic Processes", file: null }] },
+          { id: "geo-ch3", num: "Chapter 3", title: "The Topography of Ethiopia and the Horn", topics: [{ title: "Physiographic Divisions & Rift Valley", file: null }] },
+          { id: "geo-ch4", num: "Chapter 4", title: "Drainage Systems and Water Resources", topics: [{ title: "Major River Basins & Lakes", file: null }] },
+          { id: "geo-ch5", num: "Chapter 5", title: "The Climate of Ethiopia and the Horn", topics: [{ title: "Agro-ecological Zones & Rainfall Patterns", file: null }] },
+          { id: "geo-ch6", num: "Chapter 6", title: "Soils, Natural Vegetation and Wildlife", topics: [{ title: "Major Soil Types & Conservation", file: null }] },
+          { id: "geo-ch7", num: "Chapter 7", title: "Population of Ethiopia and the Horn", topics: [{ title: "Population Distribution, Density & Dynamics", file: null }] }
+        ]
+      },
+      {
+        id: "english",
+        title: "Communicative English Skills",
+        desc: "Academic study strategies, reading comprehension, applied grammar, and essay writing skills.",
+        icon: "book-open",
+        accent: "from-orange-500 to-orange-700",
+        badgeBg: "bg-orange-50 dark:bg-orange-500/15 text-orange-700 dark:text-orange-300",
+        chapters: [
+          { id: "eng-ch1", num: "Unit 1", title: "Study Skills", topics: [{ title: "Note-Taking, Reading Strategies & Modals", file: null }] },
+          { id: "eng-ch2", num: "Unit 2", title: "Health and Fitness", topics: [{ title: "Active Reading & Conditionals", file: null }] },
+          { id: "eng-ch3", num: "Unit 3", title: "Cultural Values", topics: [{ title: "Paragraph Writing & Tense Usage", file: null }] },
+          { id: "eng-ch4", num: "Unit 4", title: "Wildlife", topics: [{ title: "Denotation vs Connotation & Conditionals", file: null }] },
+          { id: "eng-ch5", num: "Unit 5", title: "Population", topics: [{ title: "Collocations & Passive Voice", file: null }] }
+        ]
+      },
+      {
+        id: "psychology",
+        title: "General Psychology",
+        desc: "Science of behavior, sensation, perception, learning theories, memory, motivation, and personality.",
+        icon: "brain",
+        accent: "from-purple-600 to-purple-800",
+        badgeBg: "bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300",
+        chapters: [
+          { id: "psy-ch1", num: "Chapter 1", title: "Essence of Psychology", topics: [{ title: "Definition, Goals & Historical Schools of Thought", file: null }] },
+          { id: "psy-ch2", num: "Chapter 2", title: "Sensation and Perception", topics: [{ title: "Sensory Thresholds & Gestalt Principles", file: null }] },
+          { id: "psy-ch3", num: "Chapter 3", title: "Learning and Theories of Learning", topics: [{ title: "Classical, Operant & Observational Learning", file: null }] },
+          { id: "psy-ch4", num: "Chapter 4", title: "Memory and Forgetting", topics: [{ title: "Sensory, Short-Term & Long-Term Memory", file: null }] },
+          { id: "psy-ch5", num: "Chapter 5", title: "Motivation and Emotion", topics: [{ title: "Theories of Motivation & Maslow's Hierarchy", file: null }] },
+          { id: "psy-ch6", num: "Chapter 6", title: "Personality & Psychological Disorders", topics: [{ title: "Psychoanalytic, Trait Theories & Mental Health", file: null }] }
+        ]
+      },
+      {
+        id: "logic",
+        title: "Logic and Critical Thinking",
+        desc: "Philosophical foundations, argument analysis, informal fallacies, and categorical syllogisms.",
+        icon: "lightbulb",
+        accent: "from-rose-600 to-rose-800",
+        badgeBg: "bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300",
+        chapters: [
+          { id: "log-ch1", num: "Chapter 1", title: "Introducing Philosophy", topics: [{ title: "Meaning, Core Branches & Value of Philosophy", file: null }] },
+          { id: "log-ch2", num: "Chapter 2", title: "Basic Concepts of Logic", topics: [{ title: "Arguments, Deductive vs Inductive, Validity & Soundness", file: null }] },
+          { id: "log-ch3", num: "Chapter 3", title: "Logic and Language", topics: [{ title: "Cognitive vs Emotive Meaning & Definitions", file: null }] },
+          { id: "log-ch4", num: "Chapter 4", title: "Basic Concepts of Critical Thinking & Fallacies", topics: [{ title: "Formal vs Informal Fallacies", file: null }] },
+          { id: "log-ch5", num: "Chapter 5", title: "Categorical Propositions", topics: [{ title: "Standard Forms (A, E, I, O) & Square of Opposition", file: null }] }
+        ]
+      }
+    ];
+
+    let state = { view: "courses", courseId: null, chapterId: null, searchQuery: "" };
+    let currentStudentName = "Student";
+    let completedFiles = [];
+    try { completedFiles = JSON.parse(localStorage.getItem("freshhub_completed_topics") || "[]"); } catch (e) {}
+
+    document.addEventListener("DOMContentLoaded", () => {
+      applyBranding();
+      syncThemeIcon();
+      updateClock();
+      setInterval(updateClock, 30000);
+      setupAuthListener();
+      lucide.createIcons();
+    });
+
+    function setupAuthListener() {
+      auth.onAuthStateChanged(async (user) => {
+        const loadingScreen = document.getElementById("auth-loading-screen");
+        if (user) {
+          if (loadingScreen) loadingScreen.classList.add("hidden");
+          document.getElementById("auth-modal").classList.add("hidden");
+          document.getElementById("app-container").classList.remove("hidden");
+          currentStudentName = user.displayName || (user.email ? user.email.split("@")[0] : "Student");
+          updateUserProfileDisplay(user);
+          try {
+            const docSnap = await db.collection("users").doc(user.uid).get();
+            if (docSnap.exists) {
+              const data = docSnap.data();
+              if (data.displayName) {
+                currentStudentName = data.displayName;
+                updateUserProfileDisplay(user, data);
+              }
+            }
+          } catch (err) {}
+          render();
+          lucide.createIcons();
+        } else {
+          if (loadingScreen) loadingScreen.classList.add("hidden");
+          document.getElementById("auth-modal").classList.remove("hidden");
+          document.getElementById("app-container").classList.add("hidden");
+          lucide.createIcons();
+        }
+      });
+    }
+
+    function updateUserProfileDisplay(user, profileData) {
+      const nameEl = document.getElementById("student-name-display");
+      if (nameEl) nameEl.innerText = currentStudentName;
+
+      const h = new Date().getHours();
+      const greetWord = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+      const greetEl = document.getElementById("greeting");
+      if (greetEl) greetEl.innerText = `${greetWord}, ${currentStudentName}`;
+
+      if (profileData && profileData.stream) {
+        const subEl = document.getElementById("greeting-sub");
+        if (subEl) subEl.innerText = `${profileData.stream} • Select a course below to study notes and take quizzes.`;
+      }
+    }
+
+    async function handleStudentLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("student-email").value.trim();
+      const password = document.getElementById("student-password").value;
+      const errorDiv = document.getElementById("auth-error");
+      const btn = document.getElementById("login-btn");
+
+      errorDiv.classList.add("hidden");
+      btn.disabled = true;
+      btn.innerHTML = `<span>Signing in...</span>`;
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        toast("Signed in successfully!", "success", 2500);
+      } catch (err) {
+        let msg = "Unable to sign in. Please check your email and password.";
+        if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+          msg = "Incorrect email or password. Please verify your credentials.";
+        } else if (err.code === "auth/too-many-requests") {
+          msg = "Too many failed attempts. Please wait a few moments and try again.";
+        } else if (err.message) {
+          msg = err.message;
+        }
+        errorDiv.innerText = msg;
+        errorDiv.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Sign In to Portal</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        lucide.createIcons();
+      }
+    }
+
+    function handleSignOut() {
+      if (confirm("Sign out of JU FreshHub?")) auth.signOut();
+    }
+
+    const appMount = document.getElementById("app-mount");
+    const navBar = document.getElementById("nav-bar");
+    const btnBack = document.getElementById("btn-back");
+    const breadcrumb = document.getElementById("breadcrumb");
+    const searchContainer = document.getElementById("search-container");
+    const searchInput = document.getElementById("search-input");
+
+    function render() {
+      appMount.innerHTML = "";
+
+      if (state.view === "courses") {
+        navBar.classList.add("hidden");
+        searchContainer.classList.remove("hidden");
+      } else {
+        navBar.classList.remove("hidden");
+        searchContainer.classList.add("hidden");
+      }
+
+      if (state.view === "courses" && state.searchQuery.trim() !== "") {
+        renderSearchResults();
+        lucide.createIcons();
+        return;
+      }
+
+      if (state.view === "courses") renderCourses();
+      else if (state.view === "chapters") renderChapters();
+      else if (state.view === "topics") renderTopics();
+
+      lucide.createIcons();
+    }
+
+    function renderCourses() {
+      const headerRow = document.createElement("div");
+      headerRow.className = "flex items-center justify-between mb-3";
+      headerRow.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">Freshman Courses</h3>
+                             <span class="text-xs font-bold text-slate-500 dark:text-slate-400">${coursesDB.length} Courses</span>`;
+      appMount.appendChild(headerRow);
+
+      const grid = document.createElement("div");
+      grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
+
+      coursesDB.forEach(course => {
+        const readyTopicsCount = course.chapters.reduce((sum, ch) => sum + ch.topics.filter(t => t.file !== null).length, 0);
+        const card = document.createElement("div");
+        card.className = "card p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition flex flex-col justify-between";
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-3.5">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shadow-sm">
+                <i data-lucide="${course.icon}" class="w-5 h-5"></i>
+              </div>
+              ${readyTopicsCount > 0
+                ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">${readyTopicsCount} Notes Ready</span>`
+                : `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">Upcoming</span>`
+              }
+            </div>
+            <h4 class="font-display font-bold text-slate-900 dark:text-white text-base leading-snug mb-1.5">${escapeHtml(course.title)}</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">${escapeHtml(course.desc)}</p>
+          </div>
+          <div>
+            <div class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-3">${course.chapters.length} Chapters</div>
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-brand-700 dark:text-brand-400">
+              <span>View Chapters</span>
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+          state.courseId = course.id;
+          state.view = "chapters";
+          render();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        grid.appendChild(card);
+      });
+
+      appMount.appendChild(grid);
+    }
+
+    function renderChapters() {
+      const course = coursesDB.find(c => c.id === state.courseId);
+      breadcrumb.innerText = `Courses > ${course.title}`;
+
+      const headerRow = document.createElement("div");
+      headerRow.className = "mb-4 space-y-1";
+      headerRow.innerHTML = `
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shrink-0">
+            <i data-lucide="${course.icon}" class="w-4 h-4"></i>
+          </div>
+          <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${escapeHtml(course.title)}</h3>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 pl-10">${escapeHtml(course.desc)}</p>
+      `;
+      appMount.appendChild(headerRow);
+
+      const stack = document.createElement("div");
+      stack.className = "space-y-3";
+
+      course.chapters.forEach(chapter => {
+        const readyCount = chapter.topics.filter(t => t.file !== null).length;
+        const card = document.createElement("div");
+        card.className = "card p-4 sm:p-5 cursor-pointer hover:border-brand-400 dark:hover:border-brand-500/50 transition flex items-center justify-between gap-4";
+
+        card.innerHTML = `
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${course.badgeBg}">${escapeHtml(chapter.num)}</span>
+              ${readyCount > 0
+                ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">${readyCount} Available</span>`
+                : `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300">Coming Soon</span>`
+              }
+            </div>
+            <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">${escapeHtml(chapter.title)}</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${chapter.topics.length} Topic${chapter.topics.length === 1 ? '' : 's'}</p>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-300 shrink-0">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+          state.chapterId = chapter.id;
+          state.view = "topics";
+          render();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        stack.appendChild(card);
+      });
+
+      appMount.appendChild(stack);
+    }
+
+    function renderTopics() {
+      const course = coursesDB.find(c => c.id === state.courseId);
+      const chapter = course.chapters.find(ch => ch.id === state.chapterId);
+      breadcrumb.innerText = `${course.title} > ${chapter.num}`;
+
+      const headerRow = document.createElement("div");
+      headerRow.className = "mb-3";
+      headerRow.innerHTML = `
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">${escapeHtml(chapter.num)}</span>
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${escapeHtml(chapter.title)}</h3>
+      `;
+      appMount.appendChild(headerRow);
+
+      const stack = document.createElement("div");
+      stack.className = "space-y-3";
+
+      chapter.topics.forEach((topic, index) => {
+        const isDone = topic.file && completedFiles.includes(topic.file);
+        const card = document.createElement("div");
+        card.className = `card p-4 sm:p-5 transition ${isDone ? "!border-l-4 !border-l-emerald-500" : ""}`;
+
+        if (topic.file) {
+          card.innerHTML = `
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base">${index + 1}. ${escapeHtml(topic.title)}</div>
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">${escapeHtml(topic.file)}</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <a href="${escapeAttr(topic.file)}" class="btn-primary flex-1 sm:flex-initial sm:min-w-[160px]">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span>Open Notes</span>
+              </a>
+              <button onclick="toggleTopicDone('${escapeAttr(topic.file)}')" class="${isDone ? "btn-ok" : "btn-ghost"}">
+                <i data-lucide="${isDone ? "check-circle-2" : "circle"}" class="w-4 h-4"></i>
+                <span>${isDone ? "Completed" : "Mark as Read"}</span>
+              </button>
+            </div>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base">${index + 1}. ${escapeHtml(topic.title)}</div>
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 shrink-0">Upcoming</span>
+            </div>
+            <div>
+              <button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost opacity-70">
+                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                <span>Coming Soon</span>
+              </button>
+            </div>
+          `;
+        }
+
+        stack.appendChild(card);
+      });
+
+      appMount.appendChild(stack);
+    }
+
+    function renderSearchResults() {
+      const q = state.searchQuery.toLowerCase().trim();
+      const headerRow = document.createElement("div");
+      headerRow.className = "mb-3";
+      headerRow.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Search Results for "${escapeHtml(state.searchQuery)}"</h3>`;
+      appMount.appendChild(headerRow);
+
+      const stack = document.createElement("div");
+      stack.className = "space-y-3";
+      let matchCount = 0;
+
+      coursesDB.forEach(course => {
+        if (course.title.toLowerCase().includes(q) || course.desc.toLowerCase().includes(q)) {
+          matchCount++;
+          const card = document.createElement("div");
+          card.className = "card p-4 cursor-pointer hover:border-brand-400 transition flex items-center justify-between gap-3";
+          card.innerHTML = `
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shrink-0">
+                <i data-lucide="${course.icon}" class="w-5 h-5"></i>
+              </div>
+              <div class="min-w-0">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Course</span>
+                <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm truncate">${escapeHtml(course.title)}</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${escapeHtml(course.desc)}</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 shrink-0"></i>
+          `;
+          card.addEventListener("click", () => {
+            state.searchQuery = "";
+            searchInput.value = "";
+            state.courseId = course.id;
+            state.view = "chapters";
+            render();
+          });
+          stack.appendChild(card);
+        }
+
+        course.chapters.forEach(chapter => {
+          chapter.topics.forEach(topic => {
+            if (topic.title.toLowerCase().includes(q) || chapter.title.toLowerCase().includes(q)) {
+              matchCount++;
+              const card = document.createElement("div");
+              card.className = "card p-4";
+              card.innerHTML = `
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <div>
+                    <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">${escapeHtml(course.title)} &rsaquo; ${escapeHtml(chapter.num)}</div>
+                    <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm mt-0.5">${escapeHtml(topic.title)}</h4>
+                  </div>
+                  <span class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">${topic.file ? escapeHtml(topic.file) : "Upcoming"}</span>
+                </div>
+                <div>
+                  ${topic.file
+                    ? `<a href="${escapeAttr(topic.file)}" class="btn-primary !py-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i><span>Open Notes</span></a>`
+                    : `<button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost !py-1.5 opacity-70"><i data-lucide="lock" class="w-3.5 h-3.5"></i><span>Coming Soon</span></button>`
+                  }
+                </div>
+              `;
+              stack.appendChild(card);
+            }
+          });
+        });
+      });
+
+      if (matchCount === 0) {
+        stack.innerHTML = `
+          <div class="card p-10 text-center text-slate-400">
+            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 opacity-60"></i>
+            <p class="text-sm font-semibold">No matching courses or topics found.</p>
+          </div>
+        `;
+      }
+
+      appMount.appendChild(stack);
+    }
+
+    window.toggleTopicDone = function(file) {
+      if (completedFiles.includes(file)) completedFiles = completedFiles.filter(f => f !== file);
+      else completedFiles.push(file);
+      try { localStorage.setItem("freshhub_completed_topics", JSON.stringify(completedFiles)); } catch (e) {}
+      render();
+    };
+
+    btnBack.addEventListener("click", () => {
+      if (state.view === "topics") { state.view = "chapters"; state.chapterId = null; }
+      else if (state.view === "chapters") { state.view = "courses"; state.courseId = null; }
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    searchInput.addEventListener("input", (e) => {
+      state.searchQuery = e.target.value;
+      render();
+    });
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById("student-password");
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      document.getElementById("pw-eye").setAttribute("data-lucide", show ? "eye-off" : "eye");
+      lucide.createIcons();
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    function updateClock() {
+      const clock = document.getElementById("live-clock");
+      if (clock) {
+        clock.innerText =
+          new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) +
+          " · " +
+          new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      }
+    }
+
+    function safeSrc(u) {
+      return (u.startsWith("data:") || u.includes("%")) ? u : encodeURI(u);
+    }
+
+    function getBrand(key) {
+      try { return localStorage.getItem("ju_brand_" + key) || JU_BRANDING[key] || ""; }
+      catch (e) { return JU_BRANDING[key] || ""; }
+    }
+
+    function applyBranding() {
+      const logo = getBrand("logo");
+      document.querySelectorAll(".ju-logo-box").forEach((box) => {
+        const img = box.querySelector(".ju-logo-img");
+        const txt = box.querySelector(".ju-logo-text");
+        if (logo) {
+          img.onerror = () => {
+            img.classList.add("hidden");
+            txt.classList.remove("hidden");
+            box.style.background = "";
+          };
+          img.src = safeSrc(logo);
+          img.classList.remove("hidden");
+          txt.classList.add("hidden");
+          box.style.background = "transparent";
+        } else {
+          img.classList.add("hidden");
+          txt.classList.remove("hidden");
+          box.style.background = "";
+        }
+      });
+
+      const lp = getBrand("loginPhoto");
+      const hero = document.getElementById("login-hero");
+      const heroImg = document.getElementById("login-hero-img");
+      const bg = document.getElementById("login-bg");
+      if (lp) {
+        heroImg.onerror = () => hero.classList.add("hidden");
+        bg.onerror = () => bg.classList.add("hidden");
+        heroImg.src = safeSrc(lp);
+        bg.src = safeSrc(lp);
+        hero.classList.remove("hidden");
+        bg.classList.remove("hidden");
+      } else {
+        hero.classList.add("hidden");
+        bg.classList.add("hidden");
+      }
+
+      const dp = getBrand("dashPhoto");
+      const dash = document.getElementById("dash-hero");
+      const dashImg = document.getElementById("dash-hero-img");
+      if (dp) {
+        dashImg.onerror = () => dash.classList.add("hidden");
+        dashImg.src = safeSrc(dp);
+        dash.classList.remove("hidden");
+      } else {
+        dash.classList.add("hidden");
+      }
+    }
+
+    function toast(message, type = "info", duration = 4000) {
+      const root = document.getElementById("toast-root");
+      if (!root) return;
+      const styles = {
+        success: ["bg-emerald-600", "check-circle-2"],
+        error: ["bg-rose-600", "alert-triangle"],
+        warn: ["bg-amber-500", "bell-ring"],
+        info: ["bg-slate-900 dark:bg-slate-700", "info"]
+      };
+      const [bg, icon] = styles[type] || styles.info;
+      const el = document.createElement("div");
+      el.className = `pointer-events-auto animate-toastIn ${bg} text-white rounded-xl shadow-xl px-4 py-3 text-xs font-semibold flex gap-3 items-start`;
+      el.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 mt-0.5 shrink-0"></i><div class="whitespace-pre-line leading-relaxed flex-1">${escapeHtml(String(message))}</div><button class="opacity-70 hover:opacity-100" aria-label="Dismiss"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>`;
+      el.querySelector("button").onclick = () => el.remove();
+      root.appendChild(el);
+      lucide.createIcons();
+      setTimeout(() => {
+        el.style.transition = "opacity 0.3s";
+        el.style.opacity = 0;
+        setTimeout(() => el.remove(), 300);
+      }, duration);
+    }
+
+    function escapeHtml(text) {
+      if (text === undefined || text === null) return "";
+      const div = document.createElement("div");
+      div.innerText = String(text);
+      return div.innerHTML;
+    }
+
+    function escapeAttr(text) {
+      return escapeHtml(text).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>
