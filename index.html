@@ -440,47 +440,6 @@
       }
     ];
 
-    // Sample Live Mock Exam (Instantly available + synchronized with Firestore)
-    const sampleMockExam = {
-      id: "maths-live-mock-01",
-      title: "Freshman Mathematics — Midterm Live Mock Exam",
-      course: "Mathematics for Natural Sciences",
-      duration: 30, // 30 minutes
-      status: "active",
-      questions: [
-        {
-          q: "Which of the following sentences is a valid proposition?",
-          options: ["May you succeed in your exams!", "What is the time right now?", "The number 17 is a prime integer.", "Please close the classroom door."],
-          correct: 2,
-          exp: "A proposition must have a definitive truth value (True or False, but not both). '17 is a prime integer' is definitively True."
-        },
-        {
-          q: "Under what specific truth assignment does the conditional implication p → q evaluate to False?",
-          options: ["When p is True and q is True", "When p is True and q is False", "When p is False and q is True", "When both p and q are False"],
-          correct: 1,
-          exp: "An implication p → q is False in exactly one scenario: when the hypothesis is True and the conclusion is False (T → F = False)."
-        },
-        {
-          q: "What is the logically equivalent contrapositive of the statement: 'If it rains, then the road is wet'?",
-          options: ["If the road is wet, then it rains", "If it does not rain, then the road is not wet", "If the road is not wet, then it does not rain", "It rains and the road is not wet"],
-          correct: 2,
-          exp: "The contrapositive of p → q is ¬q → ¬p: 'If the road is not wet, then it does not rain'."
-        },
-        {
-          q: "If set A has 5 elements (|A| = 5), how many PROPER subsets does set A possess?",
-          options: ["32", "31", "25", "16"],
-          correct: 1,
-          exp: "Total subsets = 2ⁿ = 2⁵ = 32. Total proper subsets = 2ⁿ - 1 = 32 - 1 = 31."
-        },
-        {
-          q: "Given sets A = {1, 2, 3, 4} and B = {3, 4, 5, 6}, what is the symmetric difference A △ B?",
-          options: ["{3, 4}", "{1, 2, 5, 6}", "{1, 2, 3, 4, 5, 6}", "∅"],
-          correct: 1,
-          exp: "The symmetric difference A △ B = (A - B) ∪ (B - A) contains elements in exactly one set: {1, 2, 5, 6}."
-        }
-      ]
-    };
-
     // ==========================================
     // STATE & VARIABLES
     // ==========================================
@@ -494,7 +453,7 @@
 
     let currentUser = null;
     let currentStudentName = "Student";
-    let liveExamsList = [sampleMockExam];
+    let liveExamsList = [];
     let announcementsList = [];
     let completedFiles = [];
     try { completedFiles = JSON.parse(localStorage.getItem("freshhub_completed_topics") || "[]"); } catch (e) {}
@@ -527,7 +486,7 @@
 
           // Listen to live announcements from admin
           listenToAnnouncements();
-          // Listen to live mock exams from admin
+          // Listen to live exams from Firestore collection: live_exams
           listenToLiveExams();
 
           try {
@@ -560,18 +519,65 @@
       }, (err) => console.log("Notices listener:", err));
     }
 
+    // =========================================================================
+    // 📡 REAL-TIME LISTENER FOR COLLECTION: live_exams (WITH AUTO-ADAPTER)
+    // =========================================================================
     function listenToLiveExams() {
-      db.collection("mock_exams").onSnapshot((snap) => {
-        const remote = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (remote.length > 0) {
-          liveExamsList = remote;
-        } else {
-          liveExamsList = [sampleMockExam];
-        }
+      db.collection("live_exams").onSnapshot((snap) => {
+        liveExamsList = snap.docs.map(doc => normalizeExamDoc(doc));
         if (state.nav === "exams") render();
       }, (err) => {
-        liveExamsList = [sampleMockExam];
+        console.error("Live exams listener error:", err);
       });
+    }
+
+    // Smart adapter: Normalizes any question/option/answer structure stored in Firestore
+    function normalizeExamDoc(doc) {
+      const data = doc.data() || {};
+      const rawQuestions = data.questions || data.questionList || data.items || data.quiz || [];
+      
+      const normalizedQuestions = (Array.isArray(rawQuestions) ? rawQuestions : Object.values(rawQuestions)).map((qItem, idx) => {
+        const questionText = qItem.question || qItem.q || qItem.questionText || qItem.title || `Question ${idx + 1}`;
+        const rawOptions = qItem.options || qItem.choices || qItem.answers || [];
+        const options = Array.isArray(rawOptions) ? rawOptions : Object.values(rawOptions);
+
+        let correct = qItem.correct;
+        if (correct === undefined) correct = qItem.correctIndex;
+        if (correct === undefined) correct = qItem.answer;
+        if (correct === undefined) correct = qItem.correctAnswer;
+
+        // If correct answer is formatted as "A", "B", "C", "D"
+        if (typeof correct === 'string') {
+          const upper = correct.trim().toUpperCase();
+          if (upper === 'A') correct = 0;
+          else if (upper === 'B') correct = 1;
+          else if (upper === 'C') correct = 2;
+          else if (upper === 'D') correct = 3;
+          else {
+            const foundIdx = options.findIndex(o => String(o).trim().toLowerCase() === correct.trim().toLowerCase());
+            correct = foundIdx !== -1 ? foundIdx : (parseInt(correct) || 0);
+          }
+        } else if (typeof correct !== 'number') {
+          correct = parseInt(correct) || 0;
+        }
+
+        return {
+          q: questionText,
+          options: options,
+          correct: correct,
+          exp: qItem.exp || qItem.explanation || qItem.rationale || "Review the corresponding course lecture notes."
+        };
+      });
+
+      return {
+        id: doc.id,
+        title: data.title || data.name || data.examTitle || data.subject || "Live Examination",
+        course: data.course || data.subject || data.stream || "Freshman Common Course",
+        duration: parseInt(data.duration || data.durationMinutes || data.timeLimit || data.time || 30),
+        status: data.status || (data.isLive !== false ? "active" : "ended"),
+        questions: normalizedQuestions,
+        createdAt: data.createdAt
+      };
     }
 
     function updateUserProfileDisplay(user, profileData) {
@@ -958,50 +964,64 @@
       const stack = document.createElement("div");
       stack.className = "space-y-4";
 
-      liveExamsList.forEach(exam => {
-        const card = document.createElement("div");
-        card.className = "card p-5 border-l-4 border-l-brand-600 space-y-3";
-
-        const qCount = (exam.questions || []).length;
-        const dur = exam.duration || 30;
-
-        card.innerHTML = `
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> Live &amp; Timed
-              </span>
-              <h4 class="font-display font-bold text-slate-900 dark:text-white text-base mt-1.5">${escapeHtml(exam.title)}</h4>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(exam.course || "Freshman Common Course")}</p>
-            </div>
-            <div class="text-right shrink-0">
-              <span class="text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/15 px-2.5 py-1 rounded-lg border border-brand-200 dark:border-brand-500/30">
-                ⏱️ ${dur} Mins
-              </span>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">
-            <div>Questions: <strong class="text-slate-900 dark:text-white">${qCount} MCQs</strong></div>
-            <div>Mode: <strong class="text-emerald-600 dark:text-emerald-400 font-bold">Auto-Submit at 00:00</strong></div>
-          </div>
-
-          <div>
-            <button onclick="startExam('${escapeAttr(exam.id)}')" class="btn-primary w-full sm:w-auto py-2.5 !px-6 text-xs">
-              <i data-lucide="play" class="w-3.5 h-3.5"></i>
-              <span>Enter Examination &amp; Start Timer</span>
-            </button>
+      if (liveExamsList.length === 0) {
+        stack.innerHTML = `
+          <div class="card p-8 text-center text-slate-400">
+            <i data-lucide="clock-alert" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            <p class="text-sm font-semibold">No live exams posted right now.</p>
+            <p class="text-xs mt-1">Live examinations posted by the admin will appear here in real-time.</p>
           </div>
         `;
+      } else {
+        liveExamsList.forEach(exam => {
+          const card = document.createElement("div");
+          card.className = "card p-5 border-l-4 border-l-brand-600 space-y-3";
 
-        stack.appendChild(card);
-      });
+          const qCount = (exam.questions || []).length;
+          const dur = exam.duration || 30;
+
+          card.innerHTML = `
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> Live &amp; Timed
+                </span>
+                <h4 class="font-display font-bold text-slate-900 dark:text-white text-base mt-1.5">${escapeHtml(exam.title)}</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(exam.course || "Freshman Common Course")}</p>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/15 px-2.5 py-1 rounded-lg border border-brand-200 dark:border-brand-500/30">
+                  ⏱️ ${dur} Mins
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">
+              <div>Questions: <strong class="text-slate-900 dark:text-white">${qCount} MCQs</strong></div>
+              <div>Mode: <strong class="text-emerald-600 dark:text-emerald-400 font-bold">Auto-Submit at 00:00</strong></div>
+            </div>
+
+            <div>
+              <button onclick="startExam('${escapeAttr(exam.id)}')" class="btn-primary w-full sm:w-auto py-2.5 !px-6 text-xs">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                <span>Enter Examination &amp; Start Timer</span>
+              </button>
+            </div>
+          `;
+
+          stack.appendChild(card);
+        });
+      }
 
       appMount.appendChild(stack);
     }
 
     window.startExam = function(examId) {
-      const selected = liveExamsList.find(e => e.id === examId) || sampleMockExam;
+      const selected = liveExamsList.find(e => e.id === examId);
+      if (!selected) {
+        toast("Exam not found or no longer active.", "error");
+        return;
+      }
       if (!confirm(`Are you ready to begin "${selected.title}"?\n\nThe countdown timer will start immediately (${selected.duration || 30} minutes). When the timer reaches 00:00, your test will auto-submit.`)) {
         return;
       }
@@ -1125,12 +1145,12 @@
       const total = questions.length;
       const pct = Math.round((score / total) * 100);
 
-      // Save result to Firestore for admin review
+      // Save result to Firestore for admin review in collection: live_exam_results
       if (currentUser) {
         try {
-          await db.collection("mock_exam_results").add({
-            examId: exam.id || "mock_exam",
-            examTitle: exam.title || "Live Mock Exam",
+          await db.collection("live_exam_results").add({
+            examId: exam.id || "live_exam",
+            examTitle: exam.title || "Live Examination",
             userId: currentUser.uid,
             userEmail: currentUser.email,
             userName: currentStudentName,
