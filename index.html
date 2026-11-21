@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#D97706" />
-  <title>JU FreshHub — Student Study Portal</title>
+  <title>JU FreshHub International — Global Tutor & Study Portal</title>
   <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
 
-  <!-- Fonts -->
+  <!-- Fonts (Latin + Ethiopic + Arabic so every UI language renders well) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Ethiopic:wght@500;700&family=Noto+Sans+Arabic:wght@500;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -30,8 +30,8 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            display: ['Sora', 'sans-serif'],
+            sans: ['Inter', 'Noto Sans Ethiopic', 'Noto Sans Arabic', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'Noto Sans Ethiopic', 'Noto Sans Arabic', 'sans-serif'],
             mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
           },
           colors: {
@@ -43,7 +43,7 @@
           },
           keyframes: {
             toastIn: { '0%': { opacity: 0, transform: 'translateY(-8px) scale(.97)' }, '100%': { opacity: 1, transform: 'none' } },
-            floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' } },
+            floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
           },
           animation: { toastIn: 'toastIn .25s ease-out', floaty: 'floaty 6s ease-in-out infinite' }
         }
@@ -65,12 +65,16 @@
       .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
       .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
       .btn-ok { @apply btn text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/25; }
+      .chip { @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-bold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 transition cursor-pointer hover:border-brand-400; }
+      .chip.on { @apply bg-brand-600 border-brand-600 text-white; }
+      .tab-btn { @apply inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800; }
+      .tab-btn.active { @apply text-white bg-gradient-to-br from-brand-600 to-brand-800 shadow-md shadow-brand-600/25; }
     }
   </style>
 
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .font-display { font-family: 'Sora', sans-serif; }
+    body { font-family: 'Inter', 'Noto Sans Ethiopic', 'Noto Sans Arabic', sans-serif; }
+    .font-display { font-family: 'Sora', 'Noto Sans Ethiopic', 'Noto Sans Arabic', sans-serif; }
 
     .bg-ambient {
       background:
@@ -87,24 +91,132 @@
 
     .pulse-dot { animation: pulse 1.6s cubic-bezier(.4,0,.6,1) infinite; }
     @keyframes pulse { 50% { opacity:.35; } }
+
+    /* ---------- Entrance + hover motion ---------- */
+    @keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform:none; } }
+    .enter { opacity:0; animation: fadeUp .55s cubic-bezier(.2,.7,.2,1) forwards; }
+    @keyframes popIn { from { opacity:0; transform: scale(.96) translateY(10px); } to { opacity:1; transform:none; } }
+    .modal-in { animation: popIn .3s cubic-bezier(.2,.8,.2,1); }
+    .lift { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .lift:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -14px rgba(180,83,9,.35); }
+    .swap { transition: opacity .3s ease, transform .3s ease; display:inline-block; }
+    .swap.out { opacity:0; transform: translateY(-8px); }
+    .bar-fill { transition: width 1.1s cubic-bezier(.2,.8,.2,1); }
+    @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1); } }
+    .pop { animation: pop .35s ease; }
+
+    /* ---------- International loading screen ---------- */
+    #auth-loading-screen {
+      background:
+        radial-gradient(900px 560px at 50% 38%, rgba(245,158,11,.24), transparent 62%),
+        linear-gradient(160deg, #1c0f02, #0b1020 55%, #05070f);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+    #auth-loading-screen.leaving { opacity: 0; transform: scale(1.05); pointer-events: none; }
+    .stars {
+      position:absolute; inset:0; opacity:.6; animation: twinkle 4s ease-in-out infinite;
+      background-image:
+        radial-gradient(1.5px 1.5px at 20px 30px, rgba(255,255,255,.8), transparent),
+        radial-gradient(1px 1px at 90px 120px, rgba(255,255,255,.6), transparent),
+        radial-gradient(1.5px 1.5px at 160px 60px, rgba(253,230,138,.7), transparent),
+        radial-gradient(1px 1px at 230px 180px, rgba(255,255,255,.5), transparent);
+      background-size: 260px 220px;
+    }
+    @keyframes twinkle { 50% { opacity:.25; } }
+    .mer { transform-box: fill-box; transform-origin: center; animation: meridian 4s linear infinite; }
+    @keyframes meridian { from { transform: scaleX(1); } to { transform: scaleX(-1); } }
+    .orbit-a { transform-origin: 110px 110px; animation: orbit 9s linear infinite; }
+    .orbit-b { transform-origin: 110px 110px; animation: orbit 14s linear infinite reverse; }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+    .glow-dot { animation: glow 1.8s ease-in-out infinite; }
+    @keyframes glow { 50% { opacity:.4; } }
+    .word-in { animation: wordIn .38s cubic-bezier(.2,.8,.2,1); }
+    @keyframes wordIn { from { opacity:0; transform: translateY(14px) scale(.94); filter: blur(6px); } to { opacity:1; transform:none; filter:none; } }
+    .shimmer { position:relative; overflow:hidden; }
+    .shimmer::after { content:""; position:absolute; inset:0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); transform: translateX(-100%); animation: shimmer 1.4s infinite; }
+    @keyframes shimmer { to { transform: translateX(100%); } }
+
+    .tab-scroll { scrollbar-width: none; }
+    .tab-scroll::-webkit-scrollbar { display: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .enter, .modal-in, .pop, .word-in { animation-duration: .01ms !important; }
+      .mer, .orbit-a, .orbit-b, .glow-dot, .stars, .pulse-dot, .shimmer::after { animation: none !important; }
+      .lift, .bar-fill, .swap { transition: none !important; }
+    }
   </style>
 </head>
 <body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased">
 
   <!-- Toast Container -->
-  <div id="toast-root" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-[min(92vw,22rem)] pointer-events-none"></div>
+  <div id="toast-root" class="fixed top-4 right-4 z-[300] flex flex-col gap-2 w-[min(92vw,22rem)] pointer-events-none"></div>
+  <div id="modal-root"></div>
 
-  <!-- ======================== GLOBAL AUTH LOADING SCREEN ======================== -->
-  <div id="auth-loading-screen" class="fixed inset-0 z-[200] bg-gradient-to-br from-brand-900 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-4 text-white">
-    <div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-xl shadow-brand-500/30 animate-bounce mb-4">
-      <div class="ju-logo-box w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center font-display font-extrabold text-xl">
-        <img class="ju-logo-img hidden w-full h-full object-cover scale-[1.15]" alt="JU logo" />
-        <span class="ju-logo-text">JU</span>
+  <!-- ======================== INTERNATIONAL LOADING SCREEN (5 seconds) ======================== -->
+  <div id="auth-loading-screen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 text-white overflow-hidden">
+    <div class="stars"></div>
+
+    <!-- Spinning globe with meridians and orbiting cities -->
+    <div class="relative w-[220px] h-[220px]">
+      <svg viewBox="0 0 220 220" class="absolute inset-0 w-full h-full" aria-hidden="true">
+        <defs>
+          <radialGradient id="globeFill" cx="35%" cy="30%" r="80%">
+            <stop offset="0%" stop-color="#FBBF24" stop-opacity=".35" />
+            <stop offset="60%" stop-color="#92400E" stop-opacity=".25" />
+            <stop offset="100%" stop-color="#0B1020" stop-opacity=".6" />
+          </radialGradient>
+          <clipPath id="globeClip"><circle cx="110" cy="110" r="70" /></clipPath>
+        </defs>
+        <circle cx="110" cy="110" r="70" fill="url(#globeFill)" stroke="#FDE68A" stroke-opacity=".55" stroke-width="1.5" />
+        <g clip-path="url(#globeClip)" fill="none" stroke="#FDE68A" stroke-opacity=".38" stroke-width="1">
+          <line x1="40" y1="110" x2="180" y2="110" />
+          <line x1="40" y1="75" x2="180" y2="75" />
+          <line x1="40" y1="145" x2="180" y2="145" />
+          <line x1="40" y1="52" x2="180" y2="52" />
+          <line x1="40" y1="168" x2="180" y2="168" />
+          <ellipse class="mer" style="animation-delay:0s" cx="110" cy="110" rx="70" ry="70" />
+          <ellipse class="mer" style="animation-delay:-1s" cx="110" cy="110" rx="70" ry="70" />
+          <ellipse class="mer" style="animation-delay:-2s" cx="110" cy="110" rx="70" ry="70" />
+          <ellipse class="mer" style="animation-delay:-3s" cx="110" cy="110" rx="70" ry="70" />
+        </g>
+        <g class="orbit-a">
+          <circle cx="110" cy="110" r="100" fill="none" stroke="#FDE68A" stroke-opacity=".22" stroke-dasharray="2 6" />
+          <circle class="glow-dot" cx="210" cy="110" r="5" fill="#FBBF24" />
+          <circle class="glow-dot" style="animation-delay:-.6s" cx="60" cy="196.6" r="4" fill="#FDE68A" />
+          <circle class="glow-dot" style="animation-delay:-1.2s" cx="60" cy="23.4" r="4" fill="#F59E0B" />
+        </g>
+        <g class="orbit-b">
+          <circle cx="110" cy="110" r="88" fill="none" stroke="#FFFFFF" stroke-opacity=".12" />
+          <circle class="glow-dot" cx="198" cy="110" r="3" fill="#FFFFFF" />
+          <circle class="glow-dot" style="animation-delay:-.9s" cx="22" cy="110" r="3" fill="#FDE68A" />
+        </g>
+      </svg>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="ju-logo-box w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-brand-500 to-brand-800 flex items-center justify-center font-display font-extrabold text-xl shadow-xl shadow-brand-500/40">
+          <img class="ju-logo-img hidden w-full h-full object-cover scale-[1.15]" alt="JU logo" />
+          <span class="ju-logo-text">JU</span>
+        </div>
       </div>
     </div>
-    <h2 class="font-display font-bold text-lg mb-1">JU FreshHub</h2>
-    <p class="text-xs text-brand-200/80 mb-6">Loading student session...</p>
-    <div class="w-8 h-8 border-3 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+
+    <!-- Greeting in many languages -->
+    <div class="mt-5 h-[76px] flex flex-col items-center justify-start text-center" aria-live="off">
+      <div id="loader-word" class="font-display font-extrabold text-4xl sm:text-5xl text-brand-200 leading-tight">Hello</div>
+      <div id="loader-lang" class="text-[11px] font-bold tracking-widest uppercase text-brand-200/60 mt-1">English</div>
+    </div>
+
+    <h2 class="font-display font-bold text-lg mt-2">JU FreshHub <span class="text-brand-400">International</span></h2>
+    <p class="text-xs text-brand-100/70 mb-6">Global tutoring &amp; study portal</p>
+
+    <div class="w-64 sm:w-80">
+      <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
+        <div id="loader-bar" class="shimmer h-full rounded-full bg-gradient-to-r from-brand-500 via-brand-gold to-brand-200" style="width:0%"></div>
+      </div>
+      <div class="flex items-center justify-between mt-2 text-[11px] font-semibold text-brand-100/70">
+        <span id="loader-stage">Connecting classrooms across continents</span>
+        <span id="loader-pct" class="font-mono">0%</span>
+      </div>
+    </div>
   </div>
 
   <!-- ======================== STUDENT LOGIN OVERLAY ======================== -->
@@ -117,35 +229,38 @@
       <div id="login-hero" class="hidden -mx-8 -mt-8 mb-6 h-36 rounded-t-3xl overflow-hidden relative">
         <img id="login-hero-img" class="w-full h-full object-cover" alt="Campus view" />
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent"></div>
-        <p class="absolute bottom-3 left-5 text-white text-xs font-bold tracking-wide drop-shadow">Welcome to JU FreshHub</p>
+        <p class="absolute bottom-3 left-5 text-white text-xs font-bold tracking-wide drop-shadow">Welcome to JU FreshHub International</p>
       </div>
 
-      <div class="flex items-center gap-3.5 mb-6">
-        <div class="ju-logo-box w-14 h-14 shrink-0 rounded-2xl overflow-hidden bg-gradient-to-br from-brand-600 to-brand-900 flex items-center justify-center text-white font-display font-extrabold text-xl shadow-lg shadow-brand-700/40">
-          <img class="ju-logo-img hidden w-full h-full object-cover scale-[1.15]" alt="JU logo" />
-          <span class="ju-logo-text">JU</span>
+      <div class="flex items-center justify-between gap-3 mb-6">
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="ju-logo-box w-14 h-14 shrink-0 rounded-2xl overflow-hidden bg-gradient-to-br from-brand-600 to-brand-900 flex items-center justify-center text-white font-display font-extrabold text-xl shadow-lg shadow-brand-700/40">
+            <img class="ju-logo-img hidden w-full h-full object-cover scale-[1.15]" alt="JU logo" />
+            <span class="ju-logo-text">JU</span>
+          </div>
+          <div class="min-w-0">
+            <h2 class="text-xl font-display font-bold text-slate-900 dark:text-white">JU FreshHub</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">International Tutoring &amp; Study Portal</p>
+          </div>
         </div>
-        <div>
-          <h2 class="text-xl font-display font-bold text-slate-900 dark:text-white">JU FreshHub</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Freshman Tutoring &amp; Study Portal</p>
-        </div>
+        <select class="lang-select input !w-auto !py-1.5 !px-2 text-xs" onchange="setLang(this.value)" aria-label="Language"></select>
       </div>
 
       <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 text-xs font-semibold leading-relaxed border border-rose-200 dark:border-rose-500/30"></div>
 
       <form id="login-form" onsubmit="handleStudentLogin(event)" class="space-y-4">
         <div>
-          <label class="label" for="student-email">Student Email</label>
+          <label class="label" for="student-email" data-i18n="email">Student Email</label>
           <div class="relative">
             <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="email" id="student-email" required autocomplete="email" placeholder="Enter your email address" class="input pl-10" />
+            <input type="email" id="student-email" required autocomplete="email" data-i18n-ph="email_ph" placeholder="Enter your email address" class="input pl-10" />
           </div>
         </div>
         <div>
-          <label class="label" for="student-password">Password</label>
+          <label class="label" for="student-password" data-i18n="password">Password</label>
           <div class="relative">
             <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="password" id="student-password" required autocomplete="current-password" placeholder="Enter your password" class="input pl-10 pr-11" />
+            <input type="password" id="student-password" required autocomplete="current-password" data-i18n-ph="pw_ph" placeholder="Enter your password" class="input pl-10 pr-11" />
             <button type="button" onclick="togglePasswordVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" title="Show or hide password">
               <i data-lucide="eye" id="pw-eye" class="w-4 h-4"></i>
             </button>
@@ -153,7 +268,7 @@
         </div>
 
         <button type="submit" id="login-btn" class="btn-primary w-full py-3 text-sm">
-          <span>Sign In to Portal</span>
+          <span data-i18n="signin">Sign In to Portal</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
 
@@ -166,10 +281,9 @@
     </div>
   </div>
 
-  <!-- ======================== MAIN STUDY PORTAL ======================== -->
+  <!-- ======================== MAIN PORTAL ======================== -->
   <div id="app-container" class="hidden min-h-screen flex flex-col">
 
-    <!-- Sticky Header Navbar -->
     <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
@@ -178,18 +292,23 @@
             <span class="ju-logo-text">JU</span>
           </div>
           <div class="min-w-0">
-            <h1 class="text-sm sm:text-base font-display font-bold text-slate-900 dark:text-white leading-tight truncate">JU FreshHub</h1>
+            <h1 class="text-sm sm:text-base font-display font-bold text-slate-900 dark:text-white leading-tight truncate">JU FreshHub <span class="text-brand-600 dark:text-brand-400">International</span></h1>
             <p class="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>
-              <span>Freshman Study Portal</span>
+              <span>Global Tutor &amp; Study Portal</span>
             </p>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
-          <div id="student-pill" class="hidden sm:flex items-center gap-2 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800">
+          <div id="student-pill" class="hidden md:flex items-center gap-2 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800">
             <i data-lucide="user-check" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"></i>
-            <span id="student-name-display" class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[160px]">Student</span>
+            <span id="student-name-display" class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[140px]">Student</span>
+          </div>
+
+          <div class="relative flex items-center">
+            <i data-lucide="languages" class="w-4 h-4 text-slate-500 absolute left-2.5 pointer-events-none"></i>
+            <select class="lang-select input !w-auto !py-2 !pl-8 !pr-2 text-xs font-semibold" onchange="setLang(this.value)" aria-label="Language"></select>
           </div>
 
           <button onclick="toggleTheme()" class="btn-ghost !px-2.5" title="Toggle dark mode">
@@ -198,30 +317,28 @@
 
           <button onclick="handleSignOut()" title="Sign Out" class="btn-ghost !px-3 hover:!text-rose-600">
             <i data-lucide="log-out" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">Sign Out</span>
+            <span class="hidden sm:inline" data-i18n="signout">Sign Out</span>
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Tab bar -->
+    <nav class="sticky top-16 z-20 bg-white/70 dark:bg-slate-950/60 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-800">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2 flex gap-1.5 overflow-x-auto tab-scroll">
+        <button class="tab-btn" data-tab="home" onclick="goTab('home')"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span data-i18n="nav_home">Home</span></button>
+        <button class="tab-btn" data-tab="courses" onclick="goTab('courses')"><i data-lucide="library" class="w-4 h-4"></i><span data-i18n="nav_courses">Courses</span></button>
+        <button class="tab-btn" data-tab="tutors" onclick="goTab('tutors')"><i data-lucide="users" class="w-4 h-4"></i><span data-i18n="nav_tutors">Tutors</span></button>
+        <button class="tab-btn" data-tab="tools" onclick="goTab('tools')"><i data-lucide="timer" class="w-4 h-4"></i><span data-i18n="nav_tools">Study Tools</span></button>
+      </div>
+    </nav>
+
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-      <!-- Hero Banner -->
-      <section id="dash-hero" class="hidden relative h-32 sm:h-40 rounded-3xl overflow-hidden shadow-lg shadow-slate-900/10">
-        <img id="dash-hero-img" class="w-full h-full object-cover" alt="Campus Banner" />
-        <div class="absolute inset-0 bg-gradient-to-r from-brand-900/85 via-brand-900/40 to-transparent"></div>
-        <div class="absolute inset-0 p-5 sm:p-7 flex flex-col justify-end text-white">
-          <p class="text-[11px] font-bold uppercase tracking-widest text-brand-200">Academic Tutoring &amp; Study Hub</p>
-          <p class="font-display text-xl sm:text-2xl font-extrabold">JU FreshHub</p>
-        </div>
-      </section>
-
-      <!-- Greeting & Clock -->
       <section class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
         <div>
           <h2 id="greeting" class="text-xl sm:text-2xl font-display font-bold text-slate-900 dark:text-white">Welcome back</h2>
-          <p id="greeting-sub" class="text-sm text-slate-500 dark:text-slate-400">Select a course below to open chapters, study notes, and quizzes.</p>
+          <p id="greeting-sub" class="text-sm text-slate-500 dark:text-slate-400" data-i18n="sub">Learn from anywhere. Study notes, tutors and tools in one place.</p>
         </div>
         <div class="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
           <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
@@ -229,41 +346,99 @@
         </div>
       </section>
 
-      <!-- Navigation Breadcrumb & Back Bar -->
       <div id="nav-bar" class="hidden card p-3 flex items-center gap-3">
         <button id="btn-back" class="btn-ghost !bg-brand-50 dark:!bg-brand-500/15 !text-brand-700 dark:!text-brand-200 hover:!bg-brand-100 shrink-0">
           <i data-lucide="arrow-left" class="w-4 h-4"></i>
-          <span>Back</span>
+          <span data-i18n="back">Back</span>
         </button>
         <div id="breadcrumb" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 truncate">Courses</div>
       </div>
 
-      <!-- Search Bar -->
-      <div id="search-container" class="card p-3 sm:p-4">
+      <div id="search-container" class="hidden card p-3 sm:p-4">
         <div class="relative">
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-          <input type="text" id="search-input" placeholder="Search courses, chapters, or topics (e.g. Maths, Venn, Physics)..." class="input pl-10" />
+          <input type="text" id="search-input" data-i18n-ph="search_ph" placeholder="Search courses, chapters, or topics (e.g. Maths, Venn, Physics)..." class="input pl-10" />
         </div>
       </div>
 
-      <!-- Dynamic Views Mount -->
       <div id="app-mount"></div>
-
     </main>
 
-    <!-- Footer -->
     <footer class="max-w-5xl w-full mx-auto px-4 sm:px-6 pb-6 pt-2">
       <div class="card p-5 text-center space-y-1">
-        <div class="font-display font-extrabold text-sm text-brand-700 dark:text-brand-400">JU FreshHub</div>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Empowering Freshman Students Through Structured Tutoring &amp; Guided Study Notes</p>
+        <div class="font-display font-extrabold text-sm text-brand-700 dark:text-brand-400">JU FreshHub International</div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Structured study notes, global tutors and smart study tools for freshman students.</p>
         <p class="text-[11px] text-slate-400 dark:text-slate-500">&copy; 2026 JU FreshHub. All rights reserved.</p>
       </div>
     </footer>
-
   </div>
 
   <!-- ======================== SCRIPT ======================== -->
   <script>
+    /* ================= 5-SECOND INTERNATIONAL LOADER ================= */
+    const LOADER_MS = 5000;
+    const LOADER_WORDS = [
+      ["Hello", "English"], ["ሰላም", "አማርኛ"], ["Akkam", "Afaan Oromoo"], ["مرحبا", "العربية"],
+      ["Bonjour", "Français"], ["Hola", "Español"], ["你好", "中文"], ["नमस्ते", "हिन्दी"],
+      ["こんにちは", "日本語"], ["Hallo", "Deutsch"], ["Olá", "Português"], ["Привет", "Русский"]
+    ];
+    const LOADER_STAGES = [
+      [0, "Connecting classrooms across continents"],
+      [25, "Syncing your study notes"],
+      [50, "Finding tutors in every time zone"],
+      [75, "Setting your local time"],
+      [93, "Ready to learn"]
+    ];
+    let loaderGone = false, loaderWordTimer = null;
+    const minLoaderDelay = new Promise(r => setTimeout(r, LOADER_MS));
+
+    (function runLoader() {
+      const bar = document.getElementById("loader-bar");
+      const pct = document.getElementById("loader-pct");
+      const stage = document.getElementById("loader-stage");
+      const wordEl = document.getElementById("loader-word");
+      const langEl = document.getElementById("loader-lang");
+      const start = performance.now();
+      let wi = -1, lastStage = -1;
+
+      function nextWord() {
+        wi = (wi + 1) % LOADER_WORDS.length;
+        wordEl.textContent = LOADER_WORDS[wi][0];
+        langEl.textContent = LOADER_WORDS[wi][1];
+        wordEl.classList.remove("word-in");
+        void wordEl.offsetWidth;
+        wordEl.classList.add("word-in");
+      }
+      nextWord();
+      loaderWordTimer = setInterval(nextWord, 400);
+
+      function frame(now) {
+        if (loaderGone) return;
+        const p = Math.min(1, (now - start) / LOADER_MS);
+        const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        const v = Math.round(eased * 100);
+        bar.style.width = v + "%";
+        pct.textContent = v + "%";
+        let si = 0;
+        LOADER_STAGES.forEach((s, i) => { if (v >= s[0]) si = i; });
+        if (si !== lastStage) { lastStage = si; stage.textContent = LOADER_STAGES[si][1]; }
+        if (p < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+
+    function hideLoader() {
+      if (loaderGone) return;
+      loaderGone = true;
+      clearInterval(loaderWordTimer);
+      const s = document.getElementById("auth-loading-screen");
+      document.getElementById("loader-bar").style.width = "100%";
+      document.getElementById("loader-pct").textContent = "100%";
+      s.classList.add("leaving");
+      setTimeout(() => s.classList.add("hidden"), 850);
+    }
+
+    /* ================= FIREBASE ================= */
     const firebaseConfig = {
       apiKey: "AIzaSyDhb3KHZYGtDzAxd7v7rakyUqwNL4B2YYQ",
       authDomain: "ju-freshhub.firebaseapp.com",
@@ -272,10 +447,12 @@
       messagingSenderId: "660385131556",
       appId: "1:660385131556:web:22a98f637d890564b13cb1"
     };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    let auth = null, db = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+    } catch (e) { console.warn("Firebase unavailable:", e); }
 
     const JU_BRANDING = {
       logo: 'file_0000000038ec821190116c867f864f21.png',
@@ -283,6 +460,103 @@
       dashPhoto: 'Learning Journey to the Stars.png'
     };
 
+    /* ================= TRANSLATIONS ================= */
+    const LANGS = [["en", "English"], ["am", "አማርኛ"], ["om", "Afaan Oromoo"], ["fr", "Français"], ["ar", "العربية"]];
+    const I18N = {
+      en: {
+        nav_home: "Home", nav_courses: "Courses", nav_tutors: "Tutors", nav_tools: "Study Tools", signout: "Sign Out",
+        search_ph: "Search courses, chapters, or topics (e.g. Maths, Venn, Physics)...",
+        sub: "Learn from anywhere. Study notes, tutors and tools in one place.",
+        gm: "Good morning", ga: "Good afternoon", ge: "Good evening",
+        hero_sub: "Study notes, tutors from around the world and focus tools, all in one place for freshman students.",
+        cta_courses: "Browse courses", cta_tutors: "Find a tutor",
+        courses_title: "Freshman Courses", view_chapters: "View Chapters", open_notes: "Open Notes",
+        mark_read: "Mark as Read", completed: "Completed", coming_soon: "Coming Soon", book: "Book a session",
+        tutors_title: "Meet your tutors", tutors_sub: "Tutors from different countries. Session times are shown in your own time zone.",
+        tools_title: "Study tools", tools_sub: "A focus timer, a study planner and a GPA calculator.",
+        back: "Back", email: "Student Email", password: "Password", signin: "Sign In to Portal", signing_in: "Signing in...",
+        email_ph: "Enter your email address", pw_ph: "Enter your password",
+        stat_streak: "Day streak", stat_notes: "Notes read", stat_sessions: "Sessions booked", stat_focus: "Focus sessions today",
+        progress_title: "Your progress", clock_title: "World clock", tip_title: "Study tip of the day",
+        sessions_title: "Upcoming sessions",
+        no_sessions: "No sessions yet. Pick a tutor and choose a time in your own time zone."
+      },
+      am: {
+        nav_home: "መነሻ", nav_courses: "ኮርሶች", nav_tutors: "አስተማሪዎች", nav_tools: "የጥናት መሣሪያዎች", signout: "ውጣ",
+        search_ph: "ኮርሶችን፣ ምዕራፎችን ወይም ርዕሶችን ይፈልጉ...",
+        sub: "ከየትኛውም ቦታ ይማሩ። የጥናት ማስታወሻዎች፣ አስተማሪዎች እና መሣሪያዎች በአንድ ቦታ።",
+        gm: "እንደምን አደሩ", ga: "እንደምን ዋሉ", ge: "እንደምን አመሹ",
+        courses_title: "የአንደኛ ዓመት ኮርሶች", view_chapters: "ምዕራፎችን ይመልከቱ", open_notes: "ማስታወሻ ክፈት",
+        mark_read: "እንደተነበበ አድርግ", completed: "ተጠናቋል", coming_soon: "በቅርቡ", book: "ክፍለ ጊዜ ያስይዙ",
+        tutors_title: "አስተማሪዎችዎን ይተዋወቁ", tools_title: "የጥናት መሣሪያዎች",
+        back: "ተመለስ", email: "የተማሪ ኢሜይል", password: "የይለፍ ቃል", signin: "ወደ ፖርታሉ ግባ", signing_in: "በመግባት ላይ...",
+        email_ph: "ኢሜይልዎን ያስገቡ", pw_ph: "የይለፍ ቃልዎን ያስገቡ",
+        stat_streak: "ተከታታይ ቀናት", stat_notes: "የተነበቡ ማስታወሻዎች", stat_sessions: "የተያዙ ክፍለ ጊዜዎች", stat_focus: "የዛሬ የትኩረት ክፍለ ጊዜዎች",
+        progress_title: "የእርስዎ እድገት", clock_title: "የዓለም ሰዓት"
+      },
+      om: {
+        nav_home: "Mana", nav_courses: "Koorsota", nav_tutors: "Barsiisota", nav_tools: "Meeshaalee Qo'annoo", signout: "Ba'i",
+        search_ph: "Koorsota, boqonnaa ykn mata-dureewwan barbaadi...",
+        sub: "Bakka kamiyyuu irraa baradhu. Yaadannoowwan, barsiisota fi meeshaalee bakka tokkotti.",
+        gm: "Akkam bulte", ga: "Akkam ooltee", ge: "Galgala gaarii",
+        courses_title: "Koorsota Barattoota Waggaa Duraa", view_chapters: "Boqonnaawwan Ilaali", open_notes: "Yaadannoo Bani",
+        mark_read: "Dubbifameera jedhii mallatteessi", completed: "Xumurameera", coming_soon: "Dhiyootti", book: "Yeroo qabadhu",
+        tutors_title: "Barsiisota kee beeki", tools_title: "Meeshaalee Qo'annoo",
+        back: "Duubatti", email: "Imeelii barattootaa", password: "Jecha iccitii", signin: "Poortaalitti seeni", signing_in: "Eegi...",
+        email_ph: "Imeelii kee galchi", pw_ph: "Jecha iccitii kee galchi",
+        stat_streak: "Guyyoota walitti aanan", stat_notes: "Yaadannoo dubbifame", stat_sessions: "Yeroo qabame", stat_focus: "Yeroo xiyyeeffannoo har'a",
+        progress_title: "Guddina kee", clock_title: "Sa'aatii addunyaa"
+      },
+      fr: {
+        nav_home: "Accueil", nav_courses: "Cours", nav_tutors: "Tuteurs", nav_tools: "Outils d'étude", signout: "Déconnexion",
+        search_ph: "Rechercher un cours, un chapitre ou un sujet...",
+        sub: "Apprenez de n'importe où. Notes, tuteurs et outils au même endroit.",
+        gm: "Bonjour", ga: "Bon après-midi", ge: "Bonsoir",
+        courses_title: "Cours de première année", view_chapters: "Voir les chapitres", open_notes: "Ouvrir les notes",
+        mark_read: "Marquer comme lu", completed: "Terminé", coming_soon: "Bientôt", book: "Réserver une séance",
+        tutors_title: "Rencontrez vos tuteurs", tools_title: "Outils d'étude",
+        back: "Retour", email: "E-mail étudiant", password: "Mot de passe", signin: "Accéder au portail", signing_in: "Connexion...",
+        email_ph: "Entrez votre e-mail", pw_ph: "Entrez votre mot de passe",
+        stat_streak: "Jours d'affilée", stat_notes: "Notes lues", stat_sessions: "Séances réservées", stat_focus: "Sessions de concentration aujourd'hui",
+        progress_title: "Votre progression", clock_title: "Horloge mondiale"
+      },
+      ar: {
+        nav_home: "الرئيسية", nav_courses: "المقررات", nav_tutors: "المدرّسون", nav_tools: "أدوات الدراسة", signout: "تسجيل الخروج",
+        search_ph: "ابحث عن مقرر أو فصل أو موضوع...",
+        sub: "تعلّم من أي مكان. ملاحظات ومدرّسون وأدوات في مكان واحد.",
+        gm: "صباح الخير", ga: "طاب يومك", ge: "مساء الخير",
+        courses_title: "مقررات السنة الأولى", view_chapters: "عرض الفصول", open_notes: "افتح الملاحظات",
+        mark_read: "تحديد كمقروء", completed: "مكتمل", coming_soon: "قريبًا", book: "احجز جلسة",
+        tutors_title: "تعرّف على مدرّسيك", tools_title: "أدوات الدراسة",
+        back: "رجوع", email: "بريد الطالب الإلكتروني", password: "كلمة المرور", signin: "الدخول إلى البوابة", signing_in: "جارٍ الدخول...",
+        email_ph: "أدخل بريدك الإلكتروني", pw_ph: "أدخل كلمة المرور",
+        stat_streak: "أيام متتالية", stat_notes: "ملاحظات مقروءة", stat_sessions: "جلسات محجوزة", stat_focus: "جلسات التركيز اليوم",
+        progress_title: "تقدّمك", clock_title: "الساعة العالمية"
+      }
+    };
+    let lang = "en";
+    try { lang = localStorage.getItem("ju_lang") || "en"; } catch (e) {}
+    if (!I18N[lang]) lang = "en";
+    function t(k) { return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
+
+    function applyI18n() {
+      document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+      document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+      document.querySelectorAll(".lang-select").forEach(sel => {
+        sel.innerHTML = LANGS.map(([c, n]) => `<option value="${c}" ${c === lang ? "selected" : ""}>${n}</option>`).join("");
+      });
+    }
+    function setLang(l) {
+      lang = l;
+      try { localStorage.setItem("ju_lang", l); } catch (e) {}
+      applyI18n();
+      if (currentUser) updateUserProfileDisplay();
+      render({ animate: false });
+    }
+
+    /* ================= DATA ================= */
     const coursesDB = [
       {
         id: "maths",
@@ -412,63 +686,160 @@
       }
     ];
 
-    let state = { view: "courses", courseId: null, chapterId: null, searchQuery: "" };
-    let currentStudentName = "Student";
-    let completedFiles = [];
-    try { completedFiles = JSON.parse(localStorage.getItem("freshhub_completed_topics") || "[]"); } catch (e) {}
+    const SUBJECT_LABEL = { maths: "Mathematics", physics: "Physics", geography: "Geography", english: "English", psychology: "Psychology", logic: "Logic" };
+
+    /* ---- DEMO tutors. Replace by adding documents to the Firestore "tutors" collection
+          (fields: name, country, city, tz, subjects[], langs[], rating, sessions, bio). ---- */
+    const TUTORS_SAMPLE = [
+      { id: "t1", name: "Dr. Amina Yusuf", country: "Ethiopia", city: "Addis Ababa", tz: "Africa/Addis_Ababa", subjects: ["maths", "logic"], langs: ["English", "አማርኛ", "Afaan Oromoo"], rating: 4.9, sessions: 312, bio: "Makes sets and logic feel like puzzles you can solve." },
+      { id: "t2", name: "Daniel Okafor", country: "Nigeria", city: "Lagos", tz: "Africa/Lagos", subjects: ["physics", "maths"], langs: ["English"], rating: 4.8, sessions: 241, bio: "Physics from first principles, with plenty of worked examples." },
+      { id: "t3", name: "Sofia Marchetti", country: "Italy", city: "Milan", tz: "Europe/Rome", subjects: ["english"], langs: ["English", "Italiano", "Français"], rating: 4.9, sessions: 198, bio: "Essay structure, grammar and academic reading strategies." },
+      { id: "t4", name: "Hiroshi Tanaka", country: "Japan", city: "Tokyo", tz: "Asia/Tokyo", subjects: ["maths", "physics"], langs: ["English", "日本語"], rating: 4.7, sessions: 167, bio: "Patient, step-by-step problem solving for calculus and mechanics." },
+      { id: "t5", name: "Layla Hassan", country: "Egypt", city: "Cairo", tz: "Africa/Cairo", subjects: ["psychology", "english"], langs: ["English", "العربية"], rating: 4.8, sessions: 223, bio: "Turns psychology theories into everyday examples." },
+      { id: "t6", name: "Priya Nair", country: "India", city: "Bengaluru", tz: "Asia/Kolkata", subjects: ["logic", "maths"], langs: ["English", "हिन्दी"], rating: 4.9, sessions: 276, bio: "Argument analysis, fallacies and clear mathematical reasoning." },
+      { id: "t7", name: "Tigist Bekele", country: "Ethiopia", city: "Jimma", tz: "Africa/Addis_Ababa", subjects: ["geography", "psychology"], langs: ["English", "አማርኛ", "Afaan Oromoo"], rating: 4.8, sessions: 154, bio: "Maps, climate and population explained with local examples." },
+      { id: "t8", name: "Marcus Weber", country: "Germany", city: "Berlin", tz: "Europe/Berlin", subjects: ["physics"], langs: ["English", "Deutsch"], rating: 4.7, sessions: 129, bio: "Fluids, heat and waves with clear diagrams." }
+    ];
+    let tutors = TUTORS_SAMPLE.slice();
+    let tutorsAreDemo = true;
+
+    const WORLD_CITIES = [["Jimma", "Africa/Addis_Ababa"], ["London", "Europe/London"], ["New York", "America/New_York"], ["Dubai", "Asia/Dubai"], ["Tokyo", "Asia/Tokyo"], ["Sydney", "Australia/Sydney"]];
+    const HERO_LINES = ["Learn without borders", "ያለ ድንበር ተማሩ", "Daangaa malee baradhu", "Apprenez sans frontières", "تعلّم بلا حدود", "Aprende sin fronteras"];
+    const TIPS = [
+      "Study in 25-minute bursts, then rest for 5. Your brain keeps what it revisits.",
+      "Explain a topic out loud as if teaching a friend. Gaps show up fast.",
+      "Do practice problems before rereading notes. Recalling beats rereading.",
+      "Sleep is part of studying. Memories settle overnight.",
+      "Space your review: today, in 3 days, then in a week.",
+      "Start with the hardest subject while your energy is highest.",
+      "Write the question you expect on the exam, then answer it.",
+      "A tutor in another time zone can be a study partner while you sleep. Book ahead.",
+      "Turn each chapter into five questions you can answer without looking.",
+      "Small daily progress beats the all-night cram."
+    ];
+
+    /* ================= STATE & STORAGE ================= */
+    let state = { tab: "home", view: "courses", courseId: null, chapterId: null, searchQuery: "", tutorSubject: "all", tutorLang: "all" };
+    let currentStudentName = "Student", profileStream = "", currentUser = null, streakCount = 1, ANIM = true;
+    let heroTimer = null;
+
+    function lsGet(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    function dayKey(d = new Date()) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+
+    let completedFiles = lsGet("freshhub_completed_topics", []);
+    function getBookings() { return lsGet("freshhub_bookings", []); }
+    function upcomingBookings() { const now = Date.now(); return getBookings().filter(b => new Date(b.iso).getTime() > now).sort((a, b) => new Date(a.iso) - new Date(b.iso)); }
+
+    function touchStreak() {
+      const s = lsGet("freshhub_streak", { last: null, count: 0 });
+      const today = dayKey();
+      if (s.last !== today) {
+        const y = new Date(); y.setDate(y.getDate() - 1);
+        s.count = s.last === dayKey(y) ? s.count + 1 : 1;
+        s.last = today;
+        lsSet("freshhub_streak", s);
+      }
+      return s.count || 1;
+    }
+    function focusToday() { const f = lsGet("freshhub_focus", { date: dayKey(), count: 0 }); return f.date === dayKey() ? f.count : 0; }
+    function countReady() { return coursesDB.reduce((s, c) => s + c.chapters.reduce((a, ch) => a + ch.topics.filter(x => x.file).length, 0), 0); }
+
+    /* ================= BOOT ================= */
+    const appMount = document.getElementById("app-mount");
+    const navBar = document.getElementById("nav-bar");
+    const btnBack = document.getElementById("btn-back");
+    const breadcrumb = document.getElementById("breadcrumb");
+    const searchContainer = document.getElementById("search-container");
+    const searchInput = document.getElementById("search-input");
+    const BASE_TITLE = document.title;
 
     document.addEventListener("DOMContentLoaded", () => {
+      applyI18n();
       applyBranding();
       syncThemeIcon();
       updateClock();
-      setInterval(updateClock, 30000);
+      setInterval(updateClock, 20000);
       setupAuthListener();
       lucide.createIcons();
     });
 
+    function showLogin() {
+      hideLoader();
+      const m = document.getElementById("auth-modal");
+      m.classList.remove("hidden");
+      document.getElementById("app-container").classList.add("hidden");
+      lucide.createIcons();
+    }
+
     function setupAuthListener() {
+      if (!auth) {
+        minLoaderDelay.then(() => {
+          showLogin();
+          const e = document.getElementById("auth-error");
+          e.innerText = "Could not reach the sign-in service. Check your internet connection and reload.";
+          e.classList.remove("hidden");
+        });
+        return;
+      }
+      // Safety net: never leave the loader on screen forever (e.g. very slow network)
+      setTimeout(() => { if (!loaderGone) showLogin(); }, 12000);
+
+      let first = true;
       auth.onAuthStateChanged(async (user) => {
-        const loadingScreen = document.getElementById("auth-loading-screen");
+        if (first) { first = false; await minLoaderDelay; }   // loader always runs its full 5 seconds
         if (user) {
-          if (loadingScreen) loadingScreen.classList.add("hidden");
+          currentUser = user;
+          hideLoader();
           document.getElementById("auth-modal").classList.add("hidden");
-          document.getElementById("app-container").classList.remove("hidden");
+          const app = document.getElementById("app-container");
+          app.classList.remove("hidden");
+          app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter");
           currentStudentName = user.displayName || (user.email ? user.email.split("@")[0] : "Student");
-          updateUserProfileDisplay(user);
+          streakCount = touchStreak();
+          updateUserProfileDisplay();
+          render();
+          loadTutors();
           try {
             const docSnap = await db.collection("users").doc(user.uid).get();
             if (docSnap.exists) {
               const data = docSnap.data();
-              if (data.displayName) {
-                currentStudentName = data.displayName;
-                updateUserProfileDisplay(user, data);
-              }
+              if (data.displayName) currentStudentName = data.displayName;
+              if (data.stream) profileStream = data.stream;
+              updateUserProfileDisplay();
             }
           } catch (err) {}
-          render();
           lucide.createIcons();
         } else {
-          if (loadingScreen) loadingScreen.classList.add("hidden");
-          document.getElementById("auth-modal").classList.remove("hidden");
-          document.getElementById("app-container").classList.add("hidden");
-          lucide.createIcons();
+          currentUser = null;
+          showLogin();
         }
       });
     }
 
-    function updateUserProfileDisplay(user, profileData) {
+    async function loadTutors() {
+      if (!db) return;
+      try {
+        const snap = await db.collection("tutors").get();
+        if (!snap.empty) {
+          tutors = snap.docs.map(d => {
+            const x = d.data();
+            return { id: d.id, name: x.name || "Tutor", country: x.country || "", city: x.city || "", tz: x.tz || "UTC", subjects: x.subjects || [], langs: x.langs || [], rating: x.rating || 5, sessions: x.sessions || 0, bio: x.bio || "" };
+          });
+          tutorsAreDemo = false;
+          if (state.tab === "tutors" || state.tab === "home") render({ animate: false });
+        }
+      } catch (e) { /* keep demo tutors if rules block reads */ }
+    }
+
+    function updateUserProfileDisplay() {
       const nameEl = document.getElementById("student-name-display");
       if (nameEl) nameEl.innerText = currentStudentName;
-
       const h = new Date().getHours();
-      const greetWord = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
       const greetEl = document.getElementById("greeting");
-      if (greetEl) greetEl.innerText = `${greetWord}, ${currentStudentName}`;
-
-      if (profileData && profileData.stream) {
-        const subEl = document.getElementById("greeting-sub");
-        if (subEl) subEl.innerText = `${profileData.stream} • Select a course below to study notes and take quizzes.`;
-      }
+      if (greetEl) greetEl.innerText = `${t(h < 12 ? "gm" : h < 18 ? "ga" : "ge")}, ${currentStudentName}`;
+      const subEl = document.getElementById("greeting-sub");
+      if (subEl) subEl.innerText = profileStream ? `${profileStream} • ${t("sub")}` : t("sub");
     }
 
     async function handleStudentLogin(e) {
@@ -477,92 +848,242 @@
       const password = document.getElementById("student-password").value;
       const errorDiv = document.getElementById("auth-error");
       const btn = document.getElementById("login-btn");
-
       errorDiv.classList.add("hidden");
+      if (!auth) { errorDiv.innerText = "Sign-in service is unavailable. Please reload the page."; errorDiv.classList.remove("hidden"); return; }
       btn.disabled = true;
-      btn.innerHTML = `<span>Signing in...</span>`;
-
+      btn.innerHTML = `<span>${t("signing_in")}</span>`;
       try {
         await auth.signInWithEmailAndPassword(email, password);
         toast("Signed in successfully!", "success", 2500);
       } catch (err) {
         let msg = "Unable to sign in. Please check your email and password.";
-        if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
-          msg = "Incorrect email or password. Please verify your credentials.";
-        } else if (err.code === "auth/too-many-requests") {
-          msg = "Too many failed attempts. Please wait a few moments and try again.";
-        } else if (err.message) {
-          msg = err.message;
-        }
+        if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") msg = "Incorrect email or password. Please verify your credentials.";
+        else if (err.code === "auth/too-many-requests") msg = "Too many failed attempts. Please wait a few moments and try again.";
+        else if (err.message) msg = err.message;
         errorDiv.innerText = msg;
         errorDiv.classList.remove("hidden");
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<span>Sign In to Portal</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        btn.innerHTML = `<span>${t("signin")}</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
         lucide.createIcons();
       }
     }
 
-    function handleSignOut() {
-      if (confirm("Sign out of JU FreshHub?")) auth.signOut();
+    function handleSignOut() { if (confirm("Sign out of JU FreshHub?")) auth && auth.signOut(); }
+
+    /* ================= RENDER ROUTER ================= */
+    function stagger() {
+      [...appMount.children].forEach((el, i) => {
+        if (el.hasAttribute("data-nostagger")) return;
+        el.classList.add("enter");
+        el.style.animationDelay = (i * 80) + "ms";
+      });
     }
+    function pop(el, i) { if (ANIM) { el.classList.add("enter"); el.style.animationDelay = (Math.min(i, 12) * 55 + 120) + "ms"; } }
 
-    const appMount = document.getElementById("app-mount");
-    const navBar = document.getElementById("nav-bar");
-    const btnBack = document.getElementById("btn-back");
-    const breadcrumb = document.getElementById("breadcrumb");
-    const searchContainer = document.getElementById("search-container");
-    const searchInput = document.getElementById("search-input");
-
-    function render() {
+    function render(opts = {}) {
+      ANIM = opts.animate !== false;
+      clearInterval(heroTimer);
       appMount.innerHTML = "";
 
-      if (state.view === "courses") {
-        navBar.classList.add("hidden");
-        searchContainer.classList.remove("hidden");
-      } else {
-        navBar.classList.remove("hidden");
-        searchContainer.classList.add("hidden");
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === state.tab));
+      const inCourses = state.tab === "courses";
+      navBar.classList.toggle("hidden", !(inCourses && state.view !== "courses"));
+      searchContainer.classList.toggle("hidden", !(inCourses && state.view === "courses"));
+
+      if (state.tab === "home") renderHome();
+      else if (state.tab === "tutors") renderTutors();
+      else if (state.tab === "tools") renderTools();
+      else {
+        if (state.view === "courses" && state.searchQuery.trim() !== "") renderSearchResults();
+        else if (state.view === "courses") renderCourses();
+        else if (state.view === "chapters") renderChapters();
+        else if (state.view === "topics") renderTopics();
       }
-
-      if (state.view === "courses" && state.searchQuery.trim() !== "") {
-        renderSearchResults();
-        lucide.createIcons();
-        return;
-      }
-
-      if (state.view === "courses") renderCourses();
-      else if (state.view === "chapters") renderChapters();
-      else if (state.view === "topics") renderTopics();
-
+      if (ANIM) stagger();
       lucide.createIcons();
     }
 
+    function goTab(tab) {
+      state.tab = tab;
+      state.searchQuery = ""; searchInput.value = "";
+      if (tab === "courses") { state.view = "courses"; state.courseId = null; state.chapterId = null; }
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function openCourse(id) {
+      state.tab = "courses"; state.courseId = id; state.view = "chapters"; state.chapterId = null;
+      render(); window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /* ================= HOME ================= */
+    function statCard(icon, color, label, value) {
+      return `<div class="card p-4 lift">
+        <div class="w-9 h-9 rounded-xl ${color} flex items-center justify-center mb-3"><i data-lucide="${icon}" class="w-4 h-4"></i></div>
+        <div class="font-display font-extrabold text-2xl text-slate-900 dark:text-white" data-count="${value}">0</div>
+        <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(label)}</div>
+      </div>`;
+    }
+
+    function renderHome() {
+      const dp = getBrand("dashPhoto");
+      const countries = new Set(tutors.map(x => x.country).filter(Boolean)).size;
+      const bookings = upcomingBookings();
+
+      const hero = document.createElement("section");
+      hero.className = "relative overflow-hidden rounded-3xl text-white shadow-xl shadow-brand-900/20 bg-gradient-to-br from-brand-700 via-brand-900 to-slate-950 p-6 sm:p-9";
+      hero.innerHTML = `
+        ${dp ? `<img src="${escapeAttr(safeSrc(dp))}" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-luminosity" alt="">` : ""}
+        <div class="absolute -right-12 -top-12 w-60 h-60 rounded-full bg-brand-500/30 blur-3xl animate-floaty"></div>
+        <div class="absolute -left-10 -bottom-16 w-56 h-56 rounded-full bg-brand-gold/15 blur-3xl animate-floaty" style="animation-delay:-2s"></div>
+        <i data-lucide="globe" class="absolute -right-8 -bottom-10 w-56 h-56 text-white/10 animate-[spin_40s_linear_infinite]"></i>
+        <div class="relative max-w-xl">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] font-bold text-brand-100">
+            <i data-lucide="globe" class="w-3.5 h-3.5"></i><span>JU FreshHub International</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-extrabold leading-tight mt-4 min-h-[2.6em] sm:min-h-[1.3em]"><span id="hero-word" class="swap">${escapeHtml(HERO_LINES[0])}</span></h2>
+          <p class="mt-3 text-sm sm:text-base text-brand-100/90 leading-relaxed">${escapeHtml(t("hero_sub"))}</p>
+          <div class="flex flex-wrap gap-2 mt-5">
+            <button onclick="goTab('courses')" class="btn bg-white text-brand-800 hover:bg-brand-50 shadow-lg"><i data-lucide="library" class="w-4 h-4"></i><span>${escapeHtml(t("cta_courses"))}</span></button>
+            <button onclick="goTab('tutors')" class="btn bg-white/10 hover:bg-white/20 border border-white/20 text-white"><i data-lucide="users" class="w-4 h-4"></i><span>${escapeHtml(t("cta_tutors"))}</span></button>
+          </div>
+          <div class="flex flex-wrap gap-2 mt-5 text-[11px] font-semibold text-brand-100/80">
+            <span class="px-2.5 py-1 rounded-full bg-white/10">${coursesDB.length} courses</span>
+            <span class="px-2.5 py-1 rounded-full bg-white/10">${LANGS.length} interface languages</span>
+            <span class="px-2.5 py-1 rounded-full bg-white/10">${countries} tutor countries</span>
+          </div>
+        </div>`;
+      appMount.appendChild(hero);
+
+      const stats = document.createElement("section");
+      stats.className = "grid grid-cols-2 lg:grid-cols-4 gap-3";
+      stats.innerHTML =
+        statCard("flame", "bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300", t("stat_streak"), streakCount) +
+        statCard("book-check", "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300", t("stat_notes"), completedFiles.length) +
+        statCard("calendar-check", "bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300", t("stat_sessions"), bookings.length) +
+        statCard("timer", "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-300", t("stat_focus"), focusToday());
+      appMount.appendChild(stats);
+
+      // Progress + world clock
+      const row1 = document.createElement("section");
+      row1.className = "grid grid-cols-1 lg:grid-cols-5 gap-4";
+      const progress = coursesDB.map(c => {
+        const files = c.chapters.flatMap(ch => ch.topics.filter(x => x.file).map(x => x.file));
+        const done = files.filter(f => completedFiles.includes(f)).length;
+        const pctv = files.length ? Math.round(done / files.length * 100) : 0;
+        return `<button onclick="openCourse('${c.id}')" class="w-full text-left group">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="font-semibold text-slate-700 dark:text-slate-200 truncate group-hover:text-brand-600">${escapeHtml(c.title)}</span>
+            <span class="font-bold text-slate-500 dark:text-slate-400 shrink-0 ml-2">${files.length ? `${done}/${files.length}` : "Soon"}</span>
+          </div>
+          <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div class="bar-fill h-full rounded-full bg-gradient-to-r ${c.accent}" style="width:0%" data-w="${pctv}"></div></div>
+        </button>`;
+      }).join("");
+      row1.innerHTML = `
+        <div class="card p-5 lg:col-span-3 space-y-3.5">
+          <h3 class="font-display font-bold text-slate-900 dark:text-white text-base flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-brand-600"></i>${escapeHtml(t("progress_title"))}</h3>
+          ${progress}
+        </div>
+        <div class="card p-5 lg:col-span-2">
+          <h3 class="font-display font-bold text-slate-900 dark:text-white text-base flex items-center gap-2 mb-3"><i data-lucide="clock" class="w-4 h-4 text-brand-600"></i>${escapeHtml(t("clock_title"))}</h3>
+          <div id="world-clock" class="grid grid-cols-2 gap-2"></div>
+        </div>`;
+      appMount.appendChild(row1);
+
+      // Sessions + tip
+      const tip = TIPS[Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000) % TIPS.length];
+      const sess = bookings.length ? bookings.slice(0, 4).map(b => `
+        <div class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+          <div class="min-w-0">
+            <div class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${escapeHtml(b.tutorName)}</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">${escapeHtml(fmtDateTime(new Date(b.iso)))}${b.topic ? " · " + escapeHtml(b.topic) : ""}</div>
+          </div>
+          <button onclick="cancelBooking('${escapeAttr(b.id)}')" class="btn-ghost !px-2 !py-1.5 hover:!text-rose-600" title="Cancel"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        </div>`).join("")
+        : `<div class="text-center py-4"><p class="text-xs text-slate-500 dark:text-slate-400 mb-3">${escapeHtml(t("no_sessions"))}</p><button onclick="goTab('tutors')" class="btn-primary"><i data-lucide="users" class="w-4 h-4"></i><span>${escapeHtml(t("cta_tutors"))}</span></button></div>`;
+      const row2 = document.createElement("section");
+      row2.className = "grid grid-cols-1 lg:grid-cols-5 gap-4";
+      row2.innerHTML = `
+        <div class="card p-5 lg:col-span-3 space-y-2.5">
+          <h3 class="font-display font-bold text-slate-900 dark:text-white text-base flex items-center gap-2"><i data-lucide="calendar-check" class="w-4 h-4 text-brand-600"></i>${escapeHtml(t("sessions_title"))}</h3>
+          ${sess}
+        </div>
+        <div class="card p-5 lg:col-span-2 bg-gradient-to-br from-brand-50 to-white dark:from-brand-900/30 dark:to-slate-900/70">
+          <h3 class="font-display font-bold text-slate-900 dark:text-white text-base flex items-center gap-2 mb-2"><i data-lucide="sparkles" class="w-4 h-4 text-brand-600"></i>${escapeHtml(t("tip_title"))}</h3>
+          <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">${escapeHtml(tip)}</p>
+          <button onclick="goTab('tools')" class="btn-ghost mt-4"><i data-lucide="timer" class="w-4 h-4"></i><span>${escapeHtml(t("nav_tools"))}</span></button>
+        </div>`;
+      appMount.appendChild(row2);
+
+      updateWorldClock();
+      animateCounters(appMount);
+      requestAnimationFrame(() => requestAnimationFrame(() => appMount.querySelectorAll("[data-w]").forEach(b => { b.style.width = b.dataset.w + "%"; })));
+      startHeroRotation();
+    }
+
+    function startHeroRotation() {
+      let i = 0;
+      heroTimer = setInterval(() => {
+        const el = document.getElementById("hero-word");
+        if (!el) { clearInterval(heroTimer); return; }
+        el.classList.add("out");
+        setTimeout(() => {
+          i = (i + 1) % HERO_LINES.length;
+          el.textContent = HERO_LINES[i];
+          el.classList.remove("out");
+        }, 320);
+      }, 3200);
+    }
+
+    function animateCounters(root) {
+      root.querySelectorAll("[data-count]").forEach(el => {
+        const target = Number(el.dataset.count) || 0;
+        const t0 = performance.now(), dur = 900;
+        (function step(now) {
+          const p = Math.min(1, (now - t0) / dur);
+          el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+          if (p < 1) requestAnimationFrame(step);
+        })(t0);
+      });
+    }
+
+    function timeIn(tz, opts) { try { return new Date().toLocaleTimeString([], Object.assign({ hour: "2-digit", minute: "2-digit", timeZone: tz }, opts || {})); } catch (e) { return "--:--"; } }
+    function hourIn(tz) { try { return Number(new Date().toLocaleString("en-US", { hour: "numeric", hourCycle: "h23", timeZone: tz })); } catch (e) { return 12; } }
+    function updateWorldClock() {
+      const box = document.getElementById("world-clock");
+      if (!box) return;
+      box.innerHTML = WORLD_CITIES.map(([city, tz]) => {
+        const h = hourIn(tz), day = h >= 6 && h < 19;
+        return `<div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+          <div class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400"><span class="w-1.5 h-1.5 rounded-full ${day ? "bg-amber-400" : "bg-indigo-400"}"></span>${escapeHtml(city)}</div>
+          <div class="font-display font-bold text-slate-900 dark:text-white text-base mt-0.5">${timeIn(tz)}</div>
+        </div>`;
+      }).join("");
+    }
+
+    /* ================= COURSES ================= */
     function renderCourses() {
       const headerRow = document.createElement("div");
-      headerRow.className = "flex items-center justify-between mb-3";
-      headerRow.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">Freshman Courses</h3>
-                             <span class="text-xs font-bold text-slate-500 dark:text-slate-400">${coursesDB.length} Courses</span>`;
+      headerRow.className = "flex items-center justify-between";
+      headerRow.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${escapeHtml(t("courses_title"))}</h3>
+                             <span class="text-xs font-bold text-slate-500 dark:text-slate-400">${coursesDB.length} ${escapeHtml(t("nav_courses"))}</span>`;
       appMount.appendChild(headerRow);
 
       const grid = document.createElement("div");
+      grid.setAttribute("data-nostagger", "1");
       grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
 
-      coursesDB.forEach(course => {
-        const readyTopicsCount = course.chapters.reduce((sum, ch) => sum + ch.topics.filter(t => t.file !== null).length, 0);
+      coursesDB.forEach((course, idx) => {
+        const readyTopicsCount = course.chapters.reduce((sum, ch) => sum + ch.topics.filter(x => x.file !== null).length, 0);
         const card = document.createElement("div");
-        card.className = "card p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition flex flex-col justify-between";
-
+        card.className = "card p-5 cursor-pointer lift flex flex-col justify-between";
         card.innerHTML = `
           <div>
             <div class="flex items-center justify-between mb-3.5">
-              <div class="w-11 h-11 rounded-xl bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shadow-sm">
-                <i data-lucide="${course.icon}" class="w-5 h-5"></i>
-              </div>
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shadow-sm"><i data-lucide="${course.icon}" class="w-5 h-5"></i></div>
               ${readyTopicsCount > 0
                 ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">${readyTopicsCount} Notes Ready</span>`
-                : `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">Upcoming</span>`
-              }
+                : `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">Upcoming</span>`}
             </div>
             <h4 class="font-display font-bold text-slate-900 dark:text-white text-base leading-snug mb-1.5">${escapeHtml(course.title)}</h4>
             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">${escapeHtml(course.desc)}</p>
@@ -570,77 +1091,57 @@
           <div>
             <div class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-3">${course.chapters.length} Chapters</div>
             <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-brand-700 dark:text-brand-400">
-              <span>View Chapters</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              <span>${escapeHtml(t("view_chapters"))}</span><i data-lucide="chevron-right" class="w-4 h-4"></i>
             </div>
-          </div>
-        `;
-
-        card.addEventListener("click", () => {
-          state.courseId = course.id;
-          state.view = "chapters";
-          render();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-
+          </div>`;
+        card.addEventListener("click", () => openCourse(course.id));
+        pop(card, idx);
         grid.appendChild(card);
       });
-
       appMount.appendChild(grid);
     }
 
     function renderChapters() {
       const course = coursesDB.find(c => c.id === state.courseId);
-      breadcrumb.innerText = `Courses > ${course.title}`;
+      breadcrumb.innerText = `${t("nav_courses")} > ${course.title}`;
 
       const headerRow = document.createElement("div");
-      headerRow.className = "mb-4 space-y-1";
+      headerRow.className = "space-y-1";
       headerRow.innerHTML = `
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shrink-0">
-            <i data-lucide="${course.icon}" class="w-4 h-4"></i>
-          </div>
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shrink-0"><i data-lucide="${course.icon}" class="w-4 h-4"></i></div>
           <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${escapeHtml(course.title)}</h3>
         </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400 pl-10">${escapeHtml(course.desc)}</p>
-      `;
+        <p class="text-xs text-slate-500 dark:text-slate-400 ps-10">${escapeHtml(course.desc)}</p>`;
       appMount.appendChild(headerRow);
 
       const stack = document.createElement("div");
+      stack.setAttribute("data-nostagger", "1");
       stack.className = "space-y-3";
 
-      course.chapters.forEach(chapter => {
-        const readyCount = chapter.topics.filter(t => t.file !== null).length;
+      course.chapters.forEach((chapter, idx) => {
+        const readyCount = chapter.topics.filter(x => x.file !== null).length;
         const card = document.createElement("div");
-        card.className = "card p-4 sm:p-5 cursor-pointer hover:border-brand-400 dark:hover:border-brand-500/50 transition flex items-center justify-between gap-4";
-
+        card.className = "card p-4 sm:p-5 cursor-pointer lift hover:border-brand-400 dark:hover:border-brand-500/50 flex items-center justify-between gap-4";
         card.innerHTML = `
           <div class="min-w-0">
             <div class="flex items-center gap-2 mb-1.5">
               <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${course.badgeBg}">${escapeHtml(chapter.num)}</span>
               ${readyCount > 0
                 ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">${readyCount} Available</span>`
-                : `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300">Coming Soon</span>`
-              }
+                : `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300">${escapeHtml(t("coming_soon"))}</span>`}
             </div>
             <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">${escapeHtml(chapter.title)}</h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${chapter.topics.length} Topic${chapter.topics.length === 1 ? '' : 's'}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${chapter.topics.length} Topic${chapter.topics.length === 1 ? "" : "s"}</p>
           </div>
-          <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-300 shrink-0">
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
-          </div>
-        `;
-
+          <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-300 shrink-0"><i data-lucide="chevron-right" class="w-4 h-4"></i></div>`;
         card.addEventListener("click", () => {
-          state.chapterId = chapter.id;
-          state.view = "topics";
-          render();
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          state.chapterId = chapter.id; state.view = "topics";
+          render(); window.scrollTo({ top: 0, behavior: "smooth" });
         });
-
+        pop(card, idx);
         stack.appendChild(card);
       });
-
       appMount.appendChild(stack);
     }
 
@@ -650,21 +1151,19 @@
       breadcrumb.innerText = `${course.title} > ${chapter.num}`;
 
       const headerRow = document.createElement("div");
-      headerRow.className = "mb-3";
       headerRow.innerHTML = `
         <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">${escapeHtml(chapter.num)}</span>
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${escapeHtml(chapter.title)}</h3>
-      `;
+        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${escapeHtml(chapter.title)}</h3>`;
       appMount.appendChild(headerRow);
 
       const stack = document.createElement("div");
+      stack.setAttribute("data-nostagger", "1");
       stack.className = "space-y-3";
 
       chapter.topics.forEach((topic, index) => {
         const isDone = topic.file && completedFiles.includes(topic.file);
         const card = document.createElement("div");
-        card.className = `card p-4 sm:p-5 transition ${isDone ? "!border-l-4 !border-l-emerald-500" : ""}`;
-
+        card.className = `card p-4 sm:p-5 ${isDone ? "!border-s-4 !border-s-emerald-500" : ""}`;
         if (topic.file) {
           card.innerHTML = `
             <div class="flex items-start justify-between gap-3 mb-3">
@@ -672,41 +1171,28 @@
               <span class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">${escapeHtml(topic.file)}</span>
             </div>
             <div class="flex flex-wrap gap-2">
-              <a href="${escapeAttr(topic.file)}" class="btn-primary flex-1 sm:flex-initial sm:min-w-[160px]">
-                <i data-lucide="book-open" class="w-4 h-4"></i>
-                <span>Open Notes</span>
-              </a>
-              <button onclick="toggleTopicDone('${escapeAttr(topic.file)}')" class="${isDone ? "btn-ok" : "btn-ghost"}">
-                <i data-lucide="${isDone ? "check-circle-2" : "circle"}" class="w-4 h-4"></i>
-                <span>${isDone ? "Completed" : "Mark as Read"}</span>
+              <a href="${escapeAttr(topic.file)}" class="btn-primary flex-1 sm:flex-initial sm:min-w-[160px]"><i data-lucide="book-open" class="w-4 h-4"></i><span>${escapeHtml(t("open_notes"))}</span></a>
+              <button onclick="toggleTopicDone('${escapeAttr(topic.file)}')" class="${isDone ? "btn-ok pop" : "btn-ghost"}">
+                <i data-lucide="${isDone ? "check-circle-2" : "circle"}" class="w-4 h-4"></i><span>${escapeHtml(isDone ? t("completed") : t("mark_read"))}</span>
               </button>
-            </div>
-          `;
+            </div>`;
         } else {
           card.innerHTML = `
             <div class="flex items-start justify-between gap-3 mb-3">
               <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base">${index + 1}. ${escapeHtml(topic.title)}</div>
               <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 shrink-0">Upcoming</span>
             </div>
-            <div>
-              <button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost opacity-70">
-                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-                <span>Coming Soon</span>
-              </button>
-            </div>
-          `;
+            <button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost opacity-70"><i data-lucide="lock" class="w-3.5 h-3.5"></i><span>${escapeHtml(t("coming_soon"))}</span></button>`;
         }
-
+        pop(card, index);
         stack.appendChild(card);
       });
-
       appMount.appendChild(stack);
     }
 
     function renderSearchResults() {
       const q = state.searchQuery.toLowerCase().trim();
       const headerRow = document.createElement("div");
-      headerRow.className = "mb-3";
       headerRow.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Search Results for "${escapeHtml(state.searchQuery)}"</h3>`;
       appMount.appendChild(headerRow);
 
@@ -721,27 +1207,17 @@
           card.className = "card p-4 cursor-pointer hover:border-brand-400 transition flex items-center justify-between gap-3";
           card.innerHTML = `
             <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shrink-0">
-                <i data-lucide="${course.icon}" class="w-5 h-5"></i>
-              </div>
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shrink-0"><i data-lucide="${course.icon}" class="w-5 h-5"></i></div>
               <div class="min-w-0">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Course</span>
                 <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm truncate">${escapeHtml(course.title)}</h4>
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${escapeHtml(course.desc)}</p>
               </div>
             </div>
-            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 shrink-0"></i>
-          `;
-          card.addEventListener("click", () => {
-            state.searchQuery = "";
-            searchInput.value = "";
-            state.courseId = course.id;
-            state.view = "chapters";
-            render();
-          });
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 shrink-0"></i>`;
+          card.addEventListener("click", () => { state.searchQuery = ""; searchInput.value = ""; openCourse(course.id); });
           stack.appendChild(card);
         }
-
         course.chapters.forEach(chapter => {
           chapter.topics.forEach(topic => {
             if (topic.title.toLowerCase().includes(q) || chapter.title.toLowerCase().includes(q)) {
@@ -756,13 +1232,9 @@
                   </div>
                   <span class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">${topic.file ? escapeHtml(topic.file) : "Upcoming"}</span>
                 </div>
-                <div>
-                  ${topic.file
-                    ? `<a href="${escapeAttr(topic.file)}" class="btn-primary !py-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i><span>Open Notes</span></a>`
-                    : `<button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost !py-1.5 opacity-70"><i data-lucide="lock" class="w-3.5 h-3.5"></i><span>Coming Soon</span></button>`
-                  }
-                </div>
-              `;
+                ${topic.file
+                  ? `<a href="${escapeAttr(topic.file)}" class="btn-primary !py-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i><span>${escapeHtml(t("open_notes"))}</span></a>`
+                  : `<button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost !py-1.5 opacity-70"><i data-lucide="lock" class="w-3.5 h-3.5"></i><span>${escapeHtml(t("coming_soon"))}</span></button>`}`;
               stack.appendChild(card);
             }
           });
@@ -770,22 +1242,16 @@
       });
 
       if (matchCount === 0) {
-        stack.innerHTML = `
-          <div class="card p-10 text-center text-slate-400">
-            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 opacity-60"></i>
-            <p class="text-sm font-semibold">No matching courses or topics found.</p>
-          </div>
-        `;
+        stack.innerHTML = `<div class="card p-10 text-center text-slate-400"><i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 opacity-60"></i><p class="text-sm font-semibold">No matching courses or topics found.</p></div>`;
       }
-
       appMount.appendChild(stack);
     }
 
-    window.toggleTopicDone = function(file) {
+    window.toggleTopicDone = function (file) {
       if (completedFiles.includes(file)) completedFiles = completedFiles.filter(f => f !== file);
       else completedFiles.push(file);
-      try { localStorage.setItem("freshhub_completed_topics", JSON.stringify(completedFiles)); } catch (e) {}
-      render();
+      lsSet("freshhub_completed_topics", completedFiles);
+      render({ animate: false });
     };
 
     btnBack.addEventListener("click", () => {
@@ -795,11 +1261,363 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    searchInput.addEventListener("input", (e) => {
-      state.searchQuery = e.target.value;
-      render();
-    });
+    searchInput.addEventListener("input", (e) => { state.searchQuery = e.target.value; render({ animate: false }); });
 
+    /* ================= TUTORS ================= */
+    const AVATAR_GRADS = ["from-amber-500 to-orange-700", "from-sky-500 to-indigo-700", "from-teal-500 to-emerald-700", "from-rose-500 to-pink-700", "from-purple-500 to-violet-700", "from-lime-500 to-green-700"];
+    function initials(name) { return name.replace(/^(Dr|Prof)\.?\s+/i, "").split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase(); }
+    function gradFor(name) { let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return AVATAR_GRADS[h % AVATAR_GRADS.length]; }
+    function subjectBadge(id) {
+      const c = coursesDB.find(x => x.id === id);
+      return `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${c ? c.badgeBg : "bg-slate-100 text-slate-600"}">${escapeHtml(SUBJECT_LABEL[id] || id)}</span>`;
+    }
+    function setTutorSubject(s) { state.tutorSubject = s; render({ animate: false }); }
+    function setTutorLang(l) { state.tutorLang = l; render({ animate: false }); }
+
+    function renderTutors() {
+      const head = document.createElement("div");
+      head.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-brand-600"></i>${escapeHtml(t("tutors_title"))}</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(t("tutors_sub"))}</p>`;
+      appMount.appendChild(head);
+
+      if (tutorsAreDemo) {
+        const note = document.createElement("div");
+        note.className = "p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-[11px] font-semibold text-amber-800 dark:text-amber-200 flex gap-2 items-start";
+        note.innerHTML = `<i data-lucide="info" class="w-4 h-4 shrink-0 mt-px"></i><span>Demo profiles are shown. Add your real tutors to the Firestore “tutors” collection and they will replace these automatically.</span>`;
+        appMount.appendChild(note);
+      }
+
+      const allLangs = [...new Set(tutors.flatMap(x => x.langs))].sort();
+      const filters = document.createElement("div");
+      filters.className = "space-y-3";
+      filters.innerHTML = `
+        <div class="flex flex-wrap gap-2">
+          <button class="chip ${state.tutorSubject === "all" ? "on" : ""}" onclick="setTutorSubject('all')">All subjects</button>
+          ${Object.keys(SUBJECT_LABEL).map(id => `<button class="chip ${state.tutorSubject === id ? "on" : ""}" onclick="setTutorSubject('${id}')">${SUBJECT_LABEL[id]}</button>`).join("")}
+        </div>
+        <div class="relative max-w-xs">
+          <i data-lucide="languages" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          <select class="input !pl-9" onchange="setTutorLang(this.value)">
+            <option value="all">Any language</option>
+            ${allLangs.map(l => `<option value="${escapeAttr(l)}" ${state.tutorLang === l ? "selected" : ""}>${escapeHtml(l)}</option>`).join("")}
+          </select>
+        </div>`;
+      appMount.appendChild(filters);
+
+      const list = tutors.filter(x => (state.tutorSubject === "all" || x.subjects.includes(state.tutorSubject)) && (state.tutorLang === "all" || x.langs.includes(state.tutorLang)));
+      const grid = document.createElement("div");
+      grid.setAttribute("data-nostagger", "1");
+      grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+
+      if (!list.length) {
+        grid.innerHTML = `<div class="card p-10 text-center text-slate-400 md:col-span-2"><i data-lucide="user-search" class="w-8 h-8 mx-auto mb-2 opacity-60"></i><p class="text-sm font-semibold">No tutors match these filters yet.</p></div>`;
+      }
+      list.forEach((tu, idx) => {
+        const card = document.createElement("div");
+        card.className = "card p-5 lift flex flex-col gap-3";
+        card.innerHTML = `
+          <div class="flex items-start gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${gradFor(tu.name)} text-white flex items-center justify-center font-display font-extrabold text-sm shadow-md shrink-0">${escapeHtml(initials(tu.name))}</div>
+            <div class="min-w-0 flex-1">
+              <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">${escapeHtml(tu.name)}</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i>${escapeHtml(tu.city)}${tu.city && tu.country ? ", " : ""}${escapeHtml(tu.country)}</div>
+            </div>
+            <div class="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-200 shrink-0"><i data-lucide="star" class="w-3.5 h-3.5 fill-brand-500 text-brand-500"></i>${Number(tu.rating).toFixed(1)}</div>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHtml(tu.bio)}</p>
+          <div class="flex flex-wrap gap-1.5">${tu.subjects.map(subjectBadge).join("")}</div>
+          <div class="flex flex-wrap gap-1.5">${tu.langs.map(l => `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">${escapeHtml(l)}</span>`).join("")}</div>
+          <div class="flex items-center justify-between pt-3 mt-auto border-t border-slate-100 dark:border-slate-800">
+            <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i><span>Local time: <b class="text-slate-700 dark:text-slate-200" data-tz-time="${escapeAttr(tu.tz)}">${timeIn(tu.tz)}</b></span></div>
+            <button class="btn-primary" onclick="openBooking('${escapeAttr(tu.id)}')"><i data-lucide="calendar-plus" class="w-4 h-4"></i><span>${escapeHtml(t("book"))}</span></button>
+          </div>`;
+        pop(card, idx);
+        grid.appendChild(card);
+      });
+      appMount.appendChild(grid);
+    }
+
+    /* ---- Booking modal (slots are generated in UTC and shown in the student's own time zone) ---- */
+    const SLOT_HOURS_UTC = [5, 8, 11, 14, 17, 20];
+    let booking = null;
+
+    function fmtDateTime(d) { return d.toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }); }
+    function buildSlots() {
+      const now = new Date();
+      const base = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+      const out = {};
+      for (let d = 0; d <= 6; d++) {
+        for (const h of SLOT_HOURS_UTC) {
+          const dt = new Date(base + d * 86400000 + h * 3600000);
+          if (dt.getTime() < now.getTime() + 3600000) continue;
+          const key = dayKey(dt);
+          (out[key] = out[key] || []).push(dt);
+        }
+      }
+      return out;
+    }
+
+    function openBooking(id) {
+      const tu = tutors.find(x => String(x.id) === String(id));
+      if (!tu) return;
+      const slots = buildSlots();
+      const keys = Object.keys(slots).slice(0, 5);
+      booking = { tutor: tu, slots, keys, day: keys[0], iso: null, subject: tu.subjects[0] || "", note: "" };
+      paintBooking();
+    }
+    function closeBooking() { booking = null; document.getElementById("modal-root").innerHTML = ""; }
+    function pickDay(k) { keepNote(); booking.day = k; booking.iso = null; paintBooking(); }
+    function pickSlot(iso) { keepNote(); booking.iso = iso; paintBooking(); }
+    function keepNote() {
+      const n = document.getElementById("bk-note"), s = document.getElementById("bk-subject");
+      if (booking && n) booking.note = n.value;
+      if (booking && s) booking.subject = s.value;
+    }
+
+    function paintBooking() {
+      if (!booking) return;
+      const tu = booking.tutor;
+      const daySlots = booking.slots[booking.day] || [];
+      document.getElementById("modal-root").innerHTML = `
+        <div class="fixed inset-0 z-[90] flex items-end sm:items-center justify-center p-3 bg-slate-950/60 backdrop-blur-sm" onclick="if(event.target===this)closeBooking()">
+          <div class="modal-in card !bg-white dark:!bg-slate-900 w-full max-w-md max-h-[92vh] overflow-y-auto p-5 sm:p-6 space-y-4 shadow-2xl">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br ${gradFor(tu.name)} text-white flex items-center justify-center font-display font-extrabold text-sm shrink-0">${escapeHtml(initials(tu.name))}</div>
+                <div class="min-w-0">
+                  <div class="font-display font-bold text-slate-900 dark:text-white truncate">${escapeHtml(t("book"))}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 truncate">${escapeHtml(tu.name)} · ${escapeHtml(tu.city)}</div>
+                </div>
+              </div>
+              <button class="btn-ghost !px-2" onclick="closeBooking()" aria-label="Close"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+
+            <div>
+              <div class="label">Day (your time zone)</div>
+              <div class="flex flex-wrap gap-2">
+                ${booking.keys.map(k => { const d = booking.slots[k][0]; return `<button class="chip ${k === booking.day ? "on" : ""}" onclick="pickDay('${k}')">${escapeHtml(d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" }))}</button>`; }).join("")}
+              </div>
+            </div>
+
+            <div>
+              <div class="label">Time</div>
+              <div class="grid grid-cols-3 gap-2">
+                ${daySlots.map(dt => {
+                  const iso = dt.toISOString(), on = iso === booking.iso;
+                  return `<button onclick="pickSlot('${iso}')" class="rounded-xl border px-2 py-2 text-center transition ${on ? "bg-brand-600 border-brand-600 text-white" : "border-slate-200 dark:border-slate-700 hover:border-brand-400"}">
+                    <div class="text-sm font-bold">${dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+                    <div class="text-[10px] ${on ? "text-brand-100" : "text-slate-400"}">${escapeHtml(tu.city)} ${timeFor(dt, tu.tz)}</div>
+                  </button>`;
+                }).join("") || `<p class="text-xs text-slate-400 col-span-3">No free slots on this day.</p>`}
+              </div>
+            </div>
+
+            <div>
+              <label class="label" for="bk-subject">Subject</label>
+              <select id="bk-subject" class="input">
+                ${(tu.subjects.length ? tu.subjects : Object.keys(SUBJECT_LABEL)).map(s => `<option value="${s}" ${s === booking.subject ? "selected" : ""}>${escapeHtml(SUBJECT_LABEL[s] || s)}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label class="label" for="bk-note">What do you want help with?</label>
+              <input id="bk-note" class="input" maxlength="120" placeholder="e.g. Venn diagrams and set operations" value="${escapeAttr(booking.note)}" />
+            </div>
+
+            <button class="btn-primary w-full py-3 text-sm" onclick="confirmBooking()" ${booking.iso ? "" : "disabled"}><i data-lucide="check" class="w-4 h-4"></i><span>Confirm booking</span></button>
+          </div>
+        </div>`;
+      lucide.createIcons();
+    }
+    function timeFor(dt, tz) { try { return dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: tz }); } catch (e) { return ""; } }
+
+    function confirmBooking() {
+      keepNote();
+      if (!booking || !booking.iso) return;
+      const all = getBookings();
+      if (all.some(b => b.tutorId === String(booking.tutor.id) && b.iso === booking.iso)) { toast("You already booked this time.", "warn"); return; }
+      all.push({ id: "b" + Date.now(), tutorId: String(booking.tutor.id), tutorName: booking.tutor.name, iso: booking.iso, topic: SUBJECT_LABEL[booking.subject] || "", note: booking.note });
+      lsSet("freshhub_bookings", all);
+      const when = fmtDateTime(new Date(booking.iso));
+      toast(`Session booked with ${booking.tutor.name}\n${when}`, "success", 5000);
+      closeBooking();
+      if (state.tab === "home") render({ animate: false });
+    }
+    function cancelBooking(id) {
+      lsSet("freshhub_bookings", getBookings().filter(b => b.id !== id));
+      toast("Session cancelled.", "info", 2500);
+      render({ animate: false });
+    }
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && booking) closeBooking(); });
+
+    /* ================= STUDY TOOLS ================= */
+    const CIRC = 2 * Math.PI * 54;
+    const FOCUS = { mode: "focus", modes: { focus: 1500, short: 300, long: 900 }, left: 1500, running: false, endAt: 0, tick: null };
+    const FOCUS_LABEL = { focus: "Focus", short: "Short break", long: "Long break" };
+    function fmtMS(s) { return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
+
+    function renderTools() {
+      const head = document.createElement("div");
+      head.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2"><i data-lucide="timer" class="w-5 h-5 text-brand-600"></i>${escapeHtml(t("tools_title"))}</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(t("tools_sub"))}</p>`;
+      appMount.appendChild(head);
+
+      const grid = document.createElement("div");
+      grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+      grid.innerHTML = `
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-display font-bold text-slate-900 dark:text-white text-base">Focus timer</h4>
+            <span id="focus-count" class="text-[11px] font-bold text-slate-500 dark:text-slate-400"></span>
+          </div>
+          <div class="flex flex-wrap gap-2 justify-center mb-5">
+            <button class="chip" data-fm="focus" onclick="focusMode('focus')">Focus 25</button>
+            <button class="chip" data-fm="short" onclick="focusMode('short')">Short break 5</button>
+            <button class="chip" data-fm="long" onclick="focusMode('long')">Long break 15</button>
+          </div>
+          <div class="relative w-48 h-48 mx-auto">
+            <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+              <circle cx="60" cy="60" r="54" fill="none" stroke-width="8" class="stroke-slate-200 dark:stroke-slate-800" />
+              <circle id="focus-ring" cx="60" cy="60" r="54" fill="none" stroke-width="8" stroke-linecap="round" stroke="#F59E0B" stroke-dasharray="${CIRC.toFixed(3)}" stroke-dashoffset="0" style="transition: stroke-dashoffset .3s linear" />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <div id="focus-time" class="font-display text-4xl font-extrabold text-slate-900 dark:text-white">25:00</div>
+              <div id="focus-label" class="text-[11px] font-bold text-slate-500 dark:text-slate-400">Focus</div>
+            </div>
+          </div>
+          <div class="flex justify-center gap-2 mt-5">
+            <button id="focus-toggle" onclick="focusToggle()" class="btn-primary !px-6"></button>
+            <button onclick="focusReset()" class="btn-ghost"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-display font-bold text-slate-900 dark:text-white text-base">Study planner</h4>
+            <span id="task-count" class="text-[11px] font-bold text-slate-500 dark:text-slate-400"></span>
+          </div>
+          <div class="flex gap-2 mb-3">
+            <input id="task-input" class="input" maxlength="100" placeholder="e.g. Review set operations" onkeydown="if(event.key==='Enter')addTask()" />
+            <button class="btn-primary shrink-0" onclick="addTask()" aria-label="Add task"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          </div>
+          <ul id="task-list" class="space-y-2 max-h-64 overflow-y-auto"></ul>
+        </div>`;
+      appMount.appendChild(grid);
+
+      const gpa = document.createElement("div");
+      gpa.className = "card p-5";
+      gpa.innerHTML = `
+        <div class="flex items-center justify-between mb-1">
+          <h4 class="font-display font-bold text-slate-900 dark:text-white text-base">GPA calculator</h4>
+          <div class="text-right"><div class="text-[11px] font-bold text-slate-500 dark:text-slate-400">GPA</div><div id="gpa-result" class="font-display font-extrabold text-2xl text-brand-600">0.00</div></div>
+        </div>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">Uses a common 4.0 scale. Check your university's official grading table for exact values.</p>
+        <div id="gpa-rows" class="space-y-2"></div>
+        <button class="btn-ghost mt-3" onclick="addGpaRow()"><i data-lucide="plus" class="w-4 h-4"></i><span>Add course</span></button>`;
+      appMount.appendChild(gpa);
+
+      focusPaint(true); renderTasks(); renderGpa();
+    }
+
+    /* ---- Focus timer ---- */
+    function focusToggle() {
+      if (FOCUS.running) { clearInterval(FOCUS.tick); FOCUS.running = false; }
+      else { FOCUS.endAt = Date.now() + FOCUS.left * 1000; FOCUS.running = true; FOCUS.tick = setInterval(focusTick, 250); }
+      focusPaint(true);
+    }
+    function focusTick() {
+      FOCUS.left = Math.max(0, Math.ceil((FOCUS.endAt - Date.now()) / 1000));
+      if (FOCUS.left === 0) { clearInterval(FOCUS.tick); FOCUS.running = false; focusDone(); focusPaint(true); return; }
+      focusPaint(false);
+    }
+    function focusReset() { clearInterval(FOCUS.tick); FOCUS.running = false; FOCUS.left = FOCUS.modes[FOCUS.mode]; focusPaint(true); }
+    function focusMode(m) { FOCUS.mode = m; focusReset(); }
+    function focusDone() {
+      if (FOCUS.mode === "focus") {
+        const f = lsGet("freshhub_focus", { date: dayKey(), count: 0 });
+        if (f.date !== dayKey()) { f.date = dayKey(); f.count = 0; }
+        f.count++; lsSet("freshhub_focus", f);
+      }
+      beep();
+      toast(FOCUS.mode === "focus" ? "Focus session complete. Take a short break!" : "Break over. Ready for the next focus session?", "success", 6000);
+      FOCUS.left = FOCUS.modes[FOCUS.mode];
+    }
+    function focusPaint(full) {
+      document.title = FOCUS.running ? `${fmtMS(FOCUS.left)} · JU FreshHub` : BASE_TITLE;
+      const ring = document.getElementById("focus-ring");
+      if (!ring) return;
+      ring.style.strokeDashoffset = CIRC * (1 - FOCUS.left / FOCUS.modes[FOCUS.mode]);
+      document.getElementById("focus-time").textContent = fmtMS(FOCUS.left);
+      if (!full) return;
+      document.getElementById("focus-label").textContent = FOCUS_LABEL[FOCUS.mode];
+      document.getElementById("focus-count").textContent = `${focusToday()} focus session${focusToday() === 1 ? "" : "s"} today`;
+      document.querySelectorAll("[data-fm]").forEach(b => b.classList.toggle("on", b.dataset.fm === FOCUS.mode));
+      document.getElementById("focus-toggle").innerHTML = FOCUS.running
+        ? `<i data-lucide="pause" class="w-4 h-4"></i><span>Pause</span>` : `<i data-lucide="play" class="w-4 h-4"></i><span>Start</span>`;
+      lucide.createIcons();
+    }
+    function beep() {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext, ctx = new Ctx();
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "sine"; o.frequency.value = 880;
+        g.gain.setValueAtTime(0.001, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.85);
+      } catch (e) {}
+    }
+
+    /* ---- Study planner ---- */
+    let tasks = lsGet("freshhub_tasks", []);
+    function addTask() {
+      const inp = document.getElementById("task-input");
+      const text = inp.value.trim();
+      if (!text) return;
+      tasks.unshift({ id: "k" + Date.now(), text, done: false });
+      lsSet("freshhub_tasks", tasks); inp.value = ""; renderTasks(); inp.focus();
+    }
+    function toggleTask(id) { const k = tasks.find(x => x.id === id); if (k) k.done = !k.done; lsSet("freshhub_tasks", tasks); renderTasks(); }
+    function deleteTask(id) { tasks = tasks.filter(x => x.id !== id); lsSet("freshhub_tasks", tasks); renderTasks(); }
+    function renderTasks() {
+      const ul = document.getElementById("task-list");
+      if (!ul) return;
+      document.getElementById("task-count").textContent = `${tasks.filter(x => x.done).length}/${tasks.length} done`;
+      ul.innerHTML = tasks.length ? tasks.map(k => `
+        <li class="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+          <button onclick="toggleTask('${k.id}')" class="shrink-0 ${k.done ? "text-emerald-600" : "text-slate-400 hover:text-brand-600"}" aria-label="Toggle done"><i data-lucide="${k.done ? "check-circle-2" : "circle"}" class="w-5 h-5"></i></button>
+          <span class="flex-1 text-sm ${k.done ? "line-through text-slate-400" : "text-slate-700 dark:text-slate-200"}">${escapeHtml(k.text)}</span>
+          <button onclick="deleteTask('${k.id}')" class="text-slate-400 hover:text-rose-600" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        </li>`).join("") : `<li class="text-xs text-slate-400 text-center py-6">Add your first study goal for today.</li>`;
+      lucide.createIcons();
+    }
+
+    /* ---- GPA calculator ---- */
+    const GRADES = [["A+", 4], ["A", 4], ["A-", 3.75], ["B+", 3.5], ["B", 3], ["B-", 2.75], ["C+", 2.5], ["C", 2], ["C-", 1.75], ["D", 1], ["F", 0]];
+    let gpaRows = lsGet("freshhub_gpa", null) || [{ n: "", c: 3, g: "A" }, { n: "", c: 3, g: "B+" }, { n: "", c: 2, g: "A-" }];
+    function renderGpa() {
+      const box = document.getElementById("gpa-rows");
+      if (!box) return;
+      box.innerHTML = gpaRows.map((r, i) => `
+        <div class="grid grid-cols-12 gap-2 items-center">
+          <input class="input col-span-5" placeholder="Course" value="${escapeAttr(r.n)}" oninput="gpaEdit(${i},'n',this.value)" />
+          <input class="input col-span-3" type="number" min="0" max="12" step="0.5" value="${r.c}" oninput="gpaEdit(${i},'c',this.value)" aria-label="Credit hours" />
+          <select class="input col-span-3" onchange="gpaEdit(${i},'g',this.value)" aria-label="Grade">${GRADES.map(([g]) => `<option ${g === r.g ? "selected" : ""}>${g}</option>`).join("")}</select>
+          <button class="col-span-1 text-slate-400 hover:text-rose-600 flex justify-center" onclick="removeGpaRow(${i})" aria-label="Remove"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>`).join("");
+      lucide.createIcons();
+      gpaCalc();
+    }
+    function gpaEdit(i, key, val) { gpaRows[i][key] = key === "c" ? Number(val) || 0 : val; lsSet("freshhub_gpa", gpaRows); gpaCalc(); }
+    function addGpaRow() { gpaRows.push({ n: "", c: 3, g: "A" }); lsSet("freshhub_gpa", gpaRows); renderGpa(); }
+    function removeGpaRow(i) { gpaRows.splice(i, 1); lsSet("freshhub_gpa", gpaRows); renderGpa(); }
+    function gpaCalc() {
+      let pts = 0, cr = 0;
+      gpaRows.forEach(r => { const g = GRADES.find(x => x[0] === r.g); if (g && r.c > 0) { pts += g[1] * r.c; cr += r.c; } });
+      const el = document.getElementById("gpa-result");
+      if (el) el.textContent = cr ? (pts / cr).toFixed(2) : "0.00";
+    }
+
+    /* ================= HELPERS ================= */
     function togglePasswordVisibility() {
       const input = document.getElementById("student-password");
       const show = input.type === "password";
@@ -813,30 +1631,24 @@
       try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
       syncThemeIcon();
     }
-
     function syncThemeIcon() {
       const isDark = document.documentElement.classList.contains("dark");
       const icon = document.getElementById("theme-icon");
-      if (icon) {
-        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
-        lucide.createIcons();
-      }
+      if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); }
     }
 
     function updateClock() {
       const clock = document.getElementById("live-clock");
       if (clock) {
         clock.innerText =
-          new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) +
-          " · " +
+          new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) + " · " +
           new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       }
+      updateWorldClock();
+      document.querySelectorAll("[data-tz-time]").forEach(el => { el.textContent = timeIn(el.dataset.tzTime); });
     }
 
-    function safeSrc(u) {
-      return (u.startsWith("data:") || u.includes("%")) ? u : encodeURI(u);
-    }
-
+    function safeSrc(u) { return (u.startsWith("data:") || u.includes("%")) ? u : encodeURI(u); }
     function getBrand(key) {
       try { return localStorage.getItem("ju_brand_" + key) || JU_BRANDING[key] || ""; }
       catch (e) { return JU_BRANDING[key] || ""; }
@@ -848,19 +1660,13 @@
         const img = box.querySelector(".ju-logo-img");
         const txt = box.querySelector(".ju-logo-text");
         if (logo) {
-          img.onerror = () => {
-            img.classList.add("hidden");
-            txt.classList.remove("hidden");
-            box.style.background = "";
-          };
+          img.onerror = () => { img.classList.add("hidden"); txt.classList.remove("hidden"); box.style.background = ""; };
           img.src = safeSrc(logo);
           img.classList.remove("hidden");
           txt.classList.add("hidden");
           box.style.background = "transparent";
         } else {
-          img.classList.add("hidden");
-          txt.classList.remove("hidden");
-          box.style.background = "";
+          img.classList.add("hidden"); txt.classList.remove("hidden"); box.style.background = "";
         }
       });
 
@@ -875,31 +1681,15 @@
         bg.src = safeSrc(lp);
         hero.classList.remove("hidden");
         bg.classList.remove("hidden");
-      } else {
-        hero.classList.add("hidden");
-        bg.classList.add("hidden");
-      }
-
-      const dp = getBrand("dashPhoto");
-      const dash = document.getElementById("dash-hero");
-      const dashImg = document.getElementById("dash-hero-img");
-      if (dp) {
-        dashImg.onerror = () => dash.classList.add("hidden");
-        dashImg.src = safeSrc(dp);
-        dash.classList.remove("hidden");
-      } else {
-        dash.classList.add("hidden");
-      }
+      } else { hero.classList.add("hidden"); bg.classList.add("hidden"); }
     }
 
     function toast(message, type = "info", duration = 4000) {
       const root = document.getElementById("toast-root");
       if (!root) return;
       const styles = {
-        success: ["bg-emerald-600", "check-circle-2"],
-        error: ["bg-rose-600", "alert-triangle"],
-        warn: ["bg-amber-500", "bell-ring"],
-        info: ["bg-slate-900 dark:bg-slate-700", "info"]
+        success: ["bg-emerald-600", "check-circle-2"], error: ["bg-rose-600", "alert-triangle"],
+        warn: ["bg-amber-500", "bell-ring"], info: ["bg-slate-900 dark:bg-slate-700", "info"]
       };
       const [bg, icon] = styles[type] || styles.info;
       const el = document.createElement("div");
@@ -908,11 +1698,7 @@
       el.querySelector("button").onclick = () => el.remove();
       root.appendChild(el);
       lucide.createIcons();
-      setTimeout(() => {
-        el.style.transition = "opacity 0.3s";
-        el.style.opacity = 0;
-        setTimeout(() => el.remove(), 300);
-      }, duration);
+      setTimeout(() => { el.style.transition = "opacity 0.3s"; el.style.opacity = 0; setTimeout(() => el.remove(), 300); }, duration);
     }
 
     function escapeHtml(text) {
@@ -921,10 +1707,7 @@
       div.innerText = String(text);
       return div.innerHTML;
     }
-
-    function escapeAttr(text) {
-      return escapeHtml(text).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-    }
+    function escapeAttr(text) { return escapeHtml(text).replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
   </script>
 </body>
 </html>
