@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Natural Numbers and Elementary Number Theory — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching index.html -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax for mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="hash" class="w-3.5 h-3.5"></i> Number Systems · Foundational Arithmetic
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">Natural Numbers</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">Counting Sets, Algebraic Axioms, Divisibility, GCF, and LCM</p>
+      </div>
+    </section>
+
+    <!-- 1. What are Natural Numbers? -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">1</span>
+        <span>Foundations of Natural Numbers</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-emerald-800 dark:text-emerald-300">The Counting Analogy:</strong> Imagine counting students walking through the gates of Jimma University. You start with the first student as \(1\), the next as \(2\), followed by \(3\), \(4\), and so on. You never start counting physical objects with negative numbers or fractions. These instinctive counting values form the natural numbers.
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Mathematical Definition:</strong> <strong>Natural numbers</strong> are positive integers used for counting discrete entities and ordering items. They are symbolized by the set \(\mathbb{N}\):
+        $$\mathbb{N} = \{1, 2, 3, 4, 5, 6, \dots\}$$
+      </div>
+
+      <div>
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white mb-2">Core Principles to Memorize:</h3>
+        <ul class="list-disc pl-5 space-y-1.5 text-sm text-slate-700 dark:text-slate-300">
+          <li><strong>Smallest Element:</strong> The smallest natural number is \(1\).</li>
+          <li><strong>Unbounded Set:</strong> There is no largest natural number; the set \(\mathbb{N}\) is infinitely ascending.</li>
+          <li><strong>Zero Exclusion:</strong> Under this university standard, \(0\) is strictly <strong>not</strong> a natural number (\(0 \notin \mathbb{N}\)). Zero belongs to the set of whole numbers \(\mathbb{W} = \{0, 1, 2, \dots\}\).</li>
+        </ul>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm text-amber-900 dark:text-amber-200">
+        <strong>Examination Warning:</strong> If an assessment asks <em>"Which of the following is NOT a natural number?"</em> with options containing positive integers and \(0\), the correct answer is always <strong>\(0\)</strong>.
+      </div>
+    </section>
+
+    <!-- 2. Operations on Natural Numbers -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">2</span>
+        <span>Binary Operations: Addition &amp; Multiplication</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">Two fundamental binary operations are intrinsically defined over the set of natural numbers:</p>
+
+      <!-- A. Addition -->
+      <div class="space-y-3 pt-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span> A. Addition \((+)\)
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300">Addition signifies the aggregation or combination of separate quantities into a single collection.</p>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+          $$a + b = c$$
+          <p class="text-xs text-slate-500 dark:text-slate-400 text-center mt-1">Where \(a\) and \(b\) are the <strong>terms</strong> (addends), and \(c\) is their <strong>sum</strong>.</p>
+        </div>
+
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700" onclick="openLightbox('https://images.openai.com/static-rsc-4/F7ajmRkjBY1ff8En0xOf-VoVm2P87b3bUK1-n_HDP1RciIDBKa16GaDUihuTBQuyfESIfBu8SlRErceBNj2yOfbAXkE1Uaz_WoITxB-_5qTLgTDILE9jJQoXy4oEejTAkFMk1aEMfy2Mhq49VBquMUNB-oqt7WqvIrEM9PO7NFpI7FmcOieQ7UeCbZnRDqcM?purpose=fullsize', 'Visualizing Addition - Aggregating Discrete Sets')">
+          <img src="https://images.openai.com/static-rsc-4/F7ajmRkjBY1ff8En0xOf-VoVm2P87b3bUK1-n_HDP1RciIDBKa16GaDUihuTBQuyfESIfBu8SlRErceBNj2yOfbAXkE1Uaz_WoITxB-_5qTLgTDILE9jJQoXy4oEejTAkFMk1aEMfy2Mhq49VBquMUNB-oqt7WqvIrEM9PO7NFpI7FmcOieQ7UeCbZnRDqcM?purpose=fullsize" alt="Visualizing Addition - Aggregating Discrete Sets" class="w-full max-h-64 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Click to enlarge diagram
+          </div>
+        </figure>
+      </div>
+
+      <!-- B. Multiplication -->
+      <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span> B. Multiplication \((\times)\)
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300">Multiplication represents repeated addition of uniform groups. For example, \(3\) bags of \(4\) books gives \(4 + 4 + 4 = 3 \times 4 = 12\).</p>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+          $$a \times b = c$$
+          <p class="text-xs text-slate-500 dark:text-slate-400 text-center mt-1">Where \(a\) and \(b\) are the <strong>factors</strong>, and \(c\) is the <strong>product</strong>.</p>
+        </div>
+
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700" onclick="openLightbox('https://images.openai.com/static-rsc-4/lvqtOFgkI_dF2ye9scJfu9AnK-qprQoQTA17Oe9tmmwMLbjvZ1O65yg_Hv-wMmUIheCvnA7Nf7mi5sfpAnE4u2c7Exm0UYqP4cVuLE6M2cJkr8DlZKEZLdDsYpT6hdKwcxI5794acfYiMCj-AnczS6cn99vGmUKNTB82dqDTFqLD-Lq_GTfFwh8ATDUklOJm?purpose=fullsize', 'Visualizing Multiplication - Arrays and Equal Groups')">
+          <img src="https://images.openai.com/static-rsc-4/lvqtOFgkI_dF2ye9scJfu9AnK-qprQoQTA17Oe9tmmwMLbjvZ1O65yg_Hv-wMmUIheCvnA7Nf7mi5sfpAnE4u2c7Exm0UYqP4cVuLE6M2cJkr8DlZKEZLdDsYpT6hdKwcxI5794acfYiMCj-AnczS6cn99vGmUKNTB82dqDTFqLD-Lq_GTfFwh8ATDUklOJm?purpose=fullsize" alt="Visualizing Multiplication - Arrays and Equal Groups" class="w-full max-h-64 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Click to enlarge diagram
+          </div>
+        </figure>
+      </div>
+
+      <!-- Terminology Matrix -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4">Operation</th>
+              <th class="py-2.5 px-4">Input Elements</th>
+              <th class="py-2.5 px-4">Result Name</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs sm:text-sm">
+            <tr>
+              <td class="py-2.5 px-4 font-semibold text-brand-700 dark:text-brand-400">Addition \((+)\)</td>
+              <td class="py-2.5 px-4">Terms (or Addends)</td>
+              <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">Sum</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-4 font-semibold text-brand-700 dark:text-brand-400">Multiplication \((\times)\)</td>
+              <td class="py-2.5 px-4">Factors (or Multiplicands)</td>
+              <td class="py-2.5 px-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">Product</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. Algebraic Properties -->
+    <section class="card p-5 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">3</span>
+        <span>Fundamental Algebraic Properties</span>
+      </h2>
+
+      <!-- Property 1 -->
+      <div class="space-y-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+          <span>1. Closure Property</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Stay in the set</span>
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          A set is <strong>closed</strong> under an operation if applying the operation to any two elements always produces an element inside the exact same set.
+        </p>
+        <ul class="list-disc pl-5 text-sm space-y-1 text-slate-700 dark:text-slate-300">
+          <li><strong>Addition:</strong> \(\forall a, b \in \mathbb{N} \implies a + b \in \mathbb{N}\). (e.g., \(4 + 5 = 9 \in \mathbb{N}\)).</li>
+          <li><strong>Multiplication:</strong> \(\forall a, b \in \mathbb{N} \implies a \times b \in \mathbb{N}\). (e.g., \(4 \times 5 = 20 \in \mathbb{N}\)).</li>
+        </ul>
+        <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs sm:text-sm text-rose-900 dark:text-rose-200">
+          <strong>Counterexamples for Subtraction &amp; Division:</strong>
+          <ul class="list-disc pl-4 mt-1 space-y-1">
+            <li>\(3 - 7 = -4 \notin \mathbb{N}\) (Not closed under subtraction).</li>
+            <li>\(3 \div 2 = 1.5 \notin \mathbb{N}\) (Not closed under division).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Property 2 -->
+      <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+          <span>2. Commutative Property</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Change order</span>
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          Permuting (switching) the order of operands does not alter the resulting value:
+        </p>
+        <div class="grid sm:grid-cols-2 gap-2 text-center font-mono text-sm">
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            \(a + b = b + a\) <br><span class="text-xs text-slate-500">\(3 + 5 = 5 + 3 = 8\)</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            \(a \times b = b \times a\) <br><span class="text-xs text-slate-500">\(3 \times 5 = 5 \times 3 = 15\)</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Note: Subtraction is not commutative because \(8 - 3 \neq 3 - 8\).</p>
+      </div>
+
+      <!-- Property 3 -->
+      <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+          <span>3. Associative Property</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Change grouping</span>
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          Regrouping terms or factors using parentheses does not affect the ultimate computation:
+        </p>
+        <div class="space-y-2 font-mono text-xs sm:text-sm">
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            $$(a + b) + c = a + (b + c)$$
+            <p class="text-xs text-center text-slate-500 mt-1">\((3 + 4) + 5 = 7 + 5 = 12 \quad \Longleftrightarrow \quad 3 + (4 + 5) = 3 + 9 = 12\)</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            $$(a \times b) \times c = a \times (b \times c)$$
+            <p class="text-xs text-center text-slate-500 mt-1">\((2 \times 4) \times 5 = 8 \times 5 = 40 \quad \Longleftrightarrow \quad 2 \times (4 \times 5) = 2 \times 20 = 40\)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property 4 -->
+      <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+          <span>4. Identity Element</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Leave unchanged</span>
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          An identity element operates on any number \(a\) without modifying its identity:
+        </p>
+        <div class="p-3 bg-brand-50/80 dark:bg-brand-500/10 rounded-xl border border-brand-200 dark:border-brand-500/30 text-sm">
+          $$a \times 1 = 1 \times a = a$$
+          <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Thus, the number <strong>\(1\)</strong> is the <strong>multiplicative identity</strong> in \(\mathbb{N}\).</p>
+        </div>
+        <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-900 dark:text-amber-200">
+          <strong>Crucial Identity Distinction:</strong> The additive identity is \(0\) (since \(a + 0 = a\)). However, because \(0 \notin \mathbb{N}\), the set of natural numbers possesses <strong>no additive identity</strong>. It only possesses a multiplicative identity (\(1\)).
+        </div>
+      </div>
+
+      <!-- Property 5 -->
+      <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+          <span>5. Distributive Property</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Multiply through brackets</span>
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          Multiplication distributes linearly across terms enclosed within an addition bracket:
+        </p>
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-center text-sm font-mono font-bold text-brand-700 dark:text-brand-300">
+          $$a(b + c) = ab + ac$$
+        </div>
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+          <strong>Example:</strong> \(3 \times (5 + 7) = 3 \times 12 = 36\). Expanding directly: \((3 \times 5) + (3 \times 7) = 15 + 21 = 36\). Both evaluations yield identical results.
+        </p>
+      </div>
+
+      <!-- Summary Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 mt-4">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4">Property</th>
+              <th class="py-2.5 px-4">Formal Statement</th>
+              <th class="py-2.5 px-4">Diagnostic Memory Trick</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-2 px-4 font-bold">Closure</td>
+              <td class="py-2 px-4 font-mono">\(a+b \in \mathbb{N},\; ab \in \mathbb{N}\)</td>
+              <td class="py-2 px-4 text-emerald-600 dark:text-emerald-400 font-medium">Result stays in the set</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Commutative</td>
+              <td class="py-2 px-4 font-mono">\(a+b = b+a,\; ab = ba\)</td>
+              <td class="py-2 px-4 text-brand-600 dark:text-brand-400 font-medium">Change operand order</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Associative</td>
+              <td class="py-2 px-4 font-mono">\((a+b)+c = a+(b+c)\)</td>
+              <td class="py-2 px-4 text-indigo-600 dark:text-indigo-400 font-medium">Change grouping parentheses</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Identity</td>
+              <td class="py-2 px-4 font-mono">\(a \times 1 = a\)</td>
+              <td class="py-2 px-4 text-amber-600 dark:text-amber-400 font-medium">Element left completely unchanged</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Distributive</td>
+              <td class="py-2 px-4 font-mono">\(a(b+c) = ab + ac\)</td>
+              <td class="py-2 px-4 text-purple-600 dark:text-purple-400 font-medium">Distribute through brackets</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. Factors and Divisibility -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">4</span>
+        <span>Factors and Divisibility</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        Suppose you wish to partition \(12\) students into identical, equal-sized study groups without leaving anyone unassigned. The permissible group sizes correspond precisely to the factors of \(12\).
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> If \(a, b, c \in \mathbb{N}\) such that \(a \times b = c\), then \(a\) and \(b\) are called <strong>factors</strong> (or exact divisors) of \(c\). A factor divides the target number leaving <strong>zero remainder</strong>.
+      </div>
+
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5 text-sm">
+        <h3 class="font-display font-bold text-slate-900 dark:text-white">Example: Factor Set of 15</h3>
+        <p class="font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-300">\(1 \times 15 = 15\) &nbsp;|&nbsp; \(3 \times 5 = 15\)</p>
+        <p class="text-xs sm:text-sm">The complete factor set is: <strong class="font-mono text-brand-600 dark:text-brand-400">\(F_{15} = \{1, 3, 5, 15\}\)</strong>.</p>
+      </div>
+    </section>
+
+    <!-- 5. Classification of Natural Numbers -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">5</span>
+        <span>Classification of Natural Numbers</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">Natural numbers are categorized systematically based on parity and divisor counts:</p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-sm">
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display">Even Numbers</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Natural numbers divisible by \(2\) with remainder \(0\).</p>
+          <p class="font-mono text-xs text-brand-600 dark:text-brand-400 font-bold">\(\{2, 4, 6, 8, 10, 12, \dots\}\)</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display">Odd Numbers</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Natural numbers not divisible by \(2\) (remainder \(1\)).</p>
+          <p class="font-mono text-xs text-brand-600 dark:text-brand-400 font-bold">\(\{1, 3, 5, 7, 9, 11, \dots\}\)</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display">Prime Numbers</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Numbers possessing <strong>exactly two distinct factors</strong>: \(1\) and itself.</p>
+          <p class="font-mono text-xs text-brand-600 dark:text-brand-400 font-bold">\(\{2, 3, 5, 7, 11, 13, \dots\}\)</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display">Composite Numbers</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Numbers possessing <strong>three or more distinct factors</strong>.</p>
+          <p class="font-mono text-xs text-brand-600 dark:text-brand-400 font-bold">\(\{4, 6, 8, 9, 10, 12, \dots\}\)</p>
+        </div>
+      </div>
+
+      <!-- The Case of 1 and Even Prime 2 -->
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-sm space-y-2 text-amber-950 dark:text-amber-200">
+        <strong class="block font-bold">Vital Examination Truths:</strong>
+        <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm">
+          <li><strong>The Number \(1\) is Neither Prime nor Composite:</strong> A prime number requires exactly two distinct factors; a composite requires three or more. The number \(1\) has only one factor (\(1\)); thus it qualifies as neither.</li>
+          <li><strong>The Number \(2\) is the Only Even Prime:</strong> Every other even number is divisible by \(2\) in addition to \(1\) and itself, rendering all higher even numbers composite.</li>
+        </ul>
+      </div>
+
+      <!-- Quick Comparison Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4">Number</th>
+              <th class="py-2.5 px-4">Factor Set</th>
+              <th class="py-2.5 px-4">Parity</th>
+              <th class="py-2.5 px-4">Primality Classification</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-2 px-4 font-mono font-bold">1</td>
+              <td class="py-2 px-4 font-mono">\(\{1\}\)</td>
+              <td class="py-2 px-4">Odd</td>
+              <td class="py-2 px-4 font-bold text-slate-500">Neither Prime nor Composite</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-mono font-bold">2</td>
+              <td class="py-2 px-4 font-mono">\(\{1, 2\}\)</td>
+              <td class="py-2 px-4">Even</td>
+              <td class="py-2 px-4 font-bold text-emerald-600 dark:text-emerald-400">Even Prime (Unique)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-mono font-bold">3</td>
+              <td class="py-2 px-4 font-mono">\(\{1, 3\}\)</td>
+              <td class="py-2 px-4">Odd</td>
+              <td class="py-2 px-4 font-bold text-emerald-600 dark:text-emerald-400">Odd Prime</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-mono font-bold">4</td>
+              <td class="py-2 px-4 font-mono">\(\{1, 2, 4\}\)</td>
+              <td class="py-2 px-4">Even</td>
+              <td class="py-2 px-4 font-bold text-indigo-600 dark:text-indigo-400">Even Composite</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-mono font-bold">9</td>
+              <td class="py-2 px-4 font-mono">\(\{1, 3, 9\}\)</td>
+              <td class="py-2 px-4">Odd</td>
+              <td class="py-2 px-4 font-bold text-indigo-600 dark:text-indigo-400">Odd Composite</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. Prime Factorization -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">6</span>
+        <span>Prime Factorization</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        <strong>Prime factorization</strong> is the analytical procedure of decomposing a composite integer entirely into a product of its constituent prime factors.
+      </p>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-emerald-800 dark:text-emerald-300">The Fundamental Theorem of Arithmetic (Unique Factorization Theorem):</strong> Every composite integer greater than \(1\) can be represented uniquely as a product of prime numbers, up to the rearrangement of the factors.
+      </div>
+
+      <div class="space-y-3 pt-2 text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-slate-900 dark:text-white">Factorization of 12:</strong>
+          <p class="font-mono text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">\(12 = 2 \times 6 = 2 \times (2 \times 3) = 2^2 \times 3\)</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-slate-900 dark:text-white">Factorization of 30:</strong>
+          <p class="font-mono text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">\(30 = 2 \times 3 \times 5\)</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-slate-900 dark:text-white">Factorization of 180:</strong>
+          <p class="font-mono text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">\(180 = 18 \times 10 = (2 \times 3^2) \times (2 \times 5) = 2^2 \times 3^2 \times 5\)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Greatest Common Factor (GCF) -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">7</span>
+        <span>Greatest Common Factor (GCF / GCD)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The <strong>Greatest Common Factor</strong> (or Greatest Common Divisor, \(\gcd\)) of two or more natural numbers is the largest natural number that divides each of them without remainder.
+      </p>
+
+      <div class="space-y-3">
+        <!-- Method 1 -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm space-y-1">
+          <strong class="text-slate-900 dark:text-white">Method 1: Factor Set Intersection for \(\text{GCF}(24, 60)\)</strong>
+          <p class="font-mono text-xs text-slate-600 dark:text-slate-400">\(F_{24} = \{1, 2, 3, 4, 6, 8, \mathbf{12}, 24\}\)</p>
+          <p class="font-mono text-xs text-slate-600 dark:text-slate-400">\(F_{60} = \{1, 2, 3, 4, 5, 6, 10, \mathbf{12}, 15, 20, 30, 60\}\)</p>
+          <p class="text-xs pt-1 font-semibold text-emerald-600 dark:text-emerald-400">Intersection: \(\{1, 2, 3, 4, 6, \mathbf{12}\} \implies \text{GCF}(24, 60) = 12\).</p>
+        </div>
+
+        <!-- Method 2 -->
+        <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-sm space-y-1.5">
+          <strong class="text-brand-900 dark:text-brand-300">Method 2: Prime Factorization (Standard Exam Algorithm)</strong>
+          <p class="font-mono text-xs text-slate-700 dark:text-slate-300">\(24 = 2^3 \times 3^1\)</p>
+          <p class="font-mono text-xs text-slate-700 dark:text-slate-300">\(60 = 2^2 \times 3^1 \times 5^1\)</p>
+          <div class="p-2.5 rounded-lg bg-white/80 dark:bg-slate-900/80 text-xs leading-relaxed">
+            <strong>Rule:</strong> Take only <strong>common prime factors</strong> raised to their <strong>lowest powers</strong>:<br>
+            $$\text{GCF}(24, 60) = 2^{\min(3, 2)} \times 3^{\min(1, 1)} = 2^2 \times 3^1 = 12$$
+          </div>
+        </div>
+      </div>
+
+      <!-- Relatively Prime -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-sm space-y-1">
+        <strong class="text-slate-900 dark:text-white">Relatively Prime (Coprime) Numbers:</strong>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          Two numbers \(a\) and \(b\) are defined as <strong>relatively prime</strong> if their greatest common factor is strictly \(1\):
+          $$\text{GCF}(a, b) = 1$$
+          <em>Example:</em> \(8\) and \(15\) share no common factors other than \(1\) (\(8 = 2^3\), \(15 = 3 \times 5\)), so \(\text{GCF}(8, 15) = 1\).
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. Least Common Multiple (LCM) -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">8</span>
+        <span>Least Common Multiple (LCM)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The <strong>Least Common Multiple</strong> of two natural numbers is the smallest natural number divisible by both.
+      </p>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-emerald-800 dark:text-emerald-300">The Runner Analogy:</strong> Two students run on an athletic track. Student A completes a lap every \(6\) minutes; Student B completes a lap every \(8\) minutes. They will cross the start line simultaneously at the smallest shared multiple:
+        $$\text{Multiples of } 6: \{6, 12, 18, \mathbf{24}, 30, \dots\}$$
+        $$\text{Multiples of } 8: \{8, 16, \mathbf{24}, 32, \dots\} \implies \text{LCM}(6, 8) = 24$$
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-sm space-y-1.5">
+        <strong class="text-brand-900 dark:text-brand-300">Prime Factorization Algorithm for LCM:</strong>
+        <p class="font-mono text-xs text-slate-700 dark:text-slate-300">\(6 = 2^1 \times 3^1\)</p>
+        <p class="font-mono text-xs text-slate-700 dark:text-slate-300">\(8 = 2^3\)</p>
+        <div class="p-2.5 rounded-lg bg-white/80 dark:bg-slate-900/80 text-xs leading-relaxed">
+          <strong>Rule:</strong> Take <strong>every prime factor present</strong> raised to its <strong>highest power</strong>:<br>
+          $$\text{LCM}(6, 8) = 2^{\max(1, 3)} \times 3^1 = 2^3 \times 3 = 8 \times 3 = 24$$
+        </div>
+      </div>
+
+      <!-- Comparative Diagnostic Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4">Feature</th>
+              <th class="py-2.5 px-4">Greatest Common Factor (GCF)</th>
+              <th class="py-2.5 px-4">Least Common Multiple (LCM)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-2 px-4 font-bold">Meaning</td>
+              <td class="py-2 px-4">Largest shared integer divisor</td>
+              <td class="py-2 px-4">Smallest shared positive multiple</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Prime Selection</td>
+              <td class="py-2 px-4 font-semibold text-emerald-600 dark:text-emerald-400">Common primes only</td>
+              <td class="py-2 px-4 font-semibold text-indigo-600 dark:text-indigo-400">All occurring primes</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Power Criterion</td>
+              <td class="py-2 px-4 font-mono">Lowest exponents</td>
+              <td class="py-2 px-4 font-mono">Highest exponents</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">For \((24, 60)\)</td>
+              <td class="py-2 px-4 font-mono font-bold text-brand-600">\(12\)</td>
+              <td class="py-2 px-4 font-mono font-bold text-brand-600">\(120\)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 9. Interactive Self-Assessment Quiz -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an option to test your understanding instantly</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 5</span>
+      </div>
+
+      <!-- Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="max-w-4xl max-h-[85vh] w-full flex flex-col items-center">
+      <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-4"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Natural Numbers and Elementary Number Theory
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. Which of the following numbers does NOT belong to the set of natural numbers (ℕ)?",
+        options: [
+          "A. 1",
+          "B. 0",
+          "C. 7",
+          "D. 25"
+        ],
+        correct: 1,
+        exp: "In this university curriculum, the natural numbers are defined strictly as counting numbers ℕ = {1, 2, 3, ...}. Zero (0) is a whole number and an integer, but not a natural number."
+      },
+      {
+        q: "Question 2. Which algebraic property is represented by the identity 8 + 5 = 5 + 8?",
+        options: [
+          "A. Associative property",
+          "B. Closure property",
+          "C. Commutative property",
+          "D. Distributive property"
+        ],
+        correct: 2,
+        exp: "The Commutative Property states that changing the order of the operands does not change the resulting sum (a + b = b + a)."
+      },
+      {
+        q: "Question 3. Which of the following statements concerning the number 1 is mathematically correct?",
+        options: [
+          "A. It is a prime number",
+          "B. It is a composite number",
+          "C. It is neither prime nor composite",
+          "D. It is an even prime number"
+        ],
+        correct: 2,
+        exp: "Prime numbers require exactly two distinct factors (1 and the number itself). Composite numbers require three or more. The number 1 has only one factor (itself), making it neither prime nor composite."
+      },
+      {
+        q: "Question 4. What is the correct canonical prime factorization of 72?",
+        options: [
+          "A. 2² × 3²",
+          "B. 2³ × 3²",
+          "C. 2³ × 3",
+          "D. 2 × 3³"
+        ],
+        correct: 1,
+        exp: "72 = 8 × 9 = 2³ × 3². Calculating: 2³ = 8, 3² = 9, and 8 × 9 = 72."
+      },
+      {
+        q: "Question 5. Determine the Greatest Common Factor (GCF) and Least Common Multiple (LCM) of 18 and 30.",
+        options: [
+          "A. GCF = 3, LCM = 180",
+          "B. GCF = 6, LCM = 90",
+          "C. GCF = 6, LCM = 60",
+          "D. GCF = 3, LCM = 90"
+        ],
+        correct: 1,
+        exp: "Prime factorizations: 18 = 2 × 3² and 30 = 2 × 3 × 5. GCF takes common primes with lowest powers: 2¹ × 3¹ = 6. LCM takes all primes with highest powers: 2¹ × 3² × 5¹ = 2 × 9 × 5 = 90."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Exceptional! You answered 100% correctly and completely mastered Natural Numbers."
+          : "Great achievement! You have a solid command of natural numbers, prime factors, GCF, and LCM.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good performance! Review the prime factorization steps and properties above to aim for a perfect score.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Review the core differences between GCF and LCM as well as the 5 properties, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+
+      img.src = src;
+      img.alt = alt;
+      caption.innerText = alt;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox-modal') closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

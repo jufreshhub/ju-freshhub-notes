@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Mathematical Induction & Well-Ordering Principle — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Proof Techniques · Number Theory
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">Mathematical Induction &amp; Well-Ordering</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">Universal Deductive Proofs on Natural Numbers and the Least Element Principle</p>
+      </div>
+    </section>
+
+    <!-- 1. The Core Concept and Domino Analogy -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">1</span>
+        <span>The Foundation of Mathematical Induction</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        <strong>Mathematical induction</strong> is a formal method of mathematical proof used to establish that a given proposition or formula \(P(n)\) holds true for <em>every</em> natural number \(n \in \mathbb{N}\).
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Why Not Test Individually?</strong> Suppose we propose that \(1 + 2 + \dots + n = \frac{n(n+1)}{2}\). Testing cases such as \(n=1\), \(n=2\), or \(n=100\) provides empirical evidence, but natural numbers are infinite. An infinite sequence of numbers can never be verified one by one. Induction bridges this gap by proving truth universally through logical causality.
+      </div>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-sm space-y-2 text-emerald-950 dark:text-emerald-200">
+        <strong class="text-emerald-800 dark:text-emerald-300 block">The Classic Domino Analogy:</strong>
+        <p class="text-xs sm:text-sm">Imagine an endless line of dominoes standing in order. To knock every domino down, two conditions must be met:</p>
+        <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm">
+          <li><strong>Initial Action:</strong> The first domino must be knocked over (Base Step).</li>
+          <li><strong>Chain Reaction:</strong> The spacing must guarantee that whenever the \(k\)-th domino falls, it inevitably knocks down the \((k+1)\)-th domino (Inductive Step).</li>
+        </ul>
+        <p class="text-xs font-semibold pt-1 text-emerald-700 dark:text-emerald-300">Result: By deductive progression, every single domino in the infinite chain falls down.</p>
+      </div>
+    </section>
+
+    <!-- 2. The Three Steps of Induction -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">2</span>
+        <span>The Three Formal Steps of Induction</span>
+      </h2>
+
+      <div class="space-y-3">
+        <!-- Step 1 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div class="flex items-center justify-between">
+            <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-brand-500"></span> Step 1: Base Case (Anchor Step)
+            </h3>
+            <span class="text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400">Verify \(n = 1\)</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Verify directly that the proposition \(P(n)\) is true for the first natural number, typically \(n = 1\). This establishes that the initial domino falls.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div class="flex items-center justify-between">
+            <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-brand-500"></span> Step 2: Induction Hypothesis
+            </h3>
+            <span class="text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400">Assume for \(n = k\)</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Assume that the proposition holds true for an arbitrary natural number \(k \ge 1\). We write out the statement \(P(k)\) and treat it as a trusted algebraic tool for the next step.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div class="flex items-center justify-between">
+            <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-brand-500"></span> Step 3: Induction Step (Deductive Leap)
+            </h3>
+            <span class="text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400">Prove for \(n = k + 1\)</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Using the hypothesis \(P(k)\), prove rigorously that \(P(k+1)\) is true. This demonstrates that if the \(k\)-th domino falls, it must knock down the \((k+1)\)-th domino.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs sm:text-sm text-amber-950 dark:text-amber-200">
+        <strong>Vital Examination Logic:</strong> We never assume that the theorem is true for all numbers in advance. We assume truth <em>only for a specific intermediate value \(k\)</em>, and leverage that single assumption to deduce truth for the consecutive successor \(k+1\).
+      </div>
+    </section>
+
+    <!-- 3. Worked Example 1: Sum of First n Natural Numbers -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">3</span>
+        <span>Worked Proof: Sum of the First \(n\) Natural Numbers</span>
+      </h2>
+
+      <div class="p-3 bg-brand-50/70 dark:bg-brand-500/10 rounded-xl border border-brand-200 dark:border-brand-500/30 text-sm font-semibold text-slate-800 dark:text-slate-200">
+        <strong>Proposition:</strong> Prove that for every natural number \(n \in \mathbb{N}\):
+        $$1 + 2 + 3 + \dots + n = \frac{n(n + 1)}{2}$$
+      </div>
+
+      <!-- Step-by-step -->
+      <div class="space-y-3 text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white">Step 1: Base Case (\(n = 1\))</strong>
+          <ul class="list-disc pl-5 text-xs sm:text-sm space-y-1 text-slate-600 dark:text-slate-300 font-mono">
+            <li>\(\text{LHS} = 1\)</li>
+            <li>\(\text{RHS} = \frac{1(1 + 1)}{2} = \frac{2}{2} = 1\)</li>
+          </ul>
+          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">Since \(\text{LHS} = \text{RHS} = 1\), the base case holds true.</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white">Step 2: Induction Hypothesis</strong>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+            Assume the identity holds for \(n = k\):
+          </p>
+          <div class="font-mono text-center text-xs sm:text-sm py-1 font-bold text-brand-700 dark:text-brand-400">
+            $$1 + 2 + 3 + \dots + k = \frac{k(k + 1)}{2}$$
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="text-slate-900 dark:text-white">Step 3: Induction Step (\(n = k + 1\))</strong>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+            We must show that substituting \(n = k + 1\) yields the target expression:
+          </p>
+          <div class="text-center font-mono text-xs sm:text-sm py-1 text-slate-700 dark:text-slate-300 font-bold">
+            $$\text{Target: } 1 + 2 + \dots + k + (k + 1) = \frac{(k + 1)((k + 1) + 1)}{2} = \frac{(k + 1)(k + 2)}{2}$$
+          </div>
+
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Evaluate the left-hand side and apply the induction hypothesis:</p>
+          <div class="p-3 bg-white dark:bg-slate-900 rounded-lg text-xs sm:text-sm font-mono overflow-x-auto space-y-2 border border-slate-200 dark:border-slate-800">
+            <div>\(\underbrace{1 + 2 + \dots + k}_{\text{Replace by Hypothesis}} + (k + 1) = \frac{k(k + 1)}{2} + (k + 1)\)</div>
+            <div>Find common denominator: \(= \frac{k(k + 1) + 2(k + 1)}{2}\)</div>
+            <div>Factor out \((k + 1)\): \(= \frac{(k + 1)(k + 2)}{2}\)</div>
+          </div>
+          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">The left side reduces exactly to the target. Thus, \(P(k+1)\) is true whenever \(P(k)\) is true.</p>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/30 text-xs sm:text-sm text-center font-bold text-emerald-900 dark:text-emerald-200">
+        By the Principle of Mathematical Induction, the formula is universally valid for all \(n \in \mathbb{N}\).
+      </div>
+    </section>
+
+    <!-- 4. Worked Example 2: Sum of First n Odd Numbers -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">4</span>
+        <span>Worked Proof: Sum of the First \(n\) Odd Numbers</span>
+      </h2>
+
+      <div class="p-3 bg-brand-50/70 dark:bg-brand-500/10 rounded-xl border border-brand-200 dark:border-brand-500/30 text-sm font-semibold text-slate-800 dark:text-slate-200">
+        <strong>Proposition:</strong> Prove that for every natural number \(n \in \mathbb{N}\):
+        $$1 + 3 + 5 + \dots + (2n - 1) = n^2$$
+      </div>
+
+      <!-- Pattern Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4 font-mono">\(n\)</th>
+              <th class="py-2.5 px-4">Sum of Odd Numbers</th>
+              <th class="py-2.5 px-4 font-mono">Value</th>
+              <th class="py-2.5 px-4 font-mono">Perfect Square (\(n^2\))</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+            <tr>
+              <td class="py-2 px-4 font-bold">1</td>
+              <td class="py-2 px-4 font-sans">\(1\)</td>
+              <td class="py-2 px-4 font-bold text-brand-600">1</td>
+              <td class="py-2 px-4 text-emerald-600 dark:text-emerald-400">\(1^2 = 1\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">2</td>
+              <td class="py-2 px-4 font-sans">\(1 + 3\)</td>
+              <td class="py-2 px-4 font-bold text-brand-600">4</td>
+              <td class="py-2 px-4 text-emerald-600 dark:text-emerald-400">\(2^2 = 4\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">3</td>
+              <td class="py-2 px-4 font-sans">\(1 + 3 + 5\)</td>
+              <td class="py-2 px-4 font-bold text-brand-600">9</td>
+              <td class="py-2 px-4 text-emerald-600 dark:text-emerald-400">\(3^2 = 9\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">4</td>
+              <td class="py-2 px-4 font-sans">\(1 + 3 + 5 + 7\)</td>
+              <td class="py-2 px-4 font-bold text-brand-600">16</td>
+              <td class="py-2 px-4 text-emerald-600 dark:text-emerald-400">\(4^2 = 16\)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Formal Deduction -->
+      <div class="space-y-3 pt-2 text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white">Induction Hypothesis:</strong>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Assume truth for \(n = k\):</p>
+          <div class="text-center font-mono text-xs sm:text-sm font-bold text-brand-700 dark:text-brand-400">
+            $$1 + 3 + 5 + \dots + (2k - 1) = k^2$$
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white">Inductive Step for \(n = k + 1\):</strong>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+            The \((k+1)\)-th odd integer is \(2(k + 1) - 1 = 2k + 1\). Adding it to the left side:
+          </p>
+          <div class="p-3 bg-white dark:bg-slate-900 rounded-lg text-xs sm:text-sm font-mono overflow-x-auto space-y-1.5 border border-slate-200 dark:border-slate-800">
+            <div>\(\underbrace{1 + 3 + \dots + (2k - 1)}_{\text{Hypothesis } = k^2} + (2k + 1) = k^2 + (2k + 1)\)</div>
+            <div>Recognize the binomial expansion: \(= k^2 + 2k + 1 = (k + 1)^2\)</div>
+          </div>
+          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-1">This matches the required form \((k+1)^2\). The theorem is established for all \(n \in \mathbb{N}\).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. The Well-Ordering Principle -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">5</span>
+        <span>The Well-Ordering Principle (WOP)</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Axiom Statement:</strong>
+        <p class="mt-1">
+          Every non-empty subset of the set of natural numbers \(\mathbb{N}\) contains a <strong>smallest (least) element</strong>.
+        </p>
+        <div class="pt-2 font-mono text-xs sm:text-sm text-brand-800 dark:text-brand-300">
+          $$\forall S \subseteq \mathbb{N},\; (S \neq \emptyset \implies \exists m \in S \text{ such that } \forall x \in S,\, m \le x)$$
+        </div>
+      </div>
+
+      <!-- Concrete Subsets -->
+      <div class="grid sm:grid-cols-2 gap-3 text-sm">
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display">Example A: Finite Subset</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300 font-mono">\(A = \{18, 21, 19, 25, 23\}\)</p>
+          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Smallest element: \(\min(A) = 18 \in A\).</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display">Example B: Infinite Subset</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300 font-mono">\(B = \{5, 8, 12, 20, \dots\}\)</p>
+          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Smallest element: \(\min(B) = 5 \in B\).</p>
+        </div>
+      </div>
+
+      <!-- Critical Distinction with Real Numbers -->
+      <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs sm:text-sm text-rose-950 dark:text-rose-200 space-y-1.5">
+        <strong class="block font-bold">Crucial Counterexample (Real Numbers):</strong>
+        <p class="leading-relaxed">
+          The Well-Ordering Principle is a foundational property of <strong>discrete sets like \(\mathbb{N}\)</strong>, and does <strong>not</strong> apply generally to real numbers (\(\mathbb{R}\)).
+        </p>
+        <p class="leading-relaxed font-mono">
+          Consider the open set of positive real numbers: \(S = \{x \in \mathbb{R} \mid x > 0\} = (0, \infty)\).
+        </p>
+        <p class="leading-relaxed">
+          There is no smallest number in \(S\). If one proposes \(\epsilon > 0\), the smaller value \(\frac{\epsilon}{2} \in S\) immediately contradicts it. Hence, the Well-Ordering Principle strictly requires the domain of natural numbers.
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. Comparative Synthesis -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">6</span>
+        <span>Comparison: Mathematical Induction vs. Well-Ordering</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4">Feature</th>
+              <th class="py-2.5 px-4">Mathematical Induction</th>
+              <th class="py-2.5 px-4">Well-Ordering Principle</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-2.5 px-4 font-bold">Primary Purpose</td>
+              <td class="py-2.5 px-4">Deductive method to prove theorems for all \(n \in \mathbb{N}\)</td>
+              <td class="py-2.5 px-4">Structural axiom characterizing the set \(\mathbb{N}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-4 font-bold">Mechanism</td>
+              <td class="py-2.5 px-4">Base case \(P(1)\) and recursive bridge \(P(k) \implies P(k+1)\)</td>
+              <td class="py-2.5 px-4">Guarantees existence of a minimum element in any \(\emptyset \neq S \subseteq \mathbb{N}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-4 font-bold">Mental Model</td>
+              <td class="py-2.5 px-4 text-brand-600 dark:text-brand-400 font-semibold">Falling dominoes chain</td>
+              <td class="py-2.5 px-4 text-brand-600 dark:text-brand-400 font-semibold">Identifying the minimum starting element</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-4 font-bold">Equivalence</td>
+              <td class="py-2.5 px-4 colspan-2 text-slate-600 dark:text-slate-300 italic">
+                In axiomatic set theory (Peano axioms), Mathematical Induction and the Well-Ordering Principle are mathematically equivalent.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. Interactive Assessment Quiz -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and explanation</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Mathematical Induction and the Well-Ordering Principle
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. What constitutes the mandatory first step when performing a proof by mathematical induction?",
+        options: [
+          "A. Assume n = k is true",
+          "B. Prove n = k + 1",
+          "C. Check the base case",
+          "D. Find the smallest element"
+        ],
+        correct: 2,
+        exp: "The base case (typically verifying n = 1) is the essential initial anchor step in mathematical induction. It ensures that the first domino in the chain actually falls."
+      },
+      {
+        q: "Question 2. In the formal induction hypothesis, what assumption is made?",
+        options: [
+          "A. The statement is true for every real number",
+          "B. The statement is true for n = k",
+          "C. The statement is false for n = k",
+          "D. The statement is true only for n = k + 1"
+        ],
+        correct: 1,
+        exp: "The induction hypothesis assumes that the proposition P(n) holds for a specific arbitrary natural number n = k, providing the algebraic tool needed to establish the subsequent step."
+      },
+      {
+        q: "Question 3. Once the inductive hypothesis is assumed for n = k, what must be demonstrated next?",
+        options: [
+          "A. It is true for n = k − 1",
+          "B. It is true for n = 0",
+          "C. It is true for n = k + 1",
+          "D. It is true for all real numbers"
+        ],
+        correct: 2,
+        exp: "The inductive step requires showing that if the hypothesis holds for n = k, then it necessarily holds for the immediate next integer n = k + 1."
+      },
+      {
+        q: "Question 4. Which algebraic expression represents the sum of the first n odd natural numbers: 1 + 3 + 5 + ... + (2n − 1)?",
+        options: [
+          "A. n(n + 1)/2",
+          "B. n²",
+          "C. 2n + 1",
+          "D. n(n − 1)/2"
+        ],
+        correct: 1,
+        exp: "The sum of the first n odd natural numbers evaluates exactly to n² (e.g., 1 = 1², 1 + 3 = 4 = 2², 1 + 3 + 5 = 9 = 3²)."
+      },
+      {
+        q: "Question 5. Which statement accurately articulates the Well-Ordering Principle?",
+        options: [
+          "A. Every set of real numbers has a largest element",
+          "B. Every non-empty subset of natural numbers has a least element",
+          "C. Every natural number is prime",
+          "D. Every subset contains zero"
+        ],
+        correct: 1,
+        exp: "The Well-Ordering Principle states that every non-empty subset of the natural numbers (ℕ) possesses a unique minimum or least element."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on Mathematical Induction and the Well-Ordering Principle."
+          : "Excellent work! You have mastered the core logic of base cases, inductive steps, and well-ordering.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the algebraic steps for n = k + 1 above and retake the quiz to achieve 100%.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the 3 steps of mathematical induction and the definition of the Well-Ordering Principle, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>The Set of Real Numbers — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="globe" class="w-3.5 h-3.5"></i> Number Systems · The Continuum
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">The Set of Real Numbers</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">The Real Continuum, Algebraic Field Axioms, Order Relations, and Geometric Line Duality</p>
+      </div>
+    </section>
+
+    <!-- 1. What are Real Numbers? -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">1</span>
+        <span>Definition &amp; Structural Hierarchy of \(\mathbb{R}\)</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The real number system unites all numbers that can measure continuous physical quantities. Every real number is either <strong>rational</strong> or <strong>irrational</strong>.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Set-Theoretic Definition:</strong> The set of <strong>real numbers</strong>, denoted by \(\mathbb{R}\), is the disjoint union of the set of rational numbers \(\mathbb{Q}\) and the set of irrational numbers \(\mathbb{I}\):
+        $$\mathbb{R} = \mathbb{Q} \cup \mathbb{I} \quad \text{where} \quad \mathbb{Q} \cap \mathbb{I} = \emptyset$$
+      </div>
+
+      <!-- Comparative Table of Rationals vs Irrationals -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4">Category</th>
+              <th class="py-2.5 px-4">Core Definition</th>
+              <th class="py-2.5 px-4">Representative Elements</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-2 px-4 font-bold text-emerald-600 dark:text-emerald-400">Rational Numbers (\(\mathbb{Q}\))</td>
+              <td class="py-2 px-4 text-slate-600 dark:text-slate-300">Expressible as \(\frac{a}{b}\) (\(a, b \in \mathbb{Z}, b \neq 0\)); terminating or repeating decimals.</td>
+              <td class="py-2 px-4 font-mono text-brand-700 dark:text-brand-300">\(-4, \; 0, \; \frac{3}{5}, \; 0.25, \; 0.\overline{3}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold text-indigo-600 dark:text-indigo-400">Irrational Numbers (\(\mathbb{I}\))</td>
+              <td class="py-2 px-4 text-slate-600 dark:text-slate-300">Cannot be written as \(\frac{a}{b}\); non-terminating and non-periodic decimals.</td>
+              <td class="py-2 px-4 font-mono text-brand-700 dark:text-brand-300">\(\sqrt{2}, \; \sqrt{7}, \; \pi, \; e, \; 1.4142\dots\)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Inclusion Hierarchy Chain -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+        <strong class="text-slate-900 dark:text-white font-display text-sm block">The Universal Set Inclusion Chain:</strong>
+        <div class="text-center font-mono font-bold text-brand-700 dark:text-brand-400 py-1 text-sm sm:text-base">
+          $$\mathbb{N} \subset \mathbb{W} \subset \mathbb{Z} \subset \mathbb{Q} \subset \mathbb{R}$$
+        </div>
+        <ul class="list-disc pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-300">
+          <li>Every natural number is an integer (\(\mathbb{N} \subset \mathbb{Z}\)).</li>
+          <li>Every integer is a rational number (\(\mathbb{Z} \subset \mathbb{Q}\), since \(z = \frac{z}{1}\)).</li>
+          <li>Every rational number is a real number (\(\mathbb{Q} \subset \mathbb{R}\)).</li>
+          <li><strong>Asymmetric Truth:</strong> The converse does not hold! For example, \(\sqrt{3}\) is a real number, but it is strictly <strong>not</strong> rational.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. Operations & Field Properties -->
+    <section class="card p-5 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">2</span>
+        <span>Operations &amp; Field Properties of \(\mathbb{R}\)</span>
+      </h2>
+
+      <!-- Operations Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4">Operation</th>
+              <th class="py-2.5 px-4">Algebraic Form</th>
+              <th class="py-2.5 px-4">Concrete Example</th>
+              <th class="py-2.5 px-4">Closure Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">Addition \((+)\)</td>
+              <td class="py-2 px-4 font-mono">\(a + b\)</td>
+              <td class="py-2 px-4 font-mono">\(\sqrt{2} + \sqrt{3} \approx 3.14626\dots\)</td>
+              <td class="py-2 px-4 font-semibold text-emerald-600 dark:text-emerald-400">Closed in \(\mathbb{R}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">Subtraction \((-)\)</td>
+              <td class="py-2 px-4 font-mono">\(a - b\)</td>
+              <td class="py-2 px-4 font-mono">\(5.4 - \pi \approx 2.2584\dots\)</td>
+              <td class="py-2 px-4 font-semibold text-emerald-600 dark:text-emerald-400">Closed in \(\mathbb{R}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">Multiplication \((\times)\)</td>
+              <td class="py-2 px-4 font-mono">\(a \times b\)</td>
+              <td class="py-2 px-4 font-mono">\(\sqrt{2} \times \sqrt{3} = \sqrt{6}\)</td>
+              <td class="py-2 px-4 font-semibold text-emerald-600 dark:text-emerald-400">Closed in \(\mathbb{R}\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold text-brand-700 dark:text-brand-400">Division \((\div)\)</td>
+              <td class="py-2 px-4 font-mono">\(\frac{a}{b} \quad (b \neq 0)\)</td>
+              <td class="py-2 px-4 font-mono">\(\frac{\sqrt{8}}{\sqrt{2}} = \sqrt{4} = 2\)</td>
+              <td class="py-2 px-4 font-semibold text-emerald-600 dark:text-emerald-400">Closed for \(b \neq 0\)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Seven Complete Properties -->
+      <div class="space-y-3">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">The Seven Foundational Field Axioms:</h3>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr>
+                <th class="py-2.5 px-4">Property</th>
+                <th class="py-2.5 px-4">General Formula</th>
+                <th class="py-2.5 px-4">Concrete Example</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+              <tr>
+                <td class="py-2 px-4 font-sans font-bold">1. Closure</td>
+                <td class="py-2 px-4">\(a + b \in \mathbb{R},\; ab \in \mathbb{R}\)</td>
+                <td class="py-2 px-4">\(\pi + 2 \in \mathbb{R},\; \sqrt{5} \times \sqrt{5} = 5 \in \mathbb{R}\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 font-sans font-bold">2. Commutative</td>
+                <td class="py-2 px-4">\(a + b = b + a,\; ab = ba\)</td>
+                <td class="py-2 px-4">\(\sqrt{2} + 3 = 3 + \sqrt{2}\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 font-sans font-bold">3. Associative</td>
+                <td class="py-2 px-4">\((a + b) + c = a + (b + c)\)</td>
+                <td class="py-2 px-4">\((\sqrt{3} + 1) + 4 = \sqrt{3} + (1 + 4)\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 font-sans font-bold">4. Additive Identity</td>
+                <td class="py-2 px-4">\(a + 0 = 0 + a = a\)</td>
+                <td class="py-2 px-4">\(\pi + 0 = \pi \quad (0 \text{ is identity})\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 font-sans font-bold">5. Additive Inverse</td>
+                <td class="py-2 px-4">\(a + (-a) = 0\)</td>
+                <td class="py-2 px-4">\(\sqrt{7} + (-\sqrt{7}) = 0\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 font-sans font-bold">6. Multiplicative Identity</td>
+                <td class="py-2 px-4">\(a \times 1 = 1 \times a = a\)</td>
+                <td class="py-2 px-4">\(\sqrt{11} \times 1 = \sqrt{11} \quad (1 \text{ is identity})\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 font-sans font-bold">7. Multiplicative Inverse</td>
+                <td class="py-2 px-4">\(a \times \frac{1}{a} = 1 \quad (\forall a \neq 0)\)</td>
+                <td class="py-2 px-4">\(\sqrt{5} \times \frac{1}{\sqrt{5}} = 1\)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs sm:text-sm text-amber-950 dark:text-amber-200">
+        <strong>Vital Inverse Distinction:</strong> Every real number possesses an additive inverse (including zero, where \(-0 = 0\)). However, <strong>zero has no multiplicative inverse</strong> because the expression \(\frac{1}{0}\) is mathematically undefined.
+      </div>
+    </section>
+
+    <!-- 3. Real Numbers and the Number Line -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">3</span>
+        <span>The Real Number Line &amp; Geometric Duality</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">The Completeness Principle (Continuum Duality):</strong> There exists an exact <strong>one-to-one (bijective) correspondence</strong> between the set of real numbers \(\mathbb{R}\) and the points on a continuous straight line. Every real number marks a distinct point, and every point denotes a unique real number.
+      </div>
+
+      <!-- Lightbox Figure -->
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700" onclick="openLightbox('https://images.openai.com/static-rsc-4/KVnurQ8ijbwDrj0HN4MyFY9W8HdYfm5o2Kj5BcP0TKg1Nle6NG7VMHJQlJzT2vpdkxcq4RiYSKJjYLWx5MrNA5QP6-plMqz2vOz-68Ok8TfWDmsMSfcORFNxlEXSGgfYDY3boFrIaGANZL-cBPUwkXstXED7iIvgby-AN_MIQRs3QoQ9RhhmPJHCOR-EuW3Q?purpose=fullsize', 'Representation of Real Numbers on the Number Line')">
+        <img src="https://images.openai.com/static-rsc-4/KVnurQ8ijbwDrj0HN4MyFY9W8HdYfm5o2Kj5BcP0TKg1Nle6NG7VMHJQlJzT2vpdkxcq4RiYSKJjYLWx5MrNA5QP6-plMqz2vOz-68Ok8TfWDmsMSfcORFNxlEXSGgfYDY3boFrIaGANZL-cBPUwkXstXED7iIvgby-AN_MIQRs3QoQ9RhhmPJHCOR-EuW3Q?purpose=fullsize" alt="Representation of Real Numbers on the Number Line" class="w-full max-h-64 object-cover object-center group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+          <i data-lucide="zoom-in" class="w-4 h-4"></i> Click to examine real number line
+        </div>
+      </figure>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white block font-display">Coordinate Structure:</strong>
+          <ul class="list-disc pl-4 space-y-1 text-slate-600 dark:text-slate-300 text-xs">
+            <li><strong>Origin:</strong> The baseline anchor point representing \(0\).</li>
+            <li><strong>Positive Real Numbers:</strong> Points located to the right of \(0\) \((x > 0)\).</li>
+            <li><strong>Negative Real Numbers:</strong> Points located to the left of \(0\) \((x < 0)\).</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white block font-display">Geometric Ordering Principle:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">
+            A real number \(a\) is strictly greater than \(b\) \((a > b)\) if and only if \(a\) is positioned to the <strong>right</strong> of \(b\) on the line:
+          </p>
+          <div class="font-mono text-xs text-brand-700 dark:text-brand-400 font-bold space-y-0.5 mt-1">
+            <div>\(5 > 2 \quad (5 \text{ is to the right of } 2)\)</div>
+            <div class="text-rose-600 dark:text-rose-400">\(-2 > -5 \quad (-2 \text{ is closer to } 0 \text{ and to the right of } -5)\)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Order Relations in R -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">4</span>
+        <span>Order Relations &amp; Inequality Axioms in \(\mathbb{R}\)</span>
+      </h2>
+
+      <div class="space-y-2.5 text-xs sm:text-sm">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+          <strong>A. Transitive Property:</strong> If \(a > b\) and \(b > c\), then \(a > c\). (e.g., \(\pi > 3\) and \(3 > e \implies \pi > e\)).
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+          <strong>B. Addition Property:</strong> Adding any real number \(c\) preserves the inequality: \(a > b \implies a + c > b + c\).
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong>C. Multiplication Property (Sign Reversal Criterion):</strong>
+          <ul class="list-disc pl-5 space-y-0.5 text-slate-600 dark:text-slate-300 text-xs">
+            <li>Multiplying by \(c > 0\): \(a > b \implies ac > bc\).</li>
+            <li>Multiplying by \(c < 0\): <strong>Reverses</strong> direction: \(5 > 2 \xrightarrow{\times (-3)} -15 < -6\).</li>
+          </ul>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+          <strong>D. Law of Trichotomy:</strong> For any two real numbers \(a, b \in \mathbb{R}\), exactly one of three relations holds: \(a > b\), \(a < b\), or \(a = b\).
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Comprehensive Step-by-Step Worked Examples -->
+    <section class="card p-5 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">5</span>
+        <span>Comprehensive Step-by-Step Worked Examples</span>
+      </h2>
+
+      <!-- Worked Example 1 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between">
+          <strong class="text-slate-900 dark:text-white font-display">Example 1: Classifying Numbers in the Number Hierarchy</strong>
+          <span class="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold font-mono text-[10px]">Classification</span>
+        </div>
+        <p class="text-slate-600 dark:text-slate-300">
+          Determine the most restrictive subset (\(\mathbb{N}, \mathbb{Z}, \mathbb{Q}, \text{or } \mathbb{I}\)) and verify membership in \(\mathbb{R}\) for:
+          \(A = -7, \quad B = \sqrt{16}, \quad C = \sqrt{11}, \quad D = \frac{22}{7}, \quad E = 0.\overline{45}\).
+        </p>
+        <div class="p-3 bg-white dark:bg-slate-900 rounded-lg font-mono text-xs space-y-1.5 border border-slate-200 dark:border-slate-800">
+          <div>&bull; \(A = -7 \implies \mathbf{\mathbb{Z}} \text{ (Integer, also in } \mathbb{Q} \text{ and } \mathbb{R})\)</div>
+          <div>&bull; \(B = \sqrt{16} = 4 \implies \mathbf{\mathbb{N}} \text{ (Natural Number, hence also in } \mathbb{Z}, \mathbb{Q}, \mathbb{R})\)</div>
+          <div>&bull; \(C = \sqrt{11} \approx 3.3166\dots \implies \mathbf{\mathbb{I}} \text{ (Irrational, Non-terminating &amp; non-periodic, in } \mathbb{R})\)</div>
+          <div>&bull; \(D = \frac{22}{7} \implies \mathbf{\mathbb{Q}} \text{ (Rational, explicit quotient of integers, in } \mathbb{R})\)</div>
+          <div>&bull; \(E = 0.\overline{45} = \frac{45}{99} = \frac{5}{11} \implies \mathbf{\mathbb{Q}} \text{ (Repeating decimal, hence rational, in } \mathbb{R})\)</div>
+        </div>
+        <p class="text-emerald-700 dark:text-emerald-300 font-semibold text-xs">Result: All five values belong unconditionally to the set of real numbers \(\mathbb{R}\).</p>
+      </div>
+
+      <!-- Worked Example 2 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between">
+          <strong class="text-slate-900 dark:text-white font-display">Example 2: Arithmetic Operations with Irrational Numbers</strong>
+          <span class="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold font-mono text-[10px]">Field Closure</span>
+        </div>
+        <p class="text-slate-600 dark:text-slate-300">
+          Evaluate the expressions and observe whether the result is rational or irrational, confirming closure in \(\mathbb{R}\):
+        </p>
+        <div class="p-3 bg-white dark:bg-slate-900 rounded-lg font-mono text-xs space-y-2 border border-slate-200 dark:border-slate-800">
+          <div>
+            <strong>Part (a): Addition</strong><br>
+            \((3 + \sqrt{5}) + (2 - \sqrt{5}) = (3 + 2) + (\sqrt{5} - \sqrt{5}) = 5 + 0 = \mathbf{5} \in \mathbb{Q} \subset \mathbb{R}\)
+          </div>
+          <div>
+            <strong>Part (b): Conjugate Multiplication (Difference of Squares)</strong><br>
+            \((2 + \sqrt{3})(2 - \sqrt{3}) = (2)^2 - (\sqrt{3})^2 = 4 - 3 = \mathbf{1} \in \mathbb{Q} \subset \mathbb{R}\)
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          <strong>Key Insight:</strong> Adding or multiplying two irrational numbers may yield a rational number, but the result is <em>always</em> guaranteed to be a real number.
+        </p>
+      </div>
+
+      <!-- Worked Example 3 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between">
+          <strong class="text-slate-900 dark:text-white font-display">Example 3: Solving Inequalities Involving Negative Factors</strong>
+          <span class="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold font-mono text-[10px]">Order Relations</span>
+        </div>
+        <p class="text-slate-600 dark:text-slate-300">
+          Find the complete solution set in \(\mathbb{R}\) for the linear inequality: \(-3x + 7 < 22\).
+        </p>
+        <div class="p-3 bg-white dark:bg-slate-900 rounded-lg font-mono text-xs space-y-1.5 border border-slate-200 dark:border-slate-800">
+          <div>Step 1: Subtract \(7\) from both sides:</div>
+          <div>\(-3x + 7 - 7 < 22 - 7 \implies -3x < 15\)</div>
+          <div>Step 2: Divide both sides by \(-3\) (<strong>REVERSE the inequality sign!</strong>):</div>
+          <div>\(x > \frac{15}{-3} \implies \mathbf{x > -5}\)</div>
+          <div>Interval notation: \(\mathbf{(-5, \infty)}\)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Interactive Self-Assessment Quiz -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and step-by-step breakdown</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex flex-col items-center justify-center p-4">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="max-w-4xl max-h-[85vh] w-full flex flex-col items-center">
+      <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-4"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; The Set of Real Numbers and the Number Continuum
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. Which statement regarding the real number system (ℝ) is universally correct?",
+        options: [
+          "A. Every real number is rational",
+          "B. Every rational number is real",
+          "C. Every irrational number is an integer",
+          "D. Every integer is irrational"
+        ],
+        correct: 1,
+        exp: "Because ℚ is a subset of ℝ (ℚ ⊂ ℝ), every rational number is automatically a real number. Conversely, some real numbers (like √2 or π) are irrational."
+      },
+      {
+        q: "Question 2. Which of the following numbers belongs to the set of irrational numbers?",
+        options: [
+          "A. −4",
+          "B. 0.25",
+          "C. √7",
+          "D. 3/5"
+        ],
+        correct: 2,
+        exp: "√7 cannot be expressed as a ratio of two integers and has a non-terminating, non-periodic decimal expansion, making it irrational. Meanwhile, −4 is an integer, 0.25 is terminating (1/4), and 3/5 is an explicit fraction."
+      },
+      {
+        q: "Question 3. Which coordinate point designates the origin on the real number line?",
+        options: [
+          "A. −1",
+          "B. 1",
+          "C. 0",
+          "D. 2"
+        ],
+        correct: 2,
+        exp: "The origin on the geometric real number line is the central baseline coordinate point zero (0), separating positive numbers from negative numbers."
+      },
+      {
+        q: "Question 4. If 6 > 2, which inequality is mathematically valid after multiplying both sides by −4?",
+        options: [
+          "A. −24 > −8",
+          "B. −24 < −8",
+          "C. 24 < 8",
+          "D. −24 = −8"
+        ],
+        correct: 1,
+        exp: "Multiplying an inequality by a negative quantity reverses its direction. Thus: 6 × (−4) < 2 × (−4), which gives −24 < −8."
+      },
+      {
+        q: "Question 5. Which algebraic property is represented by the formula a + (−a) = 0?",
+        options: [
+          "A. Multiplicative identity",
+          "B. Commutative property",
+          "C. Additive inverse",
+          "D. Associative property"
+        ],
+        correct: 2,
+        exp: "The Additive Inverse property states that every real number a has an opposite −a such that their sum equals the additive identity, 0."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on The Set of Real Numbers."
+          : "Great performance! You have a solid command of real numbers, order relations, and field properties.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the worked examples and inequality sign rules above to aim for a perfect score.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the difference between rational and irrational numbers and the 7 field axioms, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+
+      img.src = src;
+      img.alt = alt;
+      caption.innerText = alt;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox-modal') closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

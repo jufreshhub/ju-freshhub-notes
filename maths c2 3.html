@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>The Set of Integers — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="layers" class="w-3.5 h-3.5"></i> Number Systems · Extended Arithmetic
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5">The Set of Integers</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90">Negative Values, Additive Inverses, Algebraic Axioms, and Order Relations</p>
+      </div>
+    </section>
+
+    <!-- 1. Motivation and Definition -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">1</span>
+        <span>Motivation &amp; Definition of Integers</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        While the set of natural numbers \(\mathbb{N} = \{1, 2, 3, \dots\}\) serves discrete counting, it presents a fundamental algebraic limitation: <strong>it is not closed under subtraction</strong>, making it impossible to represent debts or solve elementary linear equations.
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display">Financial Balance Problem</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            If you have \(5\text{ Birr}\) and spend \(8\text{ Birr}\), your balance is:
+          </p>
+          <p class="font-mono text-xs font-bold text-rose-600 dark:text-rose-400">\(5 - 8 = -3 \notin \mathbb{N}\)</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display">Algebraic Equation Problem</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            The elementary linear equation \(x + 1 = 0\) requires:
+          </p>
+          <p class="font-mono text-xs font-bold text-rose-600 dark:text-rose-400">\(x = -1 \notin \mathbb{N}\)</p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+        <strong class="text-brand-800 dark:text-brand-300">Definition:</strong> The set of <strong>integers</strong>, denoted by the standard mathematical symbol \(\mathbb{Z}\) (from the German word <em>Zahlen</em>, meaning numbers), comprises the union of negative integers, zero, and positive integers:
+        $$\mathbb{Z} = \{\dots, -3, -2, -1, 0, 1, 2, 3, \dots\}$$
+      </div>
+
+      <!-- Partition Triad -->
+      <div class="grid grid-cols-3 gap-2 text-center text-xs font-medium">
+        <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30">
+          <span class="block font-bold text-rose-700 dark:text-rose-400 text-sm font-mono">\(\mathbb{Z}^-\)</span>
+          <span class="text-slate-600 dark:text-slate-300">Negative Integers</span>
+          <span class="block font-mono text-[11px] text-slate-500 mt-0.5">\(\{\dots, -3, -2, -1\}\)</span>
+        </div>
+        <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30">
+          <span class="block font-bold text-amber-700 dark:text-amber-400 text-sm font-mono">\(\{0\}\)</span>
+          <span class="text-slate-600 dark:text-slate-300">Zero (Neutral)</span>
+          <span class="block font-mono text-[11px] text-slate-500 mt-0.5">Neither positive nor negative</span>
+        </div>
+        <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30">
+          <span class="block font-bold text-emerald-700 dark:text-emerald-400 text-sm font-mono">\(\mathbb{Z}^+ = \mathbb{N}\)</span>
+          <span class="text-slate-600 dark:text-slate-300">Positive Integers</span>
+          <span class="block font-mono text-[11px] text-slate-500 mt-0.5">\(\{1, 2, 3, \dots\}\)</span>
+        </div>
+      </div>
+
+      <!-- Set Hierarchy -->
+      <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
+        <strong class="text-slate-900 dark:text-white">Strict Inclusion Hierarchy:</strong>
+        <div class="text-center font-mono font-bold text-brand-700 dark:text-brand-400 py-1.5 text-sm sm:text-base">
+          $$\mathbb{N} \subset \mathbb{W} \subset \mathbb{Z}$$
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 text-center">Every natural number is an integer, but not every integer is a natural number.</p>
+      </div>
+    </section>
+
+    <!-- 2. Operations on Integers -->
+    <section class="card p-5 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">2</span>
+        <span>Binary Operations on Integers</span>
+      </h2>
+
+      <!-- A. Addition -->
+      <div class="space-y-2">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span> A. Addition \((+)\)
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          The sum of any two integers is always an integer. Sign evaluation follows exact algebraic criteria:
+        </p>
+        <div class="grid sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <strong class="text-slate-900 dark:text-white block mb-1">Same Signs:</strong>
+            <p class="text-xs text-slate-600 dark:text-slate-300">Add absolute values; retain the shared sign.</p>
+            <p class="font-mono text-xs font-semibold text-brand-600 mt-1">\(5 + 3 = 8\)<br>\(-5 + (-3) = -8\)</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <strong class="text-slate-900 dark:text-white block mb-1">Different Signs:</strong>
+            <p class="text-xs text-slate-600 dark:text-slate-300">Subtract smaller absolute value from larger; keep sign of larger.</p>
+            <p class="font-mono text-xs font-semibold text-brand-600 mt-1">\(-5 + 8 = 3\)<br>\(-9 + 4 = -5\)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- B. Subtraction -->
+      <div class="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span> B. Subtraction \((-)\)
+        </h3>
+        <div class="p-3 bg-brand-50/80 dark:bg-brand-500/10 rounded-xl border border-brand-200 dark:border-brand-500/30 text-sm">
+          $$a - b = a + (-b)$$
+          <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">
+            <strong>Formal Rule:</strong> Subtraction is explicitly defined as the <strong>addition of the additive inverse (opposite)</strong>.
+          </p>
+        </div>
+        <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200">
+          <strong>The Double Negative Rule:</strong> Subtracting a negative integer converts directly into standard addition:<br>
+          <span class="font-mono font-bold mt-1 inline-block">\(8 - (-3) = 8 + 3 = 11\)</span> &nbsp;|&nbsp;
+          <span class="font-mono font-bold inline-block">\(5 - 9 = 5 + (-9) = -4\)</span>
+        </div>
+      </div>
+
+      <!-- C. Multiplication -->
+      <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span> C. Multiplication \((\times)\)
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+          Multiplying integers always generates another integer. Sign rules are universally systematic:
+        </p>
+
+        <!-- Complete Multiplication Sign Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs sm:text-sm font-mono">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-sans font-bold text-slate-500 dark:text-slate-300 text-[11px]">
+              <tr>
+                <th class="py-2.5 px-4">Factor 1</th>
+                <th class="py-2.5 px-4">Factor 2</th>
+                <th class="py-2.5 px-4">Result Sign</th>
+                <th class="py-2.5 px-4">Example</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr>
+                <td class="py-2 px-4 text-emerald-600 font-bold">Positive \((+)\)</td>
+                <td class="py-2 px-4 text-emerald-600 font-bold">Positive \((+)\)</td>
+                <td class="py-2 px-4 text-emerald-600 font-bold">Positive \((+)\)</td>
+                <td class="py-2 px-4">\(4 \times 3 = 12\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 text-emerald-600 font-bold">Positive \((+)\)</td>
+                <td class="py-2 px-4 text-rose-600 font-bold">Negative \((-)\)</td>
+                <td class="py-2 px-4 text-rose-600 font-bold">Negative \((-)\)</td>
+                <td class="py-2 px-4">\(4 \times (-3) = -12\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 text-rose-600 font-bold">Negative \((-)\)</td>
+                <td class="py-2 px-4 text-emerald-600 font-bold">Positive \((+)\)</td>
+                <td class="py-2 px-4 text-rose-600 font-bold">Negative \((-)\)</td>
+                <td class="py-2 px-4">\((-5) \times 3 = -15\)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-4 text-rose-600 font-bold">Negative \((-)\)</td>
+                <td class="py-2 px-4 text-rose-600 font-bold">Negative \((-)\)</td>
+                <td class="py-2 px-4 text-emerald-600 font-bold">Positive \((+)\)</td>
+                <td class="py-2 px-4">\((-4) \times (-3) = 12\)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1">
+          <strong class="text-slate-900 dark:text-white">Product Parity Rule:</strong>
+          <ul class="list-disc pl-5 space-y-0.5 text-xs text-slate-600 dark:text-slate-300">
+            <li>An <strong>even count</strong> of negative factors yields a <strong>positive</strong> product: \((-2) \times (-3) = +6\).</li>
+            <li>An <strong>odd count</strong> of negative factors yields a <strong>negative</strong> product: \((-2) \times (-3) \times (-4) = -24\).</li>
+          </ul>
+        </div>
+
+        <!-- Division Non-closure -->
+        <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs sm:text-sm text-rose-950 dark:text-rose-200">
+          <strong>Non-Closure Under Division:</strong> The quotient of two integers is not necessarily an integer. For example:
+          $$\frac{5}{2} = 2.5 \notin \mathbb{Z}$$
+          Hence, integers are strictly <strong>not closed under division</strong>.
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. The 10 Algebraic Properties -->
+    <section class="card p-5 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">3</span>
+        <span>The 10 Algebraic Properties of Integers</span>
+      </h2>
+
+      <!-- Group A: Addition -->
+      <div class="space-y-3">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+          <span>Group A: Five Properties of Addition</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Additive Ring Structure</span>
+        </h3>
+        <div class="grid sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <strong>1. Closure:</strong> \(a + b \in \mathbb{Z}\)<br>
+            <span class="text-xs text-slate-500 font-mono">\(-4 + 7 = 3 \in \mathbb{Z}\)</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <strong>2. Commutative:</strong> \(a + b = b + a\)<br>
+            <span class="text-xs text-slate-500 font-mono">\(4 + 9 = 9 + 4 = 13\)</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <strong>3. Associative:</strong> \((a+b)+c = a+(b+c)\)<br>
+            <span class="text-xs text-slate-500 font-mono">\((5+9)+8 = 5+(9+8) = 22\)</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <strong>4. Additive Identity:</strong> \(a + 0 = a\)<br>
+            <span class="text-xs text-slate-500 font-mono">\(0\) is the additive identity</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 sm:col-span-2">
+            <strong>5. Additive Inverse:</strong> \(a + (-a) = 0\)<br>
+            <span class="text-xs text-slate-500 font-mono">Every integer \(a\) has a unique opposite \(-a\) such that \(4 + (-4) = 0\).</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group B: Multiplication -->
+      <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between">
+          <span>Group B: Five Properties of Multiplication</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Multiplicative Structure</span>
+        </h3>
+        <div class="grid sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <strong>6. Closure:</strong> \(a \times b \in \mathbb{Z}\)<br>
+            <span class="text-xs text-slate-500 font-mono">\((-4) \times 5 = -20 \in \mathbb{Z}\)</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <strong>7. Commutative:</strong> \(a \times b = b \times a\)<br>
+            <span class="text-xs text-slate-500 font-mono">\(4 \times 7 = 7 \times 4 = 28\)</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <strong>8. Associative:</strong> \((ab)c = a(bc)\)<br>
+            <span class="text-xs text-slate-500 font-mono">\((3 \times 5) \times 4 = 3 \times (5 \times 4) = 60\)</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <strong>9. Multiplicative Identity:</strong> \(a \times 1 = a\)<br>
+            <span class="text-xs text-slate-500 font-mono">\(1\) is the multiplicative identity</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 sm:col-span-2">
+            <strong>10. Distributive Property:</strong> \(a(b + c) = ab + ac\)<br>
+            <span class="text-xs text-slate-500 font-mono">\(4(5 + 6) = 4(5) + 4(6) = 20 + 24 = 44\)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparative Diagnostic Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 pt-2">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-4">Property</th>
+              <th class="py-2.5 px-4">Addition \((+)\)</th>
+              <th class="py-2.5 px-4">Multiplication \((\times)\)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr>
+              <td class="py-2 px-4 font-bold">Identity Element</td>
+              <td class="py-2 px-4 font-mono font-bold text-brand-600">\(0\)</td>
+              <td class="py-2 px-4 font-mono font-bold text-brand-600">\(1\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Inverse Element</td>
+              <td class="py-2 px-4 font-mono text-emerald-600 dark:text-emerald-400 font-bold">\(-a\) (Always exists in \(\mathbb{Z}\))</td>
+              <td class="py-2 px-4 font-mono text-rose-600 dark:text-rose-400 font-bold">Does NOT exist in \(\mathbb{Z}\) (except \(\pm 1\))</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Commutativity</td>
+              <td class="py-2 px-4 text-emerald-600 font-bold">Yes</td>
+              <td class="py-2 px-4 text-emerald-600 font-bold">Yes</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Associativity</td>
+              <td class="py-2 px-4 text-emerald-600 font-bold">Yes</td>
+              <td class="py-2 px-4 text-emerald-600 font-bold">Yes</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 font-bold">Closure</td>
+              <td class="py-2 px-4 text-emerald-600 font-bold">Yes</td>
+              <td class="py-2 px-4 text-emerald-600 font-bold">Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. Order Relations in Integers -->
+    <section class="card p-5 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold">4</span>
+        <span>Order Relations &amp; Inequalities</span>
+      </h2>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        On the real number line, values strictly increase from left to right. Four fundamental order axioms govern the behavior of inequalities on \(\mathbb{Z}\):
+      </p>
+
+      <div class="space-y-3">
+        <!-- 1. Transitive -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm space-y-1">
+          <strong class="text-slate-900 dark:text-white">1. Transitive Property:</strong>
+          <p class="font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-300">If \(a > b\) and \(b > c\), then \(a > c\).</p>
+          <p class="text-xs text-slate-500"><em>Example:</em> \(8 > 5\) and \(5 > 2 \implies 8 > 2\).</p>
+        </div>
+
+        <!-- 2. Addition Property -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm space-y-1">
+          <strong class="text-slate-900 dark:text-white">2. Addition Property of Inequality:</strong>
+          <p class="font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-300">If \(a > b\), then \(a + c > b + c\) for any integer \(c\).</p>
+          <p class="text-xs text-slate-500"><em>Example:</em> \(8 > 5 \implies 8 + 3 > 5 + 3 \implies 11 > 8\).</p>
+        </div>
+
+        <!-- 3. Multiplication Property -->
+        <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-sm space-y-2">
+          <strong class="text-brand-900 dark:text-brand-300">3. Multiplication Property (Sign Sensitivity):</strong>
+          <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+            <li><strong>Positive Multiplier \((c > 0)\):</strong> The inequality direction is preserved:
+              <span class="block font-mono text-xs font-bold mt-0.5">\(a > b \land c > 0 \implies ac > bc \quad (\text{e.g., } 8 > 5 \implies 8(2) > 5(2) \implies 16 > 10)\)</span>
+            </li>
+            <li><strong>Negative Multiplier \((c < 0)\):</strong> The inequality direction <strong>strictly reverses</strong>:
+              <span class="block font-mono text-xs font-bold text-rose-600 dark:text-rose-400 mt-0.5">\(a > b \land c < 0 \implies ac < bc \quad (\text{e.g., } 8 > 5 \implies 8(-1) < 5(-1) \implies -8 < -5)\)</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 4. Trichotomy -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm space-y-1">
+          <strong class="text-slate-900 dark:text-white">4. Law of Trichotomy:</strong>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+            For any two arbitrary integers \(a, b \in \mathbb{Z}\), exactly <strong>one</strong> of the following three mutually exclusive relations holds:
+          </p>
+          <div class="font-mono text-center text-xs sm:text-sm py-1 font-bold text-brand-700 dark:text-brand-400">
+            $$a > b \quad \lor \quad a < b \quad \lor \quad a = b$$
+          </div>
+          <p class="text-xs text-slate-500 text-center">Comparing \(4\) and \(7\): since \(4 < 7\), neither \(4 > 7\) nor \(4 = 7\) can be true.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz -->
+    <section class="card p-5 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous feedback and detailed steps</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; The Set of Integers and Elementary Number Systems
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. Which of the following numbers belongs to the set of integers (ℤ) but is NOT a natural number (ℕ)?",
+        options: [
+          "A. 5",
+          "B. 12",
+          "C. −4",
+          "D. 100"
+        ],
+        correct: 2,
+        exp: "Natural numbers are strictly positive counting numbers ℕ = {1, 2, 3, ...}. Negative numbers like −4 belong to ℤ but are excluded from ℕ."
+      },
+      {
+        q: "Question 2. What is the numerical result of the integer sum −8 + 5?",
+        options: [
+          "A. 13",
+          "B. −13",
+          "C. −3",
+          "D. 3"
+        ],
+        correct: 2,
+        exp: "When adding numbers with different signs, subtract the smaller absolute value from the larger (|−8| − |5| = 8 − 5 = 3) and retain the sign of the larger absolute value, giving −3."
+      },
+      {
+        q: "Question 3. Which value functions as the additive identity in the set of integers?",
+        options: [
+          "A. −1",
+          "B. 0",
+          "C. 1",
+          "D. 2"
+        ],
+        correct: 1,
+        exp: "Zero (0) is the additive identity because adding 0 to any integer leaves its value completely unchanged: a + 0 = 0 + a = a."
+      },
+      {
+        q: "Question 4. Which algebraic property is exemplified by (2 × 3) × 4 = 2 × (3 × 4)?",
+        options: [
+          "A. Commutative property",
+          "B. Closure property",
+          "C. Distributive property",
+          "D. Associative property"
+        ],
+        correct: 3,
+        exp: "The Associative Property of Multiplication states that changing the grouping parentheses of factors does not alter the product: (a × b) × c = a × (b × c)."
+      },
+      {
+        q: "Question 5. Given the inequality 7 > 3, which statement is true when both sides are multiplied by −2?",
+        options: [
+          "A. −14 > −6",
+          "B. −14 < −6",
+          "C. 14 < 6",
+          "D. −14 = −6"
+        ],
+        correct: 1,
+        exp: "Multiplying or dividing both sides of an inequality by a negative number strictly reverses the direction of the inequality: 7 > 3 multiplied by −2 becomes −14 < −6."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-sm text-slate-900 dark:text-white";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-sm text-slate-700 dark:text-slate-200 transition";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on The Set of Integers and its algebraic properties."
+          : "Excellent work! You have a solid grasp of integers, additive inverses, and inequality operations.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Remember the inequality sign reversal when multiplying by negatives, and retake the quiz.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Review the 10 algebraic properties and inequality rules, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Extraction of Roots of Complex Numbers — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 for crisp mathematical typography -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+
+    .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%),
+        #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background:
+        radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%),
+        radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%),
+        #0B1020;
+    }
+
+    .math-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .option-btn.correct {
+      background-color: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+    .dark .option-btn.correct {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      border-color: #10b981 !important;
+      color: #6ee7b7 !important;
+    }
+
+    .option-btn.wrong {
+      background-color: #fff1f2 !important;
+      border-color: #f43f5e !important;
+      color: #9f1239 !important;
+    }
+    .dark .option-btn.wrong {
+      background-color: rgba(244, 63, 94, 0.16) !important;
+      border-color: #f43f5e !important;
+      color: #fda4af !important;
+    }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Mathematics for Natural Sciences</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="circle-dot" class="w-3.5 h-3.5"></i> Complex Analysis · De Moivre's Theorem
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Extraction of Roots of Complex Numbers</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">De Moivre's Root Formula, Angular Symmetry, and Planar Polygon Distributions</p>
+      </div>
+    </section>
+
+    <!-- 1. What Does Extraction of Roots Mean? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Foundations of Complex Roots</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        In real arithmetic, equations such as \(x^2 = -4\) have no solutions because squares of real numbers are non-negative. In the complex number system \(\mathbb{C}\), the equation \(z^2 = -4\) has exactly two distinct solutions:
+      </p>
+
+      <div class="math-scroll font-mono text-center text-xs sm:text-sm text-brand-700 dark:text-brand-400 py-1">
+        $$(2i)^2 = 4i^2 = -4 \quad \text{and} \quad (-2i)^2 = 4i^2 = -4 \implies z = \pm 2i$$
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">The Fundamental Multiplicity Principle:</strong>
+        <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+          Every non-zero complex number \(z \in \mathbb{C} \setminus \{0\}\) has <strong>exactly \(n\) distinct \(n\)-th roots</strong> in \(\mathbb{C}\):
+        </p>
+        <ul class="list-disc pl-5 space-y-0.5 text-xs text-slate-600 dark:text-slate-400 mt-1">
+          <li>Square roots \((n = 2) \implies 2\) distinct roots separated by \(180^\circ\) (\(\pi\) rad).</li>
+          <li>Cube roots \((n = 3) \implies 3\) distinct roots separated by \(120^\circ\) (\(\frac{2\pi}{3}\) rad).</li>
+          <li>Fourth roots \((n = 4) \implies 4\) distinct roots separated by \(90^\circ\) (\(\frac{\pi}{2}\) rad).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. The General Formula for nth Roots -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>The General \(n\)-th Root Formula (De Moivre's Corollary)</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        Let a complex number be expressed in standard polar form: \(z = r(\cos\theta + i\sin\theta)\). Its distinct \(n\)-th roots \(C_k\) are calculated using:
+      </p>
+
+      <div class="p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-emerald-800 dark:text-emerald-300 font-bold block">General Root Identity:</strong>
+        <div class="math-scroll font-mono text-center text-sm sm:text-base font-bold text-emerald-900 dark:text-emerald-200 py-1">
+          $$\boxed{C_k = r^{1/n}\left[\cos\left(\frac{\theta + 2k\pi}{n}\right) + i\sin\left(\frac{\theta + 2k\pi}{n}\right)\right]}$$
+        </div>
+        <p class="text-center font-mono text-xs font-bold text-emerald-800 dark:text-emerald-300 mt-1">
+          where \(k = 0, 1, 2, \dots, n-1\)
+        </p>
+      </div>
+
+      <!-- Fully Completed Breakdown Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Component</th>
+              <th class="py-2.5 px-3 sm:px-4">Mathematical Meaning</th>
+              <th class="py-2.5 px-3 sm:px-4">Structural Role</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(r^{1/n} = \sqrt[n]{r}\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">Positive real \(n\)-th root of the modulus</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-500">Constant radius of root circle</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\theta\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">Principal argument of the original number</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-500">Starting angle parameter</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(2k\pi\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">Successive full \(360^\circ\) revolutions</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-500">Accounts for angular periodicity</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">Divide by \(n\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">\(\theta_k = \frac{\theta + 2k\pi}{n}\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-500">Yields the specific argument of root \(k\)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(k \in \{0, \dots, n-1\}\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">Generates exactly \(n\) unique outputs</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-500">\(k \ge n\) produces redundant periodic duplicates</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. Worked Curriculum Examples -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Standard Step-by-Step Curriculum Examples</span>
+      </h2>
+
+      <!-- Example 1: Square Roots of 1 + sqrt(3)i -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <strong class="text-slate-900 dark:text-white font-display block">Example 1: Square Roots of \(z = 1 + \sqrt{3}i\)</strong>
+        <div class="space-y-1 text-slate-600 dark:text-slate-300">
+          <div>&bull; Polar Form: \(r = \sqrt{1^2 + (\sqrt{3})^2} = 2\), \(\theta = \arctan(\sqrt{3}) = \frac{\pi}{3} \implies z = 2\left(\cos\frac{\pi}{3} + i\sin\frac{\pi}{3}\right)\).</div>
+          <div>&bull; Root Parameters: \(n = 2 \implies r^{1/2} = \sqrt{2}\). Arguments: \(\theta_k = \frac{\pi/3 + 2k\pi}{2}\).</div>
+        </div>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1.5 border border-slate-200 dark:border-slate-800">
+          <div>For \(k = 0\): \(\theta_0 = \frac{\pi/3}{2} = \frac{\pi}{6} \implies C_0 = \sqrt{2}\left(\cos\frac{\pi}{6} + i\sin\frac{\pi}{6}\right) = \mathbf{\frac{\sqrt{6}}{2} + \frac{\sqrt{2}}{2}i}\)</div>
+          <div>For \(k = 1\): \(\theta_1 = \frac{\pi/3 + 2\pi}{2} = \frac{7\pi}{6} \implies C_1 = \sqrt{2}\left(\cos\frac{7\pi}{6} + i\sin\frac{7\pi}{6}\right) = \mathbf{-\frac{\sqrt{6}}{2} - \frac{\sqrt{2}}{2}i}\)</div>
+        </div>
+      </div>
+
+      <!-- Diagram 1 -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Figure 1: Trigonometric Representation of Roots</span>
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5" onclick="openLightbox('https://images.openai.com/static-rsc-4/EXrL3v4HSKo1Nt07P11N7Jo2YM19WujBZWniDSWcuh4Ukalezb5k8SX6CqW_EUDpd82DJxsG7WW6h7vTcm1q3pO7oJcRVlrQAbdruFMXaoUWl29-S5euOD7Hxcn81H_AmyfrA_4GC5MfNCSGNq62HeiP4NwuMetv9JVnqBPiWda2dsH0lV-__j6Syxgwfd5o?purpose=fullsize', 'Trigonometric Representation of Complex Roots')">
+          <img src="https://images.openai.com/static-rsc-4/EXrL3v4HSKo1Nt07P11N7Jo2YM19WujBZWniDSWcuh4Ukalezb5k8SX6CqW_EUDpd82DJxsG7WW6h7vTcm1q3pO7oJcRVlrQAbdruFMXaoUWl29-S5euOD7Hxcn81H_AmyfrA_4GC5MfNCSGNq62HeiP4NwuMetv9JVnqBPiWda2dsH0lV-__j6Syxgwfd5o?purpose=fullsize" alt="Trigonometric Representation of Complex Roots" class="w-full max-h-56 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+      </div>
+
+      <!-- Example 2: Cube Roots of 8i -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <strong class="text-slate-900 dark:text-white font-display block">Example 2: Cube Roots of \(z = 8i\)</strong>
+        <div class="space-y-1 text-slate-600 dark:text-slate-300">
+          <div>&bull; Polar Form: \(r = 8, \theta = \frac{\pi}{2} \implies z = 8\left(\cos\frac{\pi}{2} + i\sin\frac{\pi}{2}\right)\).</div>
+          <div>&bull; Root Parameters: \(n = 3 \implies \sqrt[3]{8} = 2\). Arguments: \(\theta_k = \frac{\pi/2 + 2k\pi}{3}\).</div>
+        </div>
+        <div class="p-2.5 rounded bg-white dark:bg-slate-900 font-mono text-xs space-y-1.5 border border-slate-200 dark:border-slate-800">
+          <div>\(k = 0 \implies \theta_0 = \frac{\pi}{6} \implies C_0 = 2\left(\cos\frac{\pi}{6} + i\sin\frac{\pi}{6}\right) = \mathbf{\sqrt{3} + i}\)</div>
+          <div>\(k = 1 \implies \theta_1 = \frac{5\pi}{6} \implies C_1 = 2\left(\cos\frac{5\pi}{6} + i\sin\frac{5\pi}{6}\right) = \mathbf{-\sqrt{3} + i}\)</div>
+          <div>\(k = 2 \implies \theta_2 = \frac{9\pi}{6} = \frac{3\pi}{2} \implies C_2 = 2\left(\cos\frac{3\pi}{2} + i\sin\frac{3\pi}{2}\right) = \mathbf{-2i}\)</div>
+        </div>
+      </div>
+
+      <!-- Diagram 2 -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block">Figure 2: Modulus-Argument Symmetry on the Complex Plane</span>
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900/5" onclick="openLightbox('https://images.openai.com/static-rsc-4/1MiYNA6xuk-fLPfCtdHxdlLhQCnjC1DfF81IAgBjaCtzIJLlseBo7OQrx1kcKQoCkCo-v1iIZuVIoi8YtFbwMQj5qkKwC6oO2lrnhxnY2dg_AwTmH1TmZHLO5XQpLyCINS16CQDib5WclRLhkgNNAMsq96XmOHaDSoe3m7fSiYqsPw93jADUNVGTSxiBiEYz?purpose=fullsize', 'Modulus Argument Symmetry on the Complex Plane')">
+          <img src="https://images.openai.com/static-rsc-4/1MiYNA6xuk-fLPfCtdHxdlLhQCnjC1DfF81IAgBjaCtzIJLlseBo7OQrx1kcKQoCkCo-v1iIZuVIoi8YtFbwMQj5qkKwC6oO2lrnhxnY2dg_AwTmH1TmZHLO5XQpLyCINS16CQDib5WclRLhkgNNAMsq96XmOHaDSoe3m7fSiYqsPw93jADUNVGTSxiBiEYz?purpose=fullsize" alt="Modulus Argument Symmetry on the Complex Plane" class="w-full max-h-56 object-cover object-center group-hover:scale-105 transition duration-300" />
+          <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 4. Geometric Meaning of Roots -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Geometric Symmetry: The Circle Distribution</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words">
+        When plotted on the Argand plane, the \(n\) roots of any complex number lie precisely on a circle centered at the origin with radius \(R = \sqrt[n]{r}\), forming the vertices of a <strong>regular \(n\)-sided polygon</strong>.
+      </p>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm">
+        <strong class="text-brand-800 dark:text-brand-300 block font-bold">Uniform Angular Separation:</strong>
+        <div class="math-scroll font-mono text-center text-sm font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{\Delta\theta = \frac{2\pi}{n} = \frac{360^\circ}{n}}$$
+        </div>
+      </div>
+
+      <!-- Angular Separation Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 text-xs uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr>
+              <th class="py-2.5 px-3 sm:px-4">Root Order</th>
+              <th class="py-2.5 px-3 sm:px-4">Root Count (\(n\))</th>
+              <th class="py-2.5 px-3 sm:px-4 font-mono">Angular Separation (\(\Delta\theta\))</th>
+              <th class="py-2.5 px-3 sm:px-4">Geometric Polygon</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-sans font-bold text-brand-700 dark:text-brand-400">Square Roots</td>
+              <td class="py-2 px-3 sm:px-4">\(2\)</td>
+              <td class="py-2 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">\(\pi = 180^\circ\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">Collinear opposite diameter</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-sans font-bold text-brand-700 dark:text-brand-400">Cube Roots</td>
+              <td class="py-2 px-3 sm:px-4">\(3\)</td>
+              <td class="py-2 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">\(\frac{2\pi}{3} = 120^\circ\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">Equilateral triangle</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-sans font-bold text-brand-700 dark:text-brand-400">Fourth Roots</td>
+              <td class="py-2 px-3 sm:px-4">\(4\)</td>
+              <td class="py-2 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">\(\frac{\pi}{2} = 90^\circ\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">Square</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 sm:px-4 font-sans font-bold text-brand-700 dark:text-brand-400">Fifth Roots</td>
+              <td class="py-2 px-3 sm:px-4">\(5\)</td>
+              <td class="py-2 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">\(\frac{2\pi}{5} = 72^\circ\)</td>
+              <td class="py-2 px-3 sm:px-4 font-sans text-slate-600 dark:text-slate-300">Regular pentagon</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Advanced Worked Examples (Requested Additions) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Challenging Examination Worked Examples</span>
+      </h2>
+
+      <!-- Advanced 1: Fourth Roots of -16 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between">
+          <strong class="text-slate-900 dark:text-white font-display">Advanced Example 1: Fourth Roots of \(z = -16\)</strong>
+          <span class="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 font-bold font-mono text-[10px]">Polynomial \(z^4 + 16 = 0\)</span>
+        </div>
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+          Find all four solutions to \(z^4 = -16\) and express each root in exact rectangular form \(a + bi\).
+        </p>
+        <div class="p-3 bg-white dark:bg-slate-900 rounded-lg font-mono text-xs space-y-1.5 border border-slate-200 dark:border-slate-800">
+          <div>&bull; Polar Form: \(r = 16\), \(\theta = \pi \implies z = 16(\cos\pi + i\sin\pi)\).</div>
+          <div>&bull; Root Modulus: \(R = \sqrt[4]{16} = \mathbf{2}\).</div>
+          <div>&bull; Angle Rule: \(\theta_k = \frac{\pi + 2k\pi}{4}\) for \(k = 0, 1, 2, 3\).</div>
+          <div class="pt-1 text-slate-700 dark:text-slate-200 space-y-1">
+            <div>\(k = 0 \implies \theta_0 = \frac{\pi}{4} \implies 2\left(\frac{\sqrt{2}}{2} + i\frac{\sqrt{2}}{2}\right) = \mathbf{\sqrt{2} + \sqrt{2}i}\)</div>
+            <div>\(k = 1 \implies \theta_1 = \frac{3\pi}{4} \implies 2\left(-\frac{\sqrt{2}}{2} + i\frac{\sqrt{2}}{2}\right) = \mathbf{-\sqrt{2} + \sqrt{2}i}\)</div>
+            <div>\(k = 2 \implies \theta_2 = \frac{5\pi}{4} \implies 2\left(-\frac{\sqrt{2}}{2} - i\frac{\sqrt{2}}{2}\right) = \mathbf{-\sqrt{2} - \sqrt{2}i}\)</div>
+            <div>\(k = 3 \implies \theta_3 = \frac{7\pi}{4} \implies 2\left(\frac{\sqrt{2}}{2} - i\frac{\sqrt{2}}{2}\right) = \mathbf{\sqrt{2} - \sqrt{2}i}\)</div>
+          </div>
+          <p class="text-emerald-600 dark:text-emerald-400 font-bold pt-1">Combined Solution: \(z = \pm\sqrt{2} \pm \sqrt{2}i\).</p>
+        </div>
+      </div>
+
+      <!-- Advanced 2: Cube Roots of -2 + 2i -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs sm:text-sm">
+        <div class="flex items-center justify-between">
+          <strong class="text-slate-900 dark:text-white font-display">Advanced Example 2: Cube Roots of Mixed Number \(z = -2 + 2i\)</strong>
+          <span class="px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold font-mono text-[10px]">Quadrant II Cube Roots</span>
+        </div>
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+          Determine all cube roots of \(z = -2 + 2i\) in trigonometric polar form.
+        </p>
+        <div class="p-3 bg-white dark:bg-slate-900 rounded-lg font-mono text-xs space-y-1.5 border border-slate-200 dark:border-slate-800">
+          <div>&bull; Modulus: \(r = \sqrt{(-2)^2 + 2^2} = \sqrt{8} = 2^{3/2}\).</div>
+          <div>&bull; Argument: In QII (\(x<0, y>0\)): \(\theta = \pi - \frac{\pi}{4} = \frac{3\pi}{4}\).</div>
+          <div>&bull; Root Modulus: \(R = \left(2^{3/2}\right)^{1/3} = 2^{1/2} = \mathbf{\sqrt{2}}\).</div>
+          <div>&bull; Angle Rule: \(\theta_k = \frac{3\pi/4 + 2k\pi}{3} = \frac{\pi}{4} + \frac{2k\pi}{3}\).</div>
+          <div class="pt-1 text-slate-700 dark:text-slate-200 space-y-1">
+            <div>\(k = 0 \implies \theta_0 = \frac{\pi}{4} \implies \mathbf{C_0 = \sqrt{2}\left(\cos\frac{\pi}{4} + i\sin\frac{\pi}{4}\right)}\)</div>
+            <div>\(k = 1 \implies \theta_1 = \frac{\pi}{4} + \frac{2\pi}{3} = \frac{11\pi}{12} \implies \mathbf{C_1 = \sqrt{2}\left(\cos\frac{11\pi}{12} + i\sin\frac{11\pi}{12}\right)}\)</div>
+            <div>\(k = 2 \implies \theta_2 = \frac{\pi}{4} + \frac{4\pi}{3} = \frac{19\pi}{12} \implies \mathbf{C_2 = \sqrt{2}\left(\cos\frac{19\pi}{12} + i\sin\frac{19\pi}{12}\right)}\)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Systematic 5-Step Protocol -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>The 5-Step Execution Protocol &amp; Exam Traps</span>
+      </h2>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1 text-xs sm:text-sm">
+        <strong class="text-slate-900 dark:text-white font-display">Systematic Protocol:</strong>
+        <ol class="list-decimal pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-300">
+          <li>Convert the given Cartesian number into standard polar form \(r(\cos\theta + i\sin\theta)\).</li>
+          <li>Identify the required root order \(n\), and record the counter index \(k \in \{0, 1, \dots, n-1\}\).</li>
+          <li>Calculate the uniform root radius \(R = r^{1/n}\).</li>
+          <li>Evaluate angles using \(\theta_k = \frac{\theta + 2k\pi}{n}\) for each value of \(k\).</li>
+          <li>Substitute into \(C_k = R(\cos\theta_k + i\sin\theta_k)\) and convert to rectangular form if asked.</li>
+        </ol>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200 space-y-1">
+        <strong class="font-bold block">Top 3 Student Errors to Avoid:</strong>
+        <ul class="list-disc pl-5 space-y-0.5">
+          <li><strong>Starting \(k\) at 1:</strong> \(k\) must <em>always</em> begin at \(0\) and terminate at \(n - 1\).</li>
+          <li><strong>Dividing only \(2k\pi\) by \(n\):</strong> The entire sum \((\theta + 2k\pi)\) must be divided by \(n\).</li>
+          <li><strong>Dividing the modulus instead of root:</strong> The modulus is \(r^{1/n} = \sqrt[n]{r}\), NEVER \(\frac{r}{n}\)!</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 7. Interactive Self-Assessment Quiz -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Select an answer to receive instantaneous verification and step-by-step breakdown</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <!-- Quiz Questions Mount -->
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <!-- Automatic Final Result Card -->
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Lightbox Modal (Optimized for Mobile Viewports) -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Extraction of Roots of Complex Numbers
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Question 1. How many distinct square roots does any non-zero complex number possess in ℂ?",
+        options: [
+          "A. 1",
+          "B. 2",
+          "C. 3",
+          "D. 4"
+        ],
+        correct: 1,
+        exp: "By the Fundamental Theorem of Algebra and De Moivre's root theorem, every non-zero complex number has exactly n distinct n-th roots. For square roots (n = 2), there are exactly 2 distinct roots."
+      },
+      {
+        q: "Question 2. What is the modulus of each cube root of z = 8i?",
+        options: [
+          "A. 8",
+          "B. 4",
+          "C. 2",
+          "D. √8"
+        ],
+        correct: 2,
+        exp: "The modulus of the original number is |8i| = 8. For cube roots (n = 3), each root has modulus R = ∛r = ∛8 = 2."
+      },
+      {
+        q: "Question 3. In the general n-th root formula, what exact integer range does the index k take?",
+        options: [
+          "A. 1 to n",
+          "B. 0 to n − 1",
+          "C. 0 to n",
+          "D. −n to n"
+        ],
+        correct: 1,
+        exp: "The parameter k runs across n consecutive non-negative integers: k = 0, 1, 2, ..., n − 1 to generate all distinct roots without repetition."
+      },
+      {
+        q: "Question 4. What is the angular separation between consecutive cube roots of a complex number?",
+        options: [
+          "A. 90°",
+          "B. 180°",
+          "C. 120°",
+          "D. 60°"
+        ],
+        correct: 2,
+        exp: "Roots are evenly spaced around a circle by an angular separation of Δθ = 360°/n = 360°/3 = 120° (or 2π/3 radians)."
+      },
+      {
+        q: "Question 5. Find the complete set of square roots of −4.",
+        options: [
+          "A. 4 and −4",
+          "B. 2i and −2i",
+          "C. 2 and −2",
+          "D. i and −i"
+        ],
+        correct: 1,
+        exp: "Since (2i)² = 4i² = −4 and (−2i)² = 4i² = −4, the two distinct square roots of −4 are 2i and −2i."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+
+      quizMount.innerHTML = "";
+      answeredCount = 0;
+      score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++;
+              btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong");
+              allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+
+            if (answeredCount === quizData.length) {
+              showQuizResult();
+            }
+          });
+
+          optionsWrap.appendChild(btn);
+        });
+
+        qBlock.appendChild(optionsWrap);
+        qBlock.appendChild(feedback);
+        quizMount.appendChild(qBlock);
+      });
+
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+
+      const total = quizData.length;
+      const pct = Math.round((score / total) * 100);
+
+      scoreEl.innerText = `${score} / ${total} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100
+          ? "Outstanding! 100% mastery achieved on Extraction of Roots of Complex Numbers."
+          : "Great performance! You have a firm grasp of De Moivre's root theorem and angular symmetry.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Remember that k runs from 0 to n−1, and review the angular separation formula.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the general root formula and circle angular separation above, then try again.";
+      }
+
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() {
+      renderQuiz();
+      document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      const caption = document.getElementById('lightbox-caption');
+
+      img.src = src;
+      img.alt = alt;
+      caption.innerText = alt;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightbox-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'lightbox-modal') closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    function goBackToDashboard() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          const ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin || document.referrer.includes("index.html")) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = "index.html";
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
+      syncThemeIcon();
+    }
+
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const icon = document.getElementById("theme-icon");
+      if (icon) {
+        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncThemeIcon();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>
