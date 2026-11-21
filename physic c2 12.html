@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Power — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · Rate of Energy Transfer
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Power</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Average Power, Instantaneous Power (\(\vec{F}\cdot\vec{v}\)), Watt &amp; Horsepower Units, and Kilowatt-Hours (\(\text{kWh}\))</p>
+      </div>
+    </section>
+
+    <!-- 1. What is Power? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Power?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Imagine two students carrying identical \(20\text{ kg}\) bags up the exact same staircase: Student A takes \(10\text{ s}\), while Student B takes \(5\text{ s}\). Both perform the exact same amount of work, yet Student B does it faster—producing <strong>greater power</strong>.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition &amp; Average Power Formula:</strong>
+        <p class="text-slate-700 dark:text-slate-300"><strong>Power</strong> is the rate at which work is done or energy is transferred:</p>
+        <div class="math-scroll font-mono text-center text-base font-bold text-brand-900 dark:text-brand-200">
+          $$\boxed{P = \frac{W}{t}}$$
+        </div>
+        <ul class="list-disc pl-5 text-xs text-slate-700 dark:text-slate-300 space-y-0.5">
+          <li>\(P\) = average power (watts, \(\text{W}\))</li>
+          <li>\(W\) = work done (joules, \(\text{J}\))</li>
+          <li>\(t\) = time taken (seconds, \(\text{s}\))</li>
+        </ul>
+      </div>
+
+      <!-- SI Unit & Conversions -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1">
+          <strong class="font-display text-emerald-900 dark:text-emerald-300 block">SI Unit of Power (Watt):</strong>
+          <div class="font-mono font-bold text-sm">$$\boxed{1\text{ W} = 1\text{ J/s}}$$</div>
+          <p class="text-slate-600 dark:text-slate-300">One watt means one joule of energy is transferred every second.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1 font-mono">
+          <strong class="font-sans font-display text-slate-900 dark:text-white block">Other Common Power Units:</strong>
+          <div>&bull; Kilowatt: \(1\text{ kW} = 1000\text{ W} = 10^3\text{ W}\)</div>
+          <div>&bull; Megawatt: \(1\text{ MW} = 1,000,000\text{ W} = 10^6\text{ W}\)</div>
+          <div>&bull; Horsepower: \(1\text{ hp} \approx 746\text{ W}\)</div>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/ck-JYgT6EfZ25S_0GUW_Uvn3PpZ0T8G27ct-30MA556e0tZNSVu9CKPgmAA7lUldbgXPb0Y96acsnAsrLE9Bdeil5IYTQZhwffoE2Vl1UCDBxwS5a2ppvk5B-vLa4-WvynpjQTZTWWxX77fHf2ATUc835OnI6QScq8gEckGCe3PaKCYvEpeLocWJAaXYBBGi?purpose=fullsize', 'Mechanical Power: Work Divided by Time')">
+        <img src="https://images.openai.com/static-rsc-4/ck-JYgT6EfZ25S_0GUW_Uvn3PpZ0T8G27ct-30MA556e0tZNSVu9CKPgmAA7lUldbgXPb0Y96acsnAsrLE9Bdeil5IYTQZhwffoE2Vl1UCDBxwS5a2ppvk5B-vLa4-WvynpjQTZTWWxX77fHf2ATUc835OnI6QScq8gEckGCe3PaKCYvEpeLocWJAaXYBBGi?purpose=fullsize" alt="Power Formula Diagram" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+    </section>
+
+    <!-- 2. Worked Examples: Average Power (Examples 1–3) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Worked Examples — Average Power</span>
+      </h2>
+
+      <!-- Example 1 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 1 — Simple Power Calculation</strong>
+        <p class="text-slate-600 dark:text-slate-300">A machine performs \(W = 600\text{ J}\) of work in \(t = 10\text{ s}\):</p>
+        <div class="step-box font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+          \(P = \frac{W}{t} = \frac{600}{10} = \mathbf{60\text{ W}}\) (transfers \(60\text{ J/s}\))
+        </div>
+      </div>
+
+      <!-- Example 2 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 2 — Climbing Stairs (\(m = 60\text{ kg}, h = 5\text{ m}, g = 10\text{ m/s}^2\))</strong>
+        <div class="space-y-2 font-mono">
+          <div class="step-box">Step 1 (Work against gravity): \(W = mgh = 60(10)(5) = 3000\text{ J}\)</div>
+          <div class="step-box">Step 2 (In \(10\text{ s}\)): \(P = \frac{3000}{10} = \mathbf{300\text{ W}}\)</div>
+          <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 3 (In \(5\text{ s}\)): \(P = \frac{3000}{5} = \mathbf{600\text{ W}}\) (same work, halved time &rarr; doubled power!)</div>
+        </div>
+      </div>
+
+      <!-- Example 3 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 3 — Finding Time From Power</strong>
+        <p class="text-slate-600 dark:text-slate-300">A \(500\text{ W}\) motor performs \(10,000\text{ J}\) of work. How long does it take?</p>
+        <div class="step-box font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+          \(t = \frac{W}{P} = \frac{10000}{500} = \mathbf{20\text{ s}}\)
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Instantaneous Power -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Instantaneous Power (\(P = \vec{F} \cdot \vec{v}\))</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-1.5">
+        <p class="text-slate-700 dark:text-slate-300">When an instantaneous force \(\vec{F}\) acts on an object moving at velocity \(\vec{v}\) separated by angle \(\theta\):</p>
+        <div class="math-scroll font-mono text-center text-base font-bold text-brand-900 dark:text-brand-200">
+          $$\boxed{P = \vec{F}\cdot\vec{v} = Fv\cos\theta}$$
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/N0G0vInTMGfrtu4elXEUatFdMjr9HvH3jdE74ekjOc6FNFXtApwa_TYwd-OG8w99S50sJQLBwlT4tiuFDzSDbdtETpyIGnu1rYuu3CcBIoRA2L96vMaU2l7mubyrUio7HPU8wNYKXvNyPQaVDTJuAMwg_d0LLW4HIg4Ss59HSwISySDziKoW5E5GTd90k78S?purpose=fullsize', 'Instantaneous Power: Force and Velocity Dot Product')">
+        <img src="https://images.openai.com/static-rsc-4/N0G0vInTMGfrtu4elXEUatFdMjr9HvH3jdE74ekjOc6FNFXtApwa_TYwd-OG8w99S50sJQLBwlT4tiuFDzSDbdtETpyIGnu1rYuu3CcBIoRA2L96vMaU2l7mubyrUio7HPU8wNYKXvNyPQaVDTJuAMwg_d0LLW4HIg4Ss59HSwISySDziKoW5E5GTd90k78S?purpose=fullsize" alt="Instantaneous Power" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+      </figure>
+
+      <div class="grid sm:grid-cols-3 gap-2.5 text-xs">
+        <div class="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30">
+          <strong>Same Direction (\(\theta = 0^\circ\)):</strong><br><span class="font-mono font-bold text-emerald-600">\(P = +Fv\)</span> (adds energy)
+        </div>
+        <div class="p-3 rounded-xl bg-rose-50/70 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30">
+          <strong>Opposite (\(\theta = 180^\circ\)):</strong><br><span class="font-mono font-bold text-rose-600">\(P = -Fv\)</span> (removes energy)
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong>Perpendicular (\(\theta = 90^\circ\)):</strong><br><span class="font-mono font-bold">\(P = 0\)</span> (zero power)
+        </div>
+      </div>
+
+      <!-- Examples 4 & 5 -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 4 — Forward Engine Power</strong>
+          <p class="text-slate-600 dark:text-slate-300">Car moves at \(20\text{ m/s}\) with \(1500\text{ N}\) forward thrust:</p>
+          <p class="font-mono font-bold text-emerald-600">\(P = 1500(20)\cos 0^\circ = \mathbf{30,000\text{ W} = 30\text{ kW}}\)</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 5 — Braking Power</strong>
+          <p class="text-slate-600 dark:text-slate-300">Car moves at \(15\text{ m/s}\) with \(2000\text{ N}\) braking opposing motion:</p>
+          <p class="font-mono font-bold text-rose-600">\(P = 2000(15)\cos 180^\circ = \mathbf{-30,000\text{ W}}\)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Energy Transfer & Kilowatt-Hour (Examples 6–8) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Energy Transfer &amp; Kilowatt-Hour (\(\text{kWh}\))</span>
+      </h2>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+        <strong class="font-display text-slate-900 dark:text-white block">General Form &amp; Example 6 — Electrical Energy</strong>
+        <p class="text-slate-600 dark:text-slate-300">Power expresses any energy transfer rate: \(P = \frac{E}{t} \implies E = Pt\). A \(200\text{ W}\) device running for \(30\text{ s}\) consumes:</p>
+        <p class="font-mono font-bold text-emerald-600">\(E = 200(30) = \mathbf{6000\text{ J}}\)</p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs space-y-1 text-amber-950 dark:text-amber-200">
+        <strong class="font-bold block">Exam Alert: Kilowatt-Hour (\(\text{kWh}\)) is a Unit of ENERGY, Not Power!</strong>
+        <div class="font-mono font-bold text-sm py-0.5">
+          $$1\text{ kWh} = (1000\text{ J/s}) \times (3600\text{ s}) = \boxed{3.6 \times 10^6\text{ J}}$$
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 7 — Electricity Consumption</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(2\text{ kW}\) electric heater runs for \(3\text{ hours}\):</p>
+          <div class="font-mono space-y-0.5">
+            <div>&bull; In kWh: \(E = 2(3) = \mathbf{6\text{ kWh}}\)</div>
+            <div class="text-emerald-600 font-bold">&bull; In joules: \(E = 6(3.6 \times 10^6) = \mathbf{21.6 \times 10^6\text{ J}}\)</div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 8 — Hypothetical Electricity Cost</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(1.5\text{ kW}\) heater runs \(4\text{ h/day}\) for \(5\text{ days}\) at \(8\text{ birr/kWh}\):</p>
+          <div class="font-mono space-y-0.5">
+            <div>Energy: \(E = 1.5(4)(5) = 30\text{ kWh}\)</div>
+            <div class="text-emerald-600 font-bold">Cost: \(30 \times 8 = \mathbf{240\text{ birr}}\)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Power Ratio Comparison & Critical Thinking -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Speed-Squared Power Comparison &amp; Deeper Concepts</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Worked Comparison — Older Car (\(0 \to v\)) vs. Newer Car (\(0 \to 2v\))</strong>
+        <p class="text-slate-600 dark:text-slate-300">
+          An older car accelerates from rest to speed \(v\) in \(10\text{ s}\). A newer car of identical mass \(m\) accelerates from rest to speed \(2v\) in the same \(10\text{ s}\). Find \(\frac{P_2}{P_1}\).
+        </p>
+        <div class="space-y-2 font-mono">
+          <div class="step-box">Step 1 (Work–KE Theorem): \(W_1 = \frac{1}{2}mv^2\) &nbsp;|&nbsp; \(W_2 = \frac{1}{2}m(2v)^2 = 2mv^2\)</div>
+          <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 2 (Equal time \(t = 10\text{ s}\)): \(\frac{P_2}{P_1} = \frac{W_2}{W_1} = \frac{2mv^2}{\frac{1}{2}mv^2} = \mathbf{4}\) (Ratio \(4:1\), because \(KE \propto v^2\))</div>
+        </div>
+      </div>
+
+      <!-- Critical-Thinking Q&A -->
+      <div class="space-y-2 text-xs">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Conceptual Power Checks:</h3>
+        <div class="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 space-y-1.5 text-slate-700 dark:text-slate-300">
+          <div><strong>Q1:</strong> Two machines lift identical objects to equal heights in \(4\text{ s}\) and \(8\text{ s}\). Neither does more work; the \(4\text{ s}\) machine has <strong>twice</strong> the average power.</div>
+          <div><strong>Q2:</strong> A car moving at constant speed on a level road still needs positive engine power to balance friction and air resistance (zero acceleration means zero <em>net</em> force, not zero power).</div>
+          <div><strong>Q3:</strong> A force can act with zero instantaneous power whenever it is strictly <strong>perpendicular</strong> to velocity (\(P = Fv\cos 90^\circ = 0\)).</div>
+          <div><strong>Q4:</strong> A high-power machine operating very briefly can do less total work than a low-power machine running for a much longer time.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Interactive Self-Assessment Quiz (7 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">7 exam-style questions testing power formulas, units, and ratios</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 7</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 7 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Power
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. A machine performs 2400 J of work in 8 seconds. Its average power is:",
+        options: ["A. 192 W", "B. 300 W", "C. 240 W", "D. 19,200 W"],
+        correct: 1,
+        exp: "P = W / t = 2400 J / 8 s = 300 W."
+      },
+      {
+        q: "Q2. A 50 kg student climbs vertically through 4 m in 5 seconds. Taking g = 10 m/s², what is the average power?",
+        options: ["A. 100 W", "B. 200W", "C. 400 W", "D. 1000 W"],
+        correct: 2,
+        exp: "Work done against gravity: W = mgh = 50(10)(4) = 2000 J. Average power: P = W / t = 2000 / 5 = 400 W."
+      },
+      {
+        q: "Q3. A force of 100 N acts in the direction of an object's velocity of 5 m/s. Instantaneous power is:",
+        options: ["A. 20 W", "B. 100 W", "C. 500 W", "D. 0 W"],
+        correct: 2,
+        exp: "Using P = Fv cos(0°): P = 100 × 5 × 1 = 500 W."
+      },
+      {
+        q: "Q4. A force acts perpendicular to an object's velocity. Its instantaneous power is:",
+        options: ["A. Maximum", "B. Negative", "C. Zero", "D. Always equal to force"],
+        correct: 2,
+        exp: "Because cos(90°) = 0, a force perpendicular to velocity delivers zero instantaneous power: P = Fv cos(90°) = 0 W."
+      },
+      {
+        q: "Q5. Which of the following is a unit of energy?",
+        options: ["A. Watt", "B. Kilowatt", "C. Kilowatt-hour", "D. Horsepower"],
+        correct: 2,
+        exp: "Watt, kilowatt, and horsepower are units of power (rate of energy transfer), whereas kilowatt-hour (1 kWh = 3.6 × 10⁶ J) is a unit of energy."
+      },
+      {
+        q: "Q6. Two identical cars accelerate from rest. Car B reaches twice the speed of Car A in the same time. Their average power ratio B:A is:",
+        options: ["A. 2:1", "B. 4:1", "C. 1:2", "D. 1:4"],
+        correct: 1,
+        exp: "Since work equals final kinetic energy (W = ½mv²) and time is equal, power scales with v²: (2v)² / v² = 4:1."
+      },
+      {
+        q: "Q7. A 2 kW motor operates for 30 minutes. How much energy does it transfer?",
+        options: ["A. 1 kWh", "B. 2 kWh", "C. 30 kWh", "D. 60 kWh"],
+        correct: 0,
+        exp: "Convert 30 minutes to hours: t = 0.5 h. Energy E = Pt = 2 kW × 0.5 h = 1 kWh."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Power!" : "Great performance! You clearly understand average power, instantaneous power, and kWh energy calculations.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the distinction between power (W) and energy (kWh) and speed-squared power ratios.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the average power, instantaneous power (Fv cosθ), and worked examples above, then try again.";
+      }
+      resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

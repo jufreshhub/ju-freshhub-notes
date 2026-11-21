@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Center of Mass — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll,
+    .step-box,
+    mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; max-width: 100%; -webkit-overflow-scrolling: touch; }
+    .step-box { min-width: 0; }
+    mjx-container[display="true"] { padding-bottom: 0.25rem; }
+    /* thin scrollbar so the scroll hint is visible but not bulky */
+    .math-scroll::-webkit-scrollbar, .step-box::-webkit-scrollbar, mjx-container[display="true"]::-webkit-scrollbar { height: 4px; }
+    .math-scroll::-webkit-scrollbar-thumb, .step-box::-webkit-scrollbar-thumb, mjx-container[display="true"]::-webkit-scrollbar-thumb { background: rgba(148,163,184,.6); border-radius: 4px; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="crosshair" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · System Dynamics
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Center of Mass</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Translational Balance Point, 1D/2D/3D Coordinates, Regular Objects, and Center of Gravity Distinction</p>
+      </div>
+    </section>
+
+    <!-- 1. What is the Center of Mass? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is the Center of Mass?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Imagine balancing a long wooden ruler by placing a single finger underneath it at exactly the right point. That balance point is the <strong>center of mass</strong>.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition:</strong>
+        <p class="text-slate-700 dark:text-slate-200">
+          The <strong>center of mass (CM)</strong> is the unique point at which the entire mass of a body or system can be considered concentrated when analyzing its translational motion. It represents the balance point of an object's mass distribution.
+        </p>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/KvCzWR2t/6Hf-Wyl9u-PMQb6RPH3o-Omp-U4v-f-LCg0Ib-Y5m-HKy-MQu-Byit-LW7u-ZXt-EXMrq-LBTTRNf8Jr-Rj-VOhcu9M2OTHODVd.jpg', 'Center of Gravity and Center of Mass Balance Point')">
+        <img src="https://i.postimg.cc/KvCzWR2t/6Hf-Wyl9u-PMQb6RPH3o-Omp-U4v-f-LCg0Ib-Y5m-HKy-MQu-Byit-LW7u-ZXt-EXMrq-LBTTRNf8Jr-Rj-VOhcu9M2OTHODVd.jpg" alt="Center of Mass Airplane" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">The Hammer Analogy:</strong>
+        <p class="text-slate-600 dark:text-slate-300">
+          Because a hammer's head is much heavier than its wooden handle, its center of mass lies significantly closer to the heavy head, not at its geometric center. CM depends strictly on <em>mass distribution</em>, not geometric shape alone.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. Two Particles on a Straight Line (Examples 1 & 2) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Center of Mass of Two Particles in 1D</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-1.5">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Formula (Two Particles on \(x\)-axis):</strong>
+        <div class="math-scroll font-mono text-center text-sm font-bold text-brand-900 dark:text-brand-200">
+          $$\boxed{x_{\text{CM}} = \frac{m_1 x_1 + m_2 x_2}{m_1 + m_2}}$$
+        </div>
+        <p class="text-slate-600 dark:text-slate-300">Heavier masses exert a greater pull, drawing the center of mass closer to themselves.</p>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/zvgmHDP2/MPEo-SAKFM2c4BR6Pl-XMP9m8lp-Wd0c-MXNd5FTwli-Kwcf-Ju2nv-Ee-RBb0WPz-Rw-Qozl-MQ-i-WXPPe8p2Q0n-C0gm-D0r.jpg', 'Center of Mass of a Two-Particle System on a Line')">
+        <img src="https://i.postimg.cc/zvgmHDP2/MPEo-SAKFM2c4BR6Pl-XMP9m8lp-Wd0c-MXNd5FTwli-Kwcf-Ju2nv-Ee-RBb0WPz-Rw-Qozl-MQ-i-WXPPe8p2Q0n-C0gm-D0r.jpg" alt="Two Particles CM" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <!-- Examples 1 & 2 -->
+      <div class="space-y-3 text-xs">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 1 — Two Masses on a Line</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(2\text{ kg}\) mass is at \(x_1 = 0\text{ m}\) and a \(6\text{ kg}\) mass is at \(x_2 = 4\text{ m}\). Find \(x_{\text{CM}}\).</p>
+          <div class="space-y-2 font-mono">
+            <div class="step-box">Step 1: \(m_1 = 2,\; x_1 = 0 \quad | \quad m_2 = 6,\; x_2 = 4\)</div>
+            <div class="step-box">Step 2: \(x_{\text{CM}} = \frac{2(0) + 6(4)}{2 + 6} = \frac{24}{8}\)</div>
+            <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 3: \(x_{\text{CM}} = \mathbf{3\text{ m}}\) (closer to the \(6\text{ kg}\) mass)</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 2 — Masses on Opposite Sides of Origin</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(4\text{ kg}\) mass is at \(x_1 = -3\text{ m}\) and a \(2\text{ kg}\) mass is at \(x_2 = +6\text{ m}\). Find \(x_{\text{CM}}\).</p>
+          <div class="space-y-2 font-mono">
+            <div class="step-box">Step 1: \(x_{\text{CM}} = \frac{4(-3) + 2(6)}{4 + 2} = \frac{-12 + 12}{6}\)</div>
+            <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 2: \(x_{\text{CM}} = \frac{0}{6} = \mathbf{0\text{ m}}\) (exactly at origin)</div>
+          </div>
+          <p class="text-[11px] font-bold text-rose-600 dark:text-rose-400">Exam Lesson: Negative positions must be preserved as negative values in calculations!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Many Particles in 1D & Example 3 -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Center of Mass of Many Particles in 1D</span>
+      </h2>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">General Formula (1D Multi-Particle System):</strong>
+        <div class="math-scroll font-mono text-center text-sm font-bold text-brand-700 dark:text-brand-400">
+          $$x_{\text{CM}} = \frac{\sum m_i x_i}{\sum m_i} = \frac{\sum m_i x_i}{M}$$
+        </div>
+        <p class="text-slate-500">Where \(M = \sum m_i\) is the total mass of the system.</p>
+      </div>
+
+      <!-- Example 3 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 3 — Three Particles Along the \(x\)-axis</strong>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5">
+          <li>Particle A: \(m = 2\text{ kg},\; x = 1\text{ m}\)</li>
+          <li>Particle B: \(m = 3\text{ kg},\; x = 4\text{ m}\)</li>
+          <li>Particle C: \(m = 5\text{ kg},\; x = 6\text{ m}\)</li>
+        </ul>
+        <div class="space-y-2 font-mono">
+          <div class="step-box">Step 1 (Total mass \(M\)): \(M = 2 + 3 + 5 = 10\text{ kg}\)</div>
+          <div class="step-box">Step 2 (Moment sum): \(\sum m_i x_i = 2(1) + 3(4) + 5(6) = 2 + 12 + 30 = 44\text{ kg}\cdot\text{m}\)</div>
+          <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 3: \(x_{\text{CM}} = \frac{44}{10} = \mathbf{4.4\text{ m}}\)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Center of Mass in Two Dimensions (2D) & Example 4 -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Center of Mass in Two Dimensions (2D)</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        For particles distributed across a flat plane (\(xy\)-plane), compute each coordinate independently using total mass \(M\):
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 font-mono text-xs text-center">
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-bold">
+          $$\boxed{x_{\text{CM}} = \frac{\sum m_i x_i}{M}}$$
+        </div>
+        <div class="p-3 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-bold">
+          $$\boxed{y_{\text{CM}} = \frac{\sum m_i y_i}{M}}$$
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/5210JDXH/DSx-KYc-NDFu-Gij-K6Lzz6ds-VB9QBd-a2xm2gz-KEbvf3C7OTl-Yvmt3y2V3GSOW2W2kow2t-Ukynsrs-OAYFV5N4TTFVHx-LN.jpg', 'Three Particle System in 2D Plane')">
+        <img src="https://i.postimg.cc/5210JDXH/DSx-KYc-NDFu-Gij-K6Lzz6ds-VB9QBd-a2xm2gz-KEbvf3C7OTl-Yvmt3y2V3GSOW2W2kow2t-Ukynsrs-OAYFV5N4TTFVHx-LN.jpg" alt="2D Three Particle System" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <!-- Example 4 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 4 — Three Particles in a Plane</strong>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5">
+          <li>Particle A: \(1\text{ kg}\) at \((0, 2)\text{ m}\)</li>
+          <li>Particle B: \(1\text{ kg}\) at \((2, 0)\text{ m}\)</li>
+          <li>Particle C: \(2\text{ kg}\) at \((2, 2)\text{ m}\)</li>
+        </ul>
+        <div class="space-y-2.5 font-mono">
+          <div class="step-box">Step 1 (Total mass \(M\)): \(M = 1 + 1 + 2 = 4\text{ kg}\)</div>
+          <div class="step-box">Step 2 (\(x_{\text{CM}}\)): \(\frac{1(0) + 1(2) + 2(2)}{4} = \frac{6}{4} = \mathbf{1.5\text{ m}}\)</div>
+          <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 3 (\(y_{\text{CM}}\)): \(\frac{1(2) + 1(0) + 2(2)}{4} = \frac{6}{4} = \mathbf{1.5\text{ m}} \implies \mathbf{(1.5,\; 1.5)\text{ m}}\)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Center of Mass in Three Dimensions (3D) & Example 5 -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Center of Mass in Three Dimensions (3D) &amp; Vector Form</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-2">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">3D Coordinates &amp; Position Vector:</strong>
+        <div class="math-scroll font-mono text-center text-xs font-bold text-brand-900 dark:text-brand-200 space-y-1">
+          <div>\(x_{\text{CM}} = \frac{\sum m_i x_i}{M}, \quad y_{\text{CM}} = \frac{\sum m_i y_i}{M}, \quad z_{\text{CM}} = \frac{\sum m_i z_i}{M}\)</div>
+          <div>$$\vec{r}_{\text{CM}} = x_{\text{CM}}\hat{i} + y_{\text{CM}}\hat{j} + z_{\text{CM}}\hat{k} = \frac{\sum m_i \vec{r}_i}{M}$$</div>
+        </div>
+      </div>
+
+      <!-- Example 5 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 5 — A Three-Dimensional System</strong>
+        <p class="text-slate-600 dark:text-slate-300">Particle A: \(2\text{ kg}\) at \((1, 2, 3)\text{ m}\); Particle B: \(4\text{ kg}\) at \((4, 0, 1)\text{ m}\) (\(M = 6\text{ kg}\)):</p>
+        <div class="space-y-2 font-mono">
+          <div class="step-box">\(x_{\text{CM}} = \frac{2(1) + 4(4)}{6} = \frac{18}{6} = 3\text{ m}\)</div>
+          <div class="step-box">\(y_{\text{CM}} = \frac{2(2) + 4(0)}{6} = \frac{4}{6} = 0.67\text{ m}\)</div>
+          <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">\(z_{\text{CM}} = \frac{2(3) + 4(1)}{6} = \frac{10}{6} = 1.67\text{ m} \implies \mathbf{\vec{r}_{\text{CM}} = (3\hat{i} + 0.67\hat{j} + 1.67\hat{k})\text{ m}}\)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. PDF Worked Example (Example 6) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Worked Example — Four Objects Along the \(y\)-Axis</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 6 — Four Objects on the \(y\)-Axis</strong>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5">
+          <li>\(2.00\text{ kg}\) at \(y = 3.00\text{ m}\)</li>
+          <li>\(3.00\text{ kg}\) at \(y = 2.50\text{ m}\)</li>
+          <li>\(2.50\text{ kg}\) at origin (\(y = 0\))</li>
+          <li>\(4.00\text{ kg}\) at \(y = -0.50\text{ m}\)</li>
+        </ul>
+        <div class="space-y-2.5 font-mono">
+          <div class="step-box math-scroll">Step 1 (Total mass \(M\)): \(M = 2.00 + 3.00 + 2.50 + 4.00 = 11.5\text{ kg}\)</div>
+          <div class="step-box math-scroll">Step 2 (Moment sum): \(\sum m_i y_i = 2(3) + 3(2.5) + 2.5(0) + 4(-0.5) = 6 + 7.5 + 0 - 2 = 11.5\text{ kg}\cdot\text{m}\)</div>
+          <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 3: \(y_{\text{CM}} = \frac{11.5}{11.5} = \mathbf{+1.00\text{ m}}\) (\(1.00\text{ m}\) above origin)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Regular Objects & CM vs CG -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">7</span>
+        <span>Center of Mass of Regular Objects &amp; CM vs. CG</span>
+      </h2>
+
+      <!-- Regular Objects Diagram -->
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/L8HHwfWz/w0e7GRY2K-3a-RGn-VZxmo-UGj-WHmuo-YA43-emq93ILSoi-Nw-P-NHN38utlc-IMTDtht-GIy-Pvjv3Pd9ISlf-Gn9Yy8nj-Mc.jpg', 'Centroids and Centers of Mass of Uniform Symmetric Objects')">
+        <img src="https://i.postimg.cc/L8HHwfWz/w0e7GRY2K-3a-RGn-VZxmo-UGj-WHmuo-YA43-emq93ILSoi-Nw-P-NHN38utlc-IMTDtht-GIy-Pvjv3Pd9ISlf-Gn9Yy8nj-Mc.jpg" alt="Regular Objects CM" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Uniform Symmetrical Objects:</strong>
+          <ul class="list-disc pl-4 text-slate-600 dark:text-slate-300 space-y-0.5">
+            <li><strong>Rectangle:</strong> At geometric center.</li>
+            <li><strong>Circular Disk:</strong> At center of circle.</li>
+            <li><strong>Rod:</strong> At exact midpoint.</li>
+            <li><strong>Sphere:</strong> At geometric center.</li>
+          </ul>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">CM vs. Center of Gravity (CG):</strong>
+          <ul class="list-disc pl-4 text-slate-600 dark:text-slate-300 space-y-0.5">
+            <li><strong>CM:</strong> Represents mass distribution.</li>
+            <li><strong>CG:</strong> Point through which resultant weight acts.</li>
+          </ul>
+          <p class="text-[11px] text-slate-500 pt-1">Near Earth's surface where \(g\) is uniform, CM and CG coincide.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Critical-Thinking Questions (Left for Student) -->
+    <section class="card p-4 sm:p-6 space-y-4 border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/30 dark:bg-indigo-950/20">
+      <h2 class="section-heading !text-indigo-700 dark:!text-indigo-300">
+        <span class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-extrabold shrink-0">8</span>
+        <span>Critical-Thinking Questions</span>
+      </h2>
+
+      <ol class="list-decimal pl-5 space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+        <li>Two objects have equal masses, but one is placed farther from the origin. How does this affect the center of mass?</li>
+        <li>Can the center of mass lie outside the material of an object? Think about a uniform ring.</li>
+        <li>If you double every particle's mass without changing their positions, does the center of mass move?</li>
+        <li>If a system's center of mass is at the origin, does that mean every particle must be at the origin?</li>
+        <li>Why is the center of mass of a hammer closer to its heavy head than to the middle of its handle?</li>
+      </ol>
+    </section>
+
+    <!-- 9. Interactive Self-Assessment Quiz (8 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">8 exam-style questions testing center of mass calculations and concepts</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 8</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 8 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Center of Mass
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. The center of mass of a system is defined as the point where:",
+        options: [
+          "A. All external forces disappear",
+          "B. The entire mass can be considered concentrated for describing translational motion",
+          "C. The object always has zero velocity",
+          "D. The largest particle must be located"
+        ],
+        correct: 1,
+        exp: "The center of mass is the point representing the system's mass distribution for analyzing translational motion."
+      },
+      {
+        q: "Q2. A 2 kg mass is at x = 0 m and a 6 kg mass is at x = 4 m. Where is their center of mass?",
+        options: ["A. 1 m", "B. 2 m", "C. 3 m", "D. 4 m"],
+        correct: 2,
+        exp: "x_CM = (2(0) + 6(4)) / (2 + 6) = 24 / 8 = 3 m."
+      },
+      {
+        q: "Q3. Two equal masses are placed symmetrically at x = −5 m and x = +5 m. What is their center of mass?",
+        options: ["A. −5 m", "B. 0 m", "C. +5 m", "D. +10 m"],
+        correct: 1,
+        exp: "x_CM = (m(−5) + m(+5)) / 2m = 0 / 2m = 0 m (at the origin)."
+      },
+      {
+        q: "Q4. A 3 kg mass is at x = 2 m and a 1 kg mass is at x = 6 m. Find x_CM.",
+        options: ["A. 2 m", "B. 3 m", "C. 4 m", "D. 5 m"],
+        correct: 1,
+        exp: "x_CM = (3(2) + 1(6)) / (3 + 1) = (6 + 6) / 4 = 12 / 4 = 3 m."
+      },
+      {
+        q: "Q5. If every particle's mass in a system is doubled while all positions remain unchanged, the center of mass:",
+        options: [
+          "A. Doubles its position coordinates",
+          "B. Moves to the origin",
+          "C. Remains completely unchanged",
+          "D. Shifts toward the heaviest particle"
+        ],
+        correct: 2,
+        exp: "Doubling every mass multiplies both numerator and denominator by 2, which cancels out completely, leaving x_CM unchanged."
+      },
+      {
+        q: "Q6. Can the center of mass lie outside the physical material of an object?",
+        options: [
+          "A. Never, it must always be inside",
+          "B. Yes, for example in a uniform ring or horseshoe",
+          "C. Only if the object is accelerating",
+          "D. Only if gravity is absent"
+        ],
+        correct: 1,
+        exp: "Yes, symmetrical hollow objects like a uniform ring or horseshoe have their center of mass in empty space outside their material."
+      },
+      {
+        q: "Q7. Four objects have masses: 2 kg at y = 3 m, 3 kg at y = 2.5 m, 2.5 kg at y = 0 m, and 4 kg at y = −0.5 m. Find y_CM.",
+        options: ["A. +0.5 m", "B. +1.0 m", "C. +1.5 m", "D. −1.0 m"],
+        correct: 1,
+        exp: "M = 2 + 3 + 2.5 + 4 = 11.5 kg. Sum m_i y_i = 2(3) + 3(2.5) + 2.5(0) + 4(−0.5) = 6 + 7.5 + 0 − 2 = 11.5. y_CM = 11.5 / 11.5 = +1.0 m."
+      },
+      {
+        q: "Q8. A uniform circular ring has its center of mass located:",
+        options: [
+          "A. On its outer rim",
+          "B. At the geometric center of the ring",
+          "C. At its lowest hanging point",
+          "D. Outside the plane of the ring"
+        ],
+        correct: 1,
+        exp: "Due to complete radial symmetry, the center of mass of a uniform ring lies at its geometric center (even though that point is empty space)."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Center of Mass!" : "Great performance! You clearly understand 1D, 2D, and 3D center of mass calculations.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the weighted average formula for center of mass and negative position signs above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the worked examples and symmetry principles above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

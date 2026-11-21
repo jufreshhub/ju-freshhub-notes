@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Collisions — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 (polyfill.io removed: not needed and unsafe) -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    /* No padding here, so it no longer overrides .step-box padding */
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <span id="theme-icon" class="inline-flex"><i data-lucide="moon" class="w-4 h-4"></i></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="git-commit" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · Impact Mechanics
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Collisions</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Elastic, Inelastic &amp; Perfectly Inelastic Impacts, Relative Speed Shortcuts, and Kinetic Energy Losses</p>
+      </div>
+    </section>
+
+    <!-- 1. What is a Collision? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is a Collision?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        A <strong>collision</strong> is an interaction between two or more objects during a relatively short time interval in which they exert strong internal forces on each other (e.g., billiard balls hitting, a bullet entering a wooden block, car crashes, or a hammer striking a nail).
+      </p>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/FKk3d2xs/ylq4O-EUOfs-Vmzwh-ZZH8u-X9BWb-ESh-MFV7z5yz-Vb-Dx3-i-LQREozphp6NOGun9y-B3vh-SVr-XXf-YYb-Uc-h4LA6Cf-KT.jpg', 'Collision Interaction Between Objects')">
+        <img src="https://i.postimg.cc/FKk3d2xs/ylq4O-EUOfs-Vmzwh-ZZH8u-X9BWb-ESh-MFV7z5yz-Vb-Dx3-i-LQREozphp6NOGun9y-B3vh-SVr-XXf-YYb-Uc-h4LA6Cf-KT.jpg" alt="Collision Interaction" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Momentum Conservation in Collisions:</strong>
+        <p class="text-slate-700 dark:text-slate-200">
+          Provided the system is isolated (net external impulse is zero), total momentum is <strong>always conserved</strong> in all collision types:
+        </p>
+        <div class="math-scroll font-mono text-center text-sm font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{p_{\text{before}} = p_{\text{after}}} \qquad \Longrightarrow \qquad \boxed{m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2}$$
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. The Three Types of Collisions -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>The Three Types of Collisions</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Collisions are categorized based on whether <strong>kinetic energy</strong> is conserved:</p>
+
+      <div class="space-y-3">
+        <!-- Elastic -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-emerald-700 dark:text-emerald-400 block">A. Elastic Collision</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Both momentum <strong>and</strong> total kinetic energy are conserved. Objects separate after impact (e.g., idealized billiard balls, atomic particles).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/Znk7g8wh/1f-Am60Wdb-Pg-HQr6Jv3j-Pcg-JLr-T-Jv-ZR1zq-Myn8Jc935h-IFCMr-QGm-DOpi-Ty-PZvkiaamu-HT4v9HAm-Mkn3EPNp-Z.jpg', 'Elastic Collision Between Billiard Balls')">
+            <img src="https://i.postimg.cc/Znk7g8wh/1f-Am60Wdb-Pg-HQr6Jv3j-Pcg-JLr-T-Jv-ZR1zq-Myn8Jc935h-IFCMr-QGm-DOpi-Ty-PZvkiaamu-HT4v9HAm-Mkn3EPNp-Z.jpg" alt="Elastic Collision" class="w-full max-h-40 object-contain" />
+          </figure>
+        </div>
+
+        <!-- Inelastic -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-amber-700 dark:text-amber-400 block">B. Inelastic Collision</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Momentum is conserved, but <strong>kinetic energy is NOT conserved</strong> (converted to heat, sound, or permanent deformation, e.g., car crashes).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/0NT028D9/wj-F2Ev-Zoyp0b-DUB4m77m-GGwm-NPvr-Xt-NDS3r-Hxk-Lu1n-LAe-Nug-W4g5Fx-Rn-T7f-DQbbtx-C2FYCGB0Pau-Fpy-Yd.jpg', 'Inelastic Collision Deformation')">
+            <img src="https://i.postimg.cc/0NT028D9/wj-F2Ev-Zoyp0b-DUB4m77m-GGwm-NPvr-Xt-NDS3r-Hxk-Lu1n-LAe-Nug-W4g5Fx-Rn-T7f-DQbbtx-C2FYCGB0Pau-Fpy-Yd.jpg" alt="Inelastic Collision" class="w-full max-h-40 object-contain" />
+          </figure>
+        </div>
+
+        <!-- Perfectly Inelastic -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-rose-700 dark:text-rose-400 block">C. Perfectly Inelastic Collision</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Objects <strong>stick together</strong> after impact, moving with a single common final velocity (e.g., bullet embedding in a wooden block).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/pTpWLHQJ/ckqkn-LB89K8KUVoch-Vc3I490Wt-NDT1f6Vlg-Kt-Hjr-QEKiei-EHHo-It-Rr-JB8QLbm-Ob-Ze-Ci-I-g92o-R8u-Zv-V8r-B.jpg', 'Perfectly Inelastic Collision Objects Sticking Together')">
+            <img src="https://i.postimg.cc/pTpWLHQJ/ckqkn-LB89K8KUVoch-Vc3I490Wt-NDT1f6Vlg-Kt-Hjr-QEKiei-EHHo-It-Rr-JB8QLbm-Ob-Ze-Ci-I-g92o-R8u-Zv-V8r-B.jpg" alt="Perfectly Inelastic" class="w-full max-h-40 object-contain" />
+          </figure>
+        </div>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 pt-2">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-3">Property</th><th class="py-2 px-3">Elastic</th><th class="py-2 px-3">Inelastic</th><th class="py-2 px-3">Perfectly Inelastic</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3 font-bold">Momentum conserved?</td><td class="py-2 px-3 text-emerald-600 font-bold">Yes</td><td class="py-2 px-3 text-emerald-600 font-bold">Yes</td><td class="py-2 px-3 text-emerald-600 font-bold">Yes</td></tr>
+            <tr><td class="py-2 px-3 font-bold">KE conserved?</td><td class="py-2 px-3 text-emerald-600 font-bold">Yes</td><td class="py-2 px-3 text-rose-600 font-bold">No</td><td class="py-2 px-3 text-rose-600 font-bold">No</td></tr>
+            <tr><td class="py-2 px-3 font-bold">Stick together?</td><td class="py-2 px-3">No</td><td class="py-2 px-3">No</td><td class="py-2 px-3 font-bold text-brand-600">Yes</td></tr>
+            <tr><td class="py-2 px-3 font-bold">Common final velocity?</td><td class="py-2 px-3">No</td><td class="py-2 px-3">No</td><td class="py-2 px-3 font-bold text-brand-600">Yes</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-[11px] font-bold text-rose-600 dark:text-rose-400">Exam Trap: Every perfectly inelastic collision is inelastic, but not every inelastic collision is perfectly inelastic.</p>
+    </section>
+
+    <!-- 3. Elastic Collisions (Examples 1 & 2) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>One-Dimensional Elastic Collisions</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-1.5">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Equations &amp; Relative Speed Shortcut:</strong>
+        <div class="math-scroll font-mono text-center text-xs font-bold text-brand-900 dark:text-brand-200 space-y-1">
+          <div>Momentum: \(m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2\)</div>
+          <div>KE: \(\frac{1}{2}m_1 u_1^2 + \frac{1}{2}m_2 u_2^2 = \frac{1}{2}m_1 v_1^2 + \frac{1}{2}m_2 v_2^2\)</div>
+          <div>Relative Speed Shortcut: \(\boxed{u_1 - u_2 = v_2 - v_1}\) (Approach speed = Separation speed)</div>
+        </div>
+      </div>
+
+      <!-- Example 1 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 1 — Two Equal-Mass Billiard Balls</strong>
+        <p class="text-slate-600 dark:text-slate-300">Ball 1 (\(2\text{ kg}\)) moves right at \(6\text{ m/s}\) and hits an identical stationary Ball 2 (\(2\text{ kg}\)) elastically.</p>
+        <div class="step-box math-scroll font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+          For equal masses in 1D elastic collision, velocities exchange: \(\mathbf{v_1 = 0}\) and \(\mathbf{v_2 = 6\text{ m/s}}\).
+        </div>
+      </div>
+
+      <!-- Example 2 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 2 — Unequal Masses (Elastic)</strong>
+        <p class="text-slate-600 dark:text-slate-300">Block 1 (\(1.6\text{ kg}\), \(u_1 = +4\text{ m/s}\)) collides elastically with Block 2 (\(2.1\text{ kg}\), \(u_2 = -2.5\text{ m/s}\)). Find \(v_1\) and \(v_2\).</p>
+        <div class="space-y-2.5 font-mono">
+          <div class="step-box math-scroll">Step 1 (Momentum): \(1.6(4) + 2.1(-2.5) = 1.6v_1 + 2.1v_2 \implies \mathbf{1.6v_1 + 2.1v_2 = 1.15}\text{ --- (1)}\)</div>
+          <div class="step-box math-scroll">Step 2 (Relative speed): \(4 - (-2.5) = v_2 - v_1 \implies \mathbf{v_2 = v_1 + 6.5}\text{ --- (2)}\)</div>
+          <div class="step-box math-scroll">Step 3 (Substitute): \(1.6v_1 + 2.1(v_1 + 6.5) = 1.15 \implies 3.7v_1 = -12.5 \implies \mathbf{v_1 = -3.38\text{ m/s}}\)</div>
+          <div class="step-box math-scroll text-emerald-600 dark:text-emerald-400 font-bold">Step 4 (Find \(v_2\)): \(v_2 = -3.38 + 6.5 = \mathbf{+3.12\text{ m/s}}\) (both reverse direction)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Inelastic Collisions & Arrow Through Target (Example 3) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Inelastic Collisions — Arrow Passes Through Target</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 3 — Arrow Passes Through a Moving Target</strong>
+        <p class="text-slate-600 dark:text-slate-300">
+          An archer shoots a \(22.5\text{ g}\) arrow at \(35.0\text{ m/s}\) toward a \(300\text{ g}\) target sliding toward it at \(2.50\text{ m/s}\). The arrow passes through, bringing the target to rest (\(v_2 = 0\)). Find the arrow's final speed.
+        </p>
+        <div class="space-y-2.5 font-mono">
+          <div class="step-box math-scroll">Step 1 (Convert masses): \(m_1 = 0.0225\text{ kg},\quad m_2 = 0.300\text{ kg}\)</div>
+          <div class="step-box math-scroll">Step 2 (Velocities): \(u_1 = +35.0\text{ m/s},\quad u_2 = -2.50\text{ m/s},\quad v_2 = 0\)</div>
+          <div class="step-box math-scroll">Step 3 (Momentum): \(0.0225(35) + 0.300(-2.5) = 0.0225v_1 + 0\)</div>
+          <div class="step-box math-scroll">Step 4: \(0.7875 - 0.750 = 0.0225v_1 \implies 0.0375 = 0.0225v_1\)</div>
+          <div class="step-box math-scroll text-emerald-600 dark:text-emerald-400 font-bold">Step 5: \(v_1 = \mathbf{1.67\text{ m/s}}\) (continues in original direction)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Perfectly Inelastic Collisions & Bullet in Block (Examples 4–6) -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Perfectly Inelastic Collisions (Objects Stick Together)</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-1.5">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Common Final Velocity Formula:</strong>
+        <div class="math-scroll font-mono text-center text-sm font-bold text-brand-900 dark:text-brand-200">
+          $$\boxed{v = \frac{m_1 u_1 + m_2 u_2}{m_1 + m_2}}$$
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/xTQwsQkz/t-TZxw-Kq2-o-T8hq-Nvl-Oe9k-I7Pzf4Xw9ya-Lg-XFZT3Z1XZpd-TG8AOd-HUo1I660h-SO8NP8w-Uv0Utpts-Vyd-GME8l-MP.jpg', 'Bullet Embedded in Wooden Block')">
+        <img src="https://i.postimg.cc/xTQwsQkz/t-TZxw-Kq2-o-T8hq-Nvl-Oe9k-I7Pzf4Xw9ya-Lg-XFZT3Z1XZpd-TG8AOd-HUo1I660h-SO8NP8w-Uv0Utpts-Vyd-GME8l-MP.jpg" alt="Bullet in Block" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <!-- Examples 4, 5, 6 -->
+      <div class="space-y-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 4 — Two Cars Stick Together</strong>
+          <p class="text-slate-600 dark:text-slate-300">Car 1 (\(1000\text{ kg}\), \(20\text{ m/s east}\)) hits Car 2 (\(1500\text{ kg}\), \(10\text{ m/s east}\)).</p>
+          <div class="step-box math-scroll font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+            \(v = \frac{1000(20) + 1500(10)}{1000 + 1500} = \frac{20000 + 15000}{2500} = \mathbf{14\text{ m/s east}}\)
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 5 — Objects Moving Toward Each Other</strong>
+          <p class="text-slate-600 dark:text-slate-300">Trolley 1 (\(4\text{ kg}\), \(8\text{ m/s right}\)) and Trolley 2 (\(6\text{ kg}\), \(3\text{ m/s left}\)) stick together:</p>
+          <div class="step-box math-scroll font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+            \(v = \frac{4(8) + 6(-3)}{4 + 6} = \frac{32 - 18}{10} = \mathbf{1.4\text{ m/s right}}\)
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 6 — Bullet Embedded in Wooden Block</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(10.0\text{ g}\) bullet (\(0.0100\text{ kg}\)) embeds in a \(5.00\text{ kg}\) block. Combined speed is \(0.600\text{ m/s}\).</p>
+          <div class="space-y-2 font-mono">
+            <div class="step-box math-scroll">Step 1: \(0.0100u_b + 5(0) = (5.010)(0.600)\)</div>
+            <div class="step-box math-scroll text-emerald-600 dark:text-emerald-400 font-bold">Step 2: \(0.0100u_b = 3.006 \implies \mathbf{u_b = 300.6\text{ m/s}}\)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Kinetic Energy Lost (Example 7) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Kinetic Energy Lost in Inelastic Collisions</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Energy Loss Formula:</strong>
+        <div class="math-scroll font-mono text-center font-bold text-brand-900 dark:text-brand-200">
+          $$\boxed{KE_{\text{lost}} = KE_i - KE_f}$$
+        </div>
+      </div>
+
+      <!-- Example 7 -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 7 — Kinetic Energy Lost When Sticking</strong>
+        <p class="text-slate-600 dark:text-slate-300">A \(2\text{ kg}\) trolley at \(6\text{ m/s}\) hits a stationary \(4\text{ kg}\) trolley and sticks:</p>
+        <div class="space-y-2.5 font-mono">
+          <div class="step-box math-scroll">Step 1 (Common velocity): \(v = \frac{2(6) + 4(0)}{2 + 4} = 2\text{ m/s}\)</div>
+          <div class="step-box math-scroll">Step 2 (Initial KE): \(KE_i = \frac{1}{2}(2)(6^2) + 0 = 36\text{ J}\)</div>
+          <div class="step-box math-scroll">Step 3 (Final KE): \(KE_f = \frac{1}{2}(2 + 4)(2^2) = 12\text{ J}\)</div>
+          <div class="step-box math-scroll text-emerald-600 dark:text-emerald-400 font-bold">Step 4 (Lost KE): \(KE_{\text{lost}} = 36 - 12 = \mathbf{24\text{ J}}\) (transformed into heat/sound)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Interactive Self-Assessment Quiz (8 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">8 exam-style questions testing elastic, inelastic, and perfectly inelastic collisions</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 8</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 8 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Collisions
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. Which quantities are strictly conserved in an isolated elastic collision?",
+        options: ["A. Momentum only", "B. Kinetic energy only", "C. Both momentum and kinetic energy", "D. Neither"],
+        correct: 2,
+        exp: "By definition, an elastic collision conserves both total linear momentum and total kinetic energy."
+      },
+      {
+        q: "Q2. Two objects collide and stick together permanently. What type of collision is this?",
+        options: ["A. Elastic", "B. Perfectly inelastic", "C. Always perfectly elastic", "D. Explosive"],
+        correct: 1,
+        exp: "When colliding objects stick together and share a common final velocity, the collision is perfectly inelastic."
+      },
+      {
+        q: "Q3. A 2 kg object moves right at 5 m/s and a 3 kg object is stationary. They stick together. What is their final common velocity?",
+        options: ["A. 1 m/s right", "B. 2 m/s right", "C. 3 m/s left", "D. 5 m/s right"],
+        correct: 1,
+        exp: "v = (2 × 5 + 3 × 0) / (2 + 3) = 10 / 5 = 2 m/s right."
+      },
+      {
+        q: "Q4. In an isolated inelastic collision, which statement is correct?",
+        options: ["A. Momentum and kinetic energy are both conserved", "B. Momentum is conserved, but kinetic energy is not", "C. Kinetic energy is conserved, but momentum is not", "D. Neither is conserved"],
+        correct: 1,
+        exp: "Momentum is conserved in all isolated collisions, whereas kinetic energy is not conserved in inelastic collisions."
+      },
+      {
+        q: "Q5. A 2 kg object moving right at 4 m/s collides with a 2 kg object moving left at 4 m/s. They stick together. What is their final velocity?",
+        options: ["A. 4 m/s right", "B. 4 m/s left", "C. 8 m/s right", "D. 0 m/s"],
+        correct: 3,
+        exp: "Total initial momentum = 2(4) + 2(−4) = 0 kg·m/s. Because total momentum is zero, their final common velocity is 0 m/s."
+      },
+      {
+        q: "Q6. A 0.01 kg bullet embeds in a stationary 4.99 kg wooden block. The combined speed immediately after impact is 2 m/s. What was the bullet's initial speed?",
+        options: ["A. 100 m/s", "B. 200 m/s", "C. 500 m/s", "D. 1000 m/s"],
+        correct: 3,
+        exp: "0.01 u_b + 0 = (0.01 + 4.99)(2) → 0.01 u_b = 5 × 2 = 10 → u_b = 10 / 0.01 = 1000 m/s."
+      },
+      {
+        q: "Q7. Two objects collide elastically in one dimension. Their relative speed of approach is 8 m/s. What is their relative speed of separation?",
+        options: ["A. 0 m/s", "B. 4 m/s", "C. 8 m/s", "D. 16 m/s"],
+        correct: 2,
+        exp: "For 1D elastic collisions, the relative speed of approach equals the relative speed of separation: u₁ − u₂ = v₂ − v₁ = 8 m/s."
+      },
+      {
+        q: "Q8. A collision conserves momentum, but the total kinetic energy decreases. Which conclusion is correct?",
+        options: ["A. The law of conservation of energy is violated", "B. The collision is inelastic", "C. The collision must be elastic", "D. The objects must have equal masses"],
+        correct: 1,
+        exp: "A collision where momentum is conserved but kinetic energy decreases is classified as an inelastic collision."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Collisions!" : "Great performance! You clearly understand elastic, inelastic, and perfectly inelastic impacts.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the relative speed shortcut for elastic collisions and kinetic energy loss above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the worked examples and comparison table above, then try again.";
+      }
+      resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() {
+      const isDark = document.documentElement.classList.contains("dark");
+      const wrap = document.getElementById("theme-icon");
+      if (wrap) { wrap.innerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}" class="w-4 h-4"></i>`; lucide.createIcons(); }
+    }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Linear Momentum — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Physics</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i> Kinematics &amp; Dynamics · Conservation Laws
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Linear Momentum</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Momentum Vector (\(\vec{p} = m\vec{v}\)), Impulse–Momentum Theorem, Impact Safety, and Momentum Conservation</p>
+      </div>
+    </section>
+
+    <!-- 1. What is Linear Momentum? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Linear Momentum?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Compare stopping a fast tennis ball versus stopping a slowly moving heavy truck. Usually, the truck is much harder to stop because stopping an object depends on <strong>both its mass and its velocity</strong>.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Definition &amp; Vector Formula:</strong>
+        <p class="text-slate-700 dark:text-slate-300"><strong>Linear momentum</strong> is the product of an object's mass and velocity:</p>
+        <div class="math-scroll font-mono text-center text-base font-bold text-brand-900 dark:text-brand-200">
+          $$\boxed{\vec{p} = m\vec{v}} \qquad \text{SI Unit:} \quad \boxed{\text{kg}\cdot\text{m/s}}$$
+        </div>
+        <ul class="list-disc pl-5 text-xs text-slate-700 dark:text-slate-300 space-y-0.5">
+          <li>\(\vec{p}\) = linear momentum (vector pointing in the exact same direction as velocity)</li>
+          <li>\(m\) = mass in kilograms (\(\text{kg}\))</li>
+          <li>\(\vec{v}\) = velocity in metres per second (\(\text{m/s}\))</li>
+        </ul>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/5WoxuBhUdwxAG8nLyCWIZAhfcGG7gcaVEUFKef8Fg4FwkAWrPUOggypM7Gzno8s6bYCZtdrM3DYXDsCEVE7HGF7W8-xVBURj3GsejT0kAu3j9txyzdqsmfvdBPkOPPY7KoJ9l1-iF9d0uLlNjBQSt8uEKvbGM3D481l8NbOs-VLsS2AzJZ3oSW5rbCdvhwR1?purpose=fullsize', 'Understanding Linear Momentum: Mass Times Velocity')">
+        <img src="https://images.openai.com/static-rsc-4/5WoxuBhUdwxAG8nLyCWIZAhfcGG7gcaVEUFKef8Fg4FwkAWrPUOggypM7Gzno8s6bYCZtdrM3DYXDsCEVE7HGF7W8-xVBURj3GsejT0kAu3j9txyzdqsmfvdBPkOPPY7KoJ9l1-iF9d0uLlNjBQSt8uEKvbGM3D481l8NbOs-VLsS2AzJZ3oSW5rbCdvhwR1?purpose=fullsize" alt="Linear Momentum Diagram" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">Proportional Scaling:</strong>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5">
+          <li>\(2\text{ kg}\) at \(5\text{ m/s} \implies 10\text{ kg}\cdot\text{m/s}\)</li>
+          <li>\(4\text{ kg}\) at \(5\text{ m/s} \implies 20\text{ kg}\cdot\text{m/s}\) (double mass &rarr; double momentum)</li>
+          <li>\(2\text{ kg}\) at \(10\text{ m/s} \implies 20\text{ kg}\cdot\text{m/s}\) (double velocity &rarr; double momentum)</li>
+        </ul>
+      </div>
+
+      <!-- Worked Examples 1–3 -->
+      <div class="space-y-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 1 — Simple Calculation</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(5\text{ kg}\) object moves east at \(4\text{ m/s}\):</p>
+          <div class="step-box font-mono text-emerald-600 dark:text-emerald-400 font-bold">\(p = mv = 5(4) = \mathbf{20\text{ kg}\cdot\text{m/s east}}\)</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 2 — Direction &amp; Negative Signs</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(3\text{ kg}\) object moves west at \(6\text{ m/s}\) (east = \(+\), so \(v = -6\text{ m/s}\)):</p>
+          <div class="step-box font-mono text-rose-600 dark:text-rose-400 font-bold">\(p = mv = 3(-6) = \mathbf{-18\text{ kg}\cdot\text{m/s}}\) (negative sign denotes westward)</div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Example 3 — Comparing Two Objects</strong>
+          <p class="text-slate-600 dark:text-slate-300">Object A: \(10\text{ kg}\) at \(3\text{ m/s east}\); Object B: \(5\text{ kg}\) at \(8\text{ m/s east}\):</p>
+          <div class="step-box font-mono">
+            \(p_A = 10(3) = 30\text{ kg}\cdot\text{m/s}\) &nbsp;|&nbsp; \(p_B = 5(8) = 40\text{ kg}\cdot\text{m/s} \implies \mathbf{p_B > p_A}\)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Force, Rate of Change of Momentum, & Impulse -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Newton's Second Law &amp; Impulse–Momentum Theorem</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-2">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold text-sm block">Momentum Form of Newton's Second Law &amp; Impulse (\(\vec{J}\)):</strong>
+        <div class="math-scroll font-mono text-center font-bold text-brand-900 dark:text-brand-200 space-y-1">
+          <div>\(F = ma = m\frac{\Delta v}{\Delta t} = \frac{mv_f - mv_i}{\Delta t} \implies \boxed{\vec{F}_{\text{net}} = \frac{\Delta\vec{p}}{\Delta t}}\)</div>
+          <div>$$\boxed{\vec{J} = \vec{F}_{\text{net}}\Delta t = \Delta\vec{p} = \vec{p}_f - \vec{p}_i = m(\vec{v}_f - \vec{v}_i)}$$</div>
+        </div>
+        <p class="text-slate-600 dark:text-slate-300">The SI unit of impulse is \(\text{N}\cdot\text{s}\), which is identical to \(\text{kg}\cdot\text{m/s}\).</p>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/k8qu4OJWmDrHyesl99ef2x-v_VRT9qM3TrJ3KyjD9GbiKJ13RlziPMpz5dOqr5suMj1j0x6apfpm36zrNR66Eljgl-lCV-PS8GXfYj-pMuoCdhSmUXw-ixPUBfMBp1zwyouA3QTSYqb7iDTnTHy_azj3BBOufFvZCrHsC0pm42NIhyaDLT5vdtxHSr2f5F4c?purpose=fullsize', 'Impulse-Momentum Theorem')">
+        <img src="https://images.openai.com/static-rsc-4/k8qu4OJWmDrHyesl99ef2x-v_VRT9qM3TrJ3KyjD9GbiKJ13RlziPMpz5dOqr5suMj1j0x6apfpm36zrNR66Eljgl-lCV-PS8GXfYj-pMuoCdhSmUXw-ixPUBfMBp1zwyouA3QTSYqb7iDTnTHy_azj3BBOufFvZCrHsC0pm42NIhyaDLT5vdtxHSr2f5F4c?purpose=fullsize" alt="Impulse Momentum Theorem" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+      </figure>
+
+      <!-- Examples 4 & 5 -->
+      <div class="space-y-3 text-xs">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 4 — A Football Being Kicked</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(0.5\text{ kg}\) football starts at rest (\(u = 0\)) and is kicked to \(20\text{ m/s east}\):</p>
+          <div class="step-box font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+            \(J = m(v - u) = 0.5(20 - 0) = \mathbf{10\text{ N}\cdot\text{s east}}\)
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 5 — Average Force From Rebounding Ball</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(0.2\text{ kg}\) ball moves east at \(10\text{ m/s}\), is hit, and rebounds west at \(15\text{ m/s}\) in \(\Delta t = 0.05\text{ s}\).</p>
+          <div class="space-y-2 font-mono">
+            <div class="step-box">Step 1 (East = \(+\)): \(u = +10\text{ m/s},\quad v = -15\text{ m/s}\)</div>
+            <div class="step-box">Step 2 (Momentum change): \(\Delta p = m(v - u) = 0.2(-15 - 10) = 0.2(-25) = \mathbf{-5\text{ kg}\cdot\text{m/s}}\)</div>
+            <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 3 (Average force): \(F_{\text{avg}} = \frac{\Delta p}{\Delta t} = \frac{-5}{0.05} = \mathbf{-100\text{ N}}\) (\(100\text{ N west}\))</div>
+          </div>
+          <p class="text-[11px] font-bold text-rose-600 dark:text-rose-400">Common Exam Trap: When direction reverses, final velocity MUST carry a negative sign—do not subtract magnitudes as positive!</p>
+        </div>
+      </div>
+
+      <!-- Airbags & Seatbelts Safety -->
+      <div class="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-2 text-xs">
+        <strong class="font-display text-sm text-emerald-900 dark:text-emerald-300 block">Why Do Airbags &amp; Seatbelts Reduce Injuries?</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          For an identical momentum change \(\Delta p = 100\text{ kg}\cdot\text{m/s}\), increasing the stopping time \(\Delta t\) dramatically reduces the impact force \(F_{\text{avg}} = \frac{\Delta p}{\Delta t}\):
+        </p>
+        <div class="font-mono grid sm:grid-cols-2 gap-2">
+          <div class="p-2 rounded bg-white/80 dark:bg-slate-900 border border-rose-200 dark:border-rose-500/30 text-rose-600 font-bold">Short stop (\(0.02\text{ s}\)): \(F = \frac{100}{0.02} = 5000\text{ N}\)</div>
+          <div class="p-2 rounded bg-white/80 dark:bg-slate-900 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 font-bold">Airbag stop (\(0.20\text{ s}\)): \(F = \frac{100}{0.20} = 500\text{ N}\) (10&times; smaller!)</div>
+        </div>
+      </div>
+
+      <!-- Critical-Thinking Question (Left for Student) -->
+      <div class="p-3.5 rounded-xl bg-indigo-50/90 dark:bg-indigo-500/10 border-l-4 border-indigo-500 text-xs space-y-1 text-indigo-950 dark:text-indigo-200">
+        <strong class="font-display font-bold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300"><i data-lucide="help-circle" class="w-4 h-4"></i> Critical-Thinking Question</strong>
+        <p>A goalkeeper catches a fast-moving football. Why does the goalkeeper move their hands backward while catching it instead of keeping the hands rigid? Think about stopping time and average force.</p>
+      </div>
+    </section>
+
+    <!-- 3. Conservation of Linear Momentum (Examples 6–8 + Explosion) -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Conservation of Linear Momentum</span>
+      </h2>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-1.5">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold text-sm block">Law of Conservation of Linear Momentum:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          The total momentum of an isolated system remains constant whenever the net external force acting on the system is zero (arising directly from Newton's Third Law equal-and-opposite internal impulses):
+        </p>
+        <div class="math-scroll font-mono text-center font-bold text-brand-900 dark:text-brand-200 py-1">
+          $$\boxed{\vec{p}_{\text{initial}} = \vec{p}_{\text{final}}} \qquad \Longrightarrow \qquad \boxed{m_1\vec{u}_1 + m_2\vec{u}_2 = m_1\vec{v}_1 + m_2\vec{v}_2}$$
+        </div>
+        <p class="text-slate-600 dark:text-slate-400">Where \(m_1, m_2\) = masses, \(u_1, u_2\) = initial velocities, and \(v_1, v_2\) = final velocities.</p>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/Pq8DmYA2iGQYN5oCdAH6IxcSkaSBt5679VEG_2-NDZRdBEvoh8xOasZEBe180rPisnW7zovUJA6nUA9_ah-cQ4L7cJoV1bLK58Sf--1J0Z3Hv7PpcUxAKm2HUbR7eRZbKsy9oBM4Jy9RCSQ_gQiFqbTV8tLA3MdQ0KrpnKcONrGNF7dcsfyxIImF67AAj2KU?purpose=fullsize', 'Conservation of Linear Momentum During Interactions')">
+        <img src="https://images.openai.com/static-rsc-4/Pq8DmYA2iGQYN5oCdAH6IxcSkaSBt5679VEG_2-NDZRdBEvoh8xOasZEBe180rPisnW7zovUJA6nUA9_ah-cQ4L7cJoV1bLK58Sf--1J0Z3Hv7PpcUxAKm2HUbR7eRZbKsy9oBM4Jy9RCSQ_gQiFqbTV8tLA3MdQ0KrpnKcONrGNF7dcsfyxIImF67AAj2KU?purpose=fullsize" alt="Momentum Conservation" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+      </figure>
+
+      <!-- Examples 6, 7, 8 & Explosion -->
+      <div class="space-y-3 text-xs">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 6 — Two Skaters Pushing Apart</strong>
+          <p class="text-slate-600 dark:text-slate-300">Skater A (\(60\text{ kg}\)) and Skater B (\(40\text{ kg}\)) stand still on frictionless ice. After pushing off, A moves west at \(2\text{ m/s}\). Find B's velocity.</p>
+          <div class="space-y-2 font-mono">
+            <div class="step-box">Step 1: Initially at rest \(\implies p_i = 0\)</div>
+            <div class="step-box">Step 2 (East = \(+\)): \(0 = 60(-2) + 40v_B \implies 0 = -120 + 40v_B\)</div>
+            <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 3: \(40v_B = 120 \implies \mathbf{v_B = +3\text{ m/s}}\) (\(3\text{ m/s east}\); lighter skater moves faster!)</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 7 — Archer &amp; Arrow Recoil</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(60\text{ kg}\) archer at rest on ice fires a \(0.50\text{ kg}\) arrow horizontally at \(50\text{ m/s}\). Find the archer's recoil velocity.</p>
+          <div class="space-y-2 font-mono">
+            <div class="step-box">Step 1: \(p_i = 0 \implies m_a v_a + m_{\text{arrow}}v_{\text{arrow}} = 0\)</div>
+            <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 2: \(60v_a + 0.50(50) = 0 \implies 60v_a = -25 \implies \mathbf{v_a = -0.417\text{ m/s}}\) (opposite arrow)</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">Example 8 — One Object Initially at Rest</strong>
+          <p class="text-slate-600 dark:text-slate-300">A \(2\text{ kg}\) object at \(6\text{ m/s}\) hits a stationary \(4\text{ kg}\) object. Afterwards, the \(2\text{ kg}\) mass moves at \(2\text{ m/s}\) in the same direction. Find \(v_2\).</p>
+          <div class="space-y-2 font-mono">
+            <div class="step-box">Step 1: \(p_i = 2(6) + 4(0) = 12\) &nbsp;|&nbsp; \(p_f = 2(2) + 4v_2 = 4 + 4v_2\)</div>
+            <div class="step-box text-emerald-600 dark:text-emerald-400 font-bold">Step 2: \(12 = 4 + 4v_2 \implies 8 = 4v_2 \implies \mathbf{v_2 = 2\text{ m/s}}\)</div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 space-y-1">
+          <strong class="font-display text-amber-900 dark:text-amber-300 block">Special Case: Explosions</strong>
+          <p class="text-slate-700 dark:text-slate-300">When a stationary firework explodes into two fragments: \(p_i = 0 \implies m_1 v_1 + m_2 v_2 = 0\). Fragments fly in opposite directions so total momentum remains zero.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Master Formula & Distinctions Table -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Important Exam Distinctions &amp; Formulas</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-3 sm:px-4">Quantity / Law</th><th class="py-2 px-3 sm:px-4 font-mono">Formula</th><th class="py-2 px-3 sm:px-4 font-mono">SI Unit</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Momentum</td><td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\vec{p} = m\vec{v}\)</td><td class="py-2 px-3 sm:px-4">kg&middot;m/s</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Impulse</td><td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\vec{J} = \vec{F}_{\text{net}}\Delta t\)</td><td class="py-2 px-3 sm:px-4">N&middot;s</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Impulse–momentum theorem</td><td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\vec{J} = \Delta\vec{p} = m(\vec{v}_f - \vec{v}_i)\)</td><td class="py-2 px-3 sm:px-4">N&middot;s</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Net force</td><td class="py-2 px-3 sm:px-4 font-bold text-brand-700 dark:text-brand-400">\(\vec{F}_{\text{net}} = \frac{\Delta\vec{p}}{\Delta t}\)</td><td class="py-2 px-3 sm:px-4">N</td></tr>
+            <tr><td class="py-2 px-3 sm:px-4 font-sans font-bold">Momentum conservation</td><td class="py-2 px-3 sm:px-4 font-bold text-emerald-600 dark:text-emerald-400">\(m_1\vec{u}_1 + m_2\vec{u}_2 = m_1\vec{v}_1 + m_2\vec{v}_2\)</td><td class="py-2 px-3 sm:px-4">kg&middot;m/s</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="list-disc pl-5 text-xs text-slate-600 dark:text-slate-300 space-y-1">
+        <li>Both momentum and impulse are <strong>vector</strong> quantities.</li>
+        <li>Momentum conservation holds for isolated systems (\(\vec{F}_{\text{ext, net}} = 0\)) even if kinetic energy is <em>not</em> conserved!</li>
+      </ul>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (8 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">8 exam-style questions testing momentum, impulse, and conservation</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 8</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 8 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Linear Momentum
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. A 4 kg object moves east at 5 m/s. What is its linear momentum?",
+        options: ["A. 9 kg·m/s", "B. 20 kg·m/s east", "C. 20 kg·m/s west", "D. 1.25 kg·m/s"],
+        correct: 1,
+        exp: "p = mv = 4 kg × 5 m/s east = 20 kg·m/s east (momentum carries direction)."
+      },
+      {
+        q: "Q2. A 0.5 kg ball changes velocity from 4 m/s east to 6 m/s east. What impulse was delivered to it?",
+        options: ["A. 1 N·s east", "B. 5 N·s east", "C. 2 N·s west", "D. 10 N·s east"],
+        correct: 0,
+        exp: "J = m(vf − vi) = 0.5(6 − 4) = 0.5(2) = 1 N·s east."
+      },
+      {
+        q: "Q3. A 2 kg object initially at rest receives an impulse of 12 N·s. Find its final speed.",
+        options: ["A. 3 m/s", "B. 6 m/s", "C. 12 m/s", "D. 24 m/s"],
+        correct: 1,
+        exp: "J = m(v − 0) → 12 = 2v → v = 6 m/s."
+      },
+      {
+        q: "Q4. A ball strikes a wall and rebounds directly backward with the exact same speed. Which statement is correct?",
+        options: ["A. Its momentum change is zero", "B. Its momentum reverses direction", "C. Its mass becomes zero", "D. Its kinetic energy must increase"],
+        correct: 1,
+        exp: "Because momentum is a vector, reversing velocity reverses momentum from +mv to −mv (giving Δp = −2mv ≠ 0)."
+      },
+      {
+        q: "Q5. Why does an airbag reduce the average impact force on a passenger during a collision?",
+        options: ["A. It decreases the passenger's mass", "B. It increases the momentum change", "C. It increases the time over which momentum changes", "D. It eliminates momentum"],
+        correct: 2,
+        exp: "From F_avg = Δp / Δt, increasing collision time Δt significantly reduces the average force for the same momentum change."
+      },
+      {
+        q: "Q6. A 2 kg object moving at 6 m/s collides with a stationary 4 kg object and they stick together. What is their common velocity?",
+        options: ["A. 1 m/s", "B. 2 m/s", "C. 3 m/s", "D. 6 m/s"],
+        correct: 1,
+        exp: "Conservation of momentum: 2(6) + 4(0) = (2 + 4)v → 12 = 6v → v = 2 m/s."
+      },
+      {
+        q: "Q7. A 60 kg archer fires a 0.5 kg arrow at 50 m/s from rest on frictionless ice. The archer's recoil velocity is approximately:",
+        options: ["A. 0.42 m/s opposite the arrow", "B. 2.4 m/s in the arrow's direction", "C. 50 m/s opposite the arrow", "D. 25 m/s in the arrow's direction"],
+        correct: 0,
+        exp: "60 v_a + 0.5(50) = 0 → v_a = −25 / 60 ≈ −0.417 m/s (0.42 m/s opposite the arrow)."
+      },
+      {
+        q: "Q8. Which condition is strictly necessary for the total linear momentum of a system to be conserved?",
+        options: ["A. No internal forces exist", "B. No objects are moving", "C. The net external impulse on the system is zero", "D. Kinetic energy must be zero"],
+        correct: 2,
+        exp: "Internal action-reaction forces cancel automatically; total momentum stays constant whenever net external force (and hence net external impulse) equals zero."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Linear Momentum!" : "Great performance! You clearly understand momentum vectors, impulse, and conservation.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Remember to attach negative signs when velocities reverse direction.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the impulse-momentum theorem and worked recoil examples above, then try again.";
+      }
+      resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>
