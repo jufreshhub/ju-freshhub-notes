@@ -379,7 +379,7 @@
     </nav>
   </div>
 
-  <!-- ======================== APP ======================== -->
+  <!-- ======================== APP ======================== --
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1173,9 +1173,22 @@
     }
 
     /* ------------------------------------------------------------------
-       Views: exams (Instant Score + Locked Review until Ended)
+       Views: exams (Safe Filtering & Status Detection)
     ------------------------------------------------------------------ */
-    const visibleExams = () => liveExams.filter((e) => e.status !== "closed");
+    // Helper to accurately determine if an exam is closed regardless of case
+    function isExamClosedStatus(exam) {
+      if (!exam) return true;
+      const st = String(exam.status || "").toLowerCase().trim();
+      if (["ended", "closed", "inactive", "finished", "completed", "done"].includes(st)) return true;
+      if (exam.isLive === false) return true;
+      return false;
+    }
+
+    // Keep completed exams visible so students can access their score!
+    const visibleExams = () => liveExams.filter((e) => {
+      if (submittedExams.has(e.id)) return true; // Always show if already attempted!
+      return !isExamClosedStatus(e);
+    });
 
     function normalizeExamDoc(d) {
       const data = d.data() || {};
@@ -1209,6 +1222,7 @@
         course: data.course || data.subject || data.stream || "Freshman common course",
         duration: parseInt(data.duration || data.durationMinutes || data.timeLimit || data.time || 30) || 30,
         status: data.status || (data.isLive !== false ? "active" : "ended"),
+        isLive: data.isLive,
         questions
       };
     }
@@ -1248,6 +1262,8 @@
           </div>` : exams.map((e) => {
             const alreadySubmitted = submittedExams.has(e.id);
             const recorded = userResults[e.id];
+            const isClosed = isExamClosedStatus(e);
+
             return `
             <div class="card spot reveal p-5 border-l-4 ${alreadySubmitted ? "border-l-emerald-500" : "border-l-brand-600"} space-y-3">
               <div class="flex items-start justify-between gap-3">
@@ -1257,6 +1273,7 @@
                       ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-1">${ic("check", "w-3 h-3")}Submitted (${recorded ? recorded.pct + "%" : "Recorded"})</span>`
                       : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>Live and timed</span>`
                     }
+                    ${isClosed ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">Closed / Ended</span>` : ""}
                   </div>
                   <h4 class="font-display font-bold text-slate-900 dark:text-white text-base mt-1.5">${esc(e.title)}</h4>
                   <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${esc(e.course)}</p>
@@ -1265,10 +1282,10 @@
               </div>
               <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">
                 <div>Questions: <strong class="text-slate-900 dark:text-white">${e.questions.length}</strong></div>
-                <div>Status: <strong class="${alreadySubmitted ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">${alreadySubmitted ? "Complete (1 Attempt)" : "Ready to Start"}</strong></div>
+                <div>Status: <strong class="${alreadySubmitted ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">${alreadySubmitted ? (isClosed ? "Review Available" : "Completed (Locked)") : "Ready to Start"}</strong></div>
               </div>
               ${alreadySubmitted 
-                ? `<button data-action="view-my-score" data-id="${esc(e.id)}" class="btn-ghost w-full sm:w-auto !px-6 !py-2.5 text-brand-700 dark:text-brand-300 font-bold">${ic("award", "w-3.5 h-3.5")}<span>View My Score &amp; Details</span></button>`
+                ? `<button data-action="view-my-score" data-id="${esc(e.id)}" class="btn-ghost w-full sm:w-auto !px-6 !py-2.5 text-brand-700 dark:text-brand-300 font-bold">${ic(isClosed ? "book-open-check" : "award", "w-3.5 h-3.5")}<span>${isClosed ? "View Score &amp; Question Review" : "View My Score &amp; Details"}</span></button>`
                 : `<button data-action="start-exam" data-id="${esc(e.id)}" class="btn-primary w-full sm:w-auto !px-6 !py-2.5">${ic("play", "w-3.5 h-3.5")}<span>Enter exam and start timer</span></button>`
               }
             </div>`;
@@ -1450,9 +1467,19 @@
       if (!userSubmissions.includes(data.id)) userSubmissions.push(data.id);
       store.set("fh_sub_" + (user?.uid || "guest"), userSubmissions);
 
-      // Persist user exam result record
+      // Persist user exam result record INCLUDING QUESTIONS for offline/archived review!
       const userResults = store.get("fh_res_" + (user?.uid || "guest"), {});
-      userResults[data.id] = { score, total, pct, answers, penalties: totalPenalties, submittedAt: Date.now() };
+      userResults[data.id] = {
+        title: data.title,
+        course: data.course,
+        score,
+        total,
+        pct,
+        answers,
+        questions: qs,
+        penalties: totalPenalties,
+        submittedAt: Date.now()
+      };
       store.set("fh_res_" + (user?.uid || "guest"), userResults);
 
       store.remove(K.session);
@@ -1489,11 +1516,11 @@
     }
 
     /* ------------------------------------------------------------------
-       Result View: Instant Score shown, but Answer Key Locked until deadline
+       Result View: Instant Score shown, Review unlocks when closed!
     ------------------------------------------------------------------ */
     function viewResult() {
       const r = lastResult, pass = r.pct >= 60;
-      const isExamClosed = r.exam.status === "ended" || r.exam.status === "closed";
+      const isClosed = isExamClosedStatus(r.exam);
       const msg = r.pct >= 80 ? "Outstanding! Excellent performance." : pass ? "Good work! You achieved a passing score." : "Keep studying. Focus on strengthening weak topics.";
       const missed = r.qs.filter((q, i) => r.answers[i] !== q.correct).length;
 
@@ -1514,13 +1541,13 @@
             </div>
           </section>
 
-          <!-- Question Review Section: Revealed ONLY when exam deadline/status ends -->
+          <!-- Question Review Section: Revealed ONLY when exam status is closed/ended! -->
           <section class="card reveal p-5 space-y-4">
-            ${isExamClosed ? `
+            ${isClosed ? `
               <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div>
                   <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Question Review &amp; Explanations</h4>
-                  <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Exam has closed. Detailed explanations unlocked.</p>
+                  <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">Exam has officially closed. All answers and explanations are unlocked.</p>
                 </div>
                 <div class="flex gap-2">
                   <button class="chip ${resultFilter === "all" ? "on" : ""}" data-action="result-filter" data-f="all">All ${r.total}</button>
@@ -1551,7 +1578,7 @@
                 </div>
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold">
                   ${ic("clock", "w-3.5 h-3.5")}
-                  <span>Check back after exam closes</span>
+                  <span>Unlocks automatically when exam closes</span>
                 </div>
               </div>
             `}
@@ -1928,11 +1955,17 @@
         const examId = el.dataset.id;
         const userResults = store.get("fh_res_" + (user?.uid || "guest"), {});
         const recorded = userResults[examId];
-        const examData = liveExams.find((e) => e.id === examId);
-        if (!recorded || !examData) return toast("Record not found for this exam.", "warn");
+        const liveData = liveExams.find((e) => e.id === examId);
+        if (!recorded) return toast("No recorded result found for this exam.", "warn");
+
+        // Determine current status (prefer real-time status from Firestore)
+        const examStatus = liveData ? liveData.status : "ended";
+        const examTitle = liveData ? liveData.title : (recorded.title || "Exam Review");
+        const questions = liveData?.questions?.length ? liveData.questions : (recorded.questions || []);
+
         lastResult = {
-          exam: examData,
-          qs: examData.questions,
+          exam: { id: examId, title: examTitle, status: examStatus, ...(liveData || {}) },
+          qs: questions,
           answers: recorded.answers || {},
           score: recorded.score,
           total: recorded.total,
@@ -2140,6 +2173,16 @@
       unsubs.push(onSnapshot(collection(db, "live_exams"), (snap) => {
         liveExams = snap.docs.map(normalizeExamDoc);
         updateBadges();
+
+        // Real-time update for results screen if open
+        if (lastResult && lastResult.exam) {
+          const fresh = liveExams.find((e) => e.id === lastResult.exam.id);
+          if (fresh) {
+            lastResult.exam.status = fresh.status;
+            lastResult.exam.isLive = fresh.isLive;
+          }
+        }
+
         if (state.nav === "exams" && !session) render({ anim: false });
       }, (err) => console.error("Live exams listener:", err)));
     }
@@ -2161,7 +2204,7 @@
       if (u) {
         user = u;
         studentName = u.displayName || (u.email ? u.email.split("@")[0] : "Student");
-        // Load submitted exams record for single-attempt lock
+        // Load single attempt record for this user
         submittedExams = new Set(store.get("fh_sub_" + u.uid, []));
         updateGreeting();
         startListeners();
@@ -2269,6 +2312,6 @@
     history.replaceState(snap(), "");
     runSplash();
     icons();
-</script>
-</body>
-</html>
+</script>   
+ </body>
+</html>   
