@@ -2,21 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#D97706" />
+  <meta name="color-scheme" content="light dark" />
   <title>JU FreshHub — Student Study Portal</title>
   <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <script>
+    // Apply the saved theme before first paint (no flash)
     (function () {
       try {
         const saved = localStorage.getItem('ju_theme');
@@ -42,37 +44,45 @@
             }
           },
           keyframes: {
-            toastIn: { '0%': { opacity: 0, transform: 'translateY(-8px) scale(.97)' }, '100%': { opacity: 1, transform: 'none' } },
-            floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' } },
+            toastIn: { '0%': { opacity: 0, transform: 'translateY(-10px) scale(.96)' }, '100%': { opacity: 1, transform: 'none' } },
+            floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
           },
-          animation: { toastIn: 'toastIn .25s ease-out', floaty: 'floaty 6s ease-in-out infinite' }
+          animation: { toastIn: 'toastIn .3s cubic-bezier(.22,1,.36,1)', floaty: 'floaty 6s ease-in-out infinite' }
         }
       }
     }
   </script>
 
-  <!-- Firebase v10 Compat SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
   <style type="text/tailwindcss">
     @layer components {
       .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5; }
       .input { @apply w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition; }
-      .label { @apply block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5; }
-      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-50 disabled:cursor-not-allowed; }
+      .label { @apply block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.96] disabled:opacity-50 disabled:cursor-not-allowed; }
       .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
       .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
       .btn-ok { @apply btn text-white bg-emerald-600 hover:bg-emerald-500 shadow-sm shadow-emerald-600/25; }
-      .bottom-nav-item { @apply flex flex-col items-center justify-center gap-1 py-1 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition font-medium text-[11px]; }
+      .btn-danger { @apply btn text-white bg-rose-600 hover:bg-rose-500; }
+      .bottom-nav-item { @apply relative flex flex-col items-center justify-center gap-1 py-1 text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition font-medium text-[11px]; }
       .bottom-nav-item.active { @apply text-brand-600 dark:text-brand-400 font-bold; }
+      .chip { @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 transition hover:border-brand-500 active:scale-95; }
+      .chip.on { @apply bg-brand-600 border-brand-600 text-white hover:border-brand-600; }
+      .opt { @apply w-full flex items-center gap-3 text-left p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 text-sm text-slate-700 dark:text-slate-200 transition hover:border-brand-500 active:scale-[.99]; }
+      .opt.sel { @apply border-brand-500 bg-brand-50 dark:bg-brand-500/15 text-slate-900 dark:text-white ring-2 ring-brand-500/30; }
+      .opt-key { @apply w-7 h-7 shrink-0 rounded-lg grid place-items-center text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 transition; }
+      .opt.sel .opt-key { @apply bg-brand-600 text-white; }
+      .qdot { @apply w-9 h-9 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 bg-white/70 dark:bg-slate-800/50 transition active:scale-90; }
+      .qdot.answered { @apply bg-brand-500 border-brand-500 text-white; }
+      .qdot.current { @apply ring-2 ring-offset-2 ring-brand-600 dark:ring-offset-slate-900; }
     }
   </style>
 
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    :root { --ease: cubic-bezier(.22, 1, .36, 1); }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
     .font-display { font-family: 'Sora', sans-serif; }
+    :focus-visible { outline: 2px solid #F59E0B; outline-offset: 2px; border-radius: 8px; }
 
     .bg-ambient {
       background:
@@ -88,34 +98,103 @@
     }
 
     .pulse-dot { animation: pulse 1.6s cubic-bezier(.4,0,.6,1) infinite; }
-    @keyframes pulse { 50% { opacity:.35; } }
+    @keyframes pulse { 50% { opacity: .35; } }
+
+    /* View entrance: one staggered reveal when the screen changes */
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    .anim .reveal { animation: rise .55s var(--ease) both; animation-delay: calc(var(--i, 0) * 55ms); }
+
+    @keyframes pop { 0% { transform: scale(.55); } 60% { transform: scale(1.22); } 100% { transform: scale(1); } }
+    .pop { animation: pop .42s var(--ease); }
+    @keyframes shake { 0%,100% { transform: none; } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+    .shake { animation: shake .45s; }
+    @keyframes slideNext { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: none; } }
+    @keyframes slidePrev { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: none; } }
+    .slide-next { animation: slideNext .38s var(--ease); }
+    .slide-prev { animation: slidePrev .38s var(--ease); }
+    @keyframes modalPop { from { opacity: 0; transform: translateY(12px) scale(.95); } to { opacity: 1; transform: none; } }
+    .modal-pop { animation: modalPop .28s var(--ease); }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-bg { animation: fadeIn .25s ease-out; }
+    @keyframes taskIn { from { opacity: 0; transform: translateX(-16px) scale(.97); } to { opacity: 1; transform: none; } }
+    .task-in { animation: taskIn .4s var(--ease); }
+    .task-out { opacity: 0; transform: translateX(24px); transition: all .25s ease-in; }
+    @keyframes bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-6px) rotate(6deg); } }
+    .bob { animation: bob 3.2s ease-in-out infinite; }
+
+    /* Progress */
+    .ring-fg { transition: stroke-dashoffset 1.2s var(--ease); }
+    .bar-fill { transition: width 1.1s var(--ease); }
+
+    /* Splash screen */
+    #splash { clip-path: circle(150% at 50% 50%); transition: clip-path .9s var(--ease), opacity .7s ease; }
+    #splash.out { clip-path: circle(0% at 50% 50%); opacity: 0; pointer-events: none; }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+    .splash-ring { animation: orbit 2.6s linear infinite; }
+    @keyframes letterIn { from { opacity: 0; transform: translateY(18px) scale(.9); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+    .splash-letter { display: inline-block; opacity: 0; animation: letterIn .7s var(--ease) forwards; animation-delay: calc(var(--i) * 70ms + 300ms); }
+
+    /* Pointer spotlight on cards */
+    .spot { position: relative; overflow: hidden; }
+    .spot::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s;
+      background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(245,158,11,.14), transparent 60%); }
+    @media (hover: hover) { .spot:hover::before { opacity: 1; } }
+
+    mark.hl { background: #FDE68A; color: #451A03; border-radius: 3px; padding: 0 2px; }
+    .qdot.flagged { box-shadow: inset 0 0 0 2px #F43F5E; }
+
+    /* Circular theme reveal */
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+    ::view-transition-new(root) { z-index: 9999; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
   </style>
 </head>
-<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased pb-20">
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased pb-24">
 
-  <!-- Toast Container -->
-  <div id="toast-root" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-[min(92vw,22rem)] pointer-events-none"></div>
+  <!-- Reading progress, effects, toasts, modal -->
+  <div id="scroll-bar" class="fixed top-0 left-0 h-[3px] w-0 z-[60] bg-gradient-to-r from-brand-500 to-brand-gold"></div>
+  <canvas id="fx" class="fixed inset-0 w-full h-full pointer-events-none z-[300]" aria-hidden="true"></canvas>
+  <div id="toast-root" role="status" aria-live="polite" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-[min(92vw,22rem)] pointer-events-none"></div>
+  <div id="modal-root"></div>
+  <div id="offline-banner" class="hidden fixed top-3 left-1/2 -translate-x-1/2 z-[110] px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-semibold shadow-xl flex items-center gap-2">
+    <i data-lucide="wifi-off" class="w-3.5 h-3.5"></i><span>You are offline. Notes you already opened still work.</span>
+  </div>
 
-  <!-- ======================== GLOBAL AUTH LOADING SCREEN ======================== -->
-  <div id="auth-loading-screen" class="fixed inset-0 z-[200] bg-gradient-to-br from-brand-900 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-4 text-white">
-    <div class="w-16 h-16 rounded-3xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-xl shadow-brand-500/30 animate-bounce mb-4">
-      <div class="ju-logo-box w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center font-display font-extrabold text-xl">
+  <!-- ======================== SPLASH ======================== -->
+  <div id="splash" class="fixed inset-0 z-[200] flex flex-col items-center justify-center p-6 text-white bg-gradient-to-br from-brand-900 via-slate-900 to-slate-950 overflow-hidden">
+    <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-brand-500/25 blur-3xl animate-floaty"></div>
+    <div class="absolute -bottom-24 -right-16 w-80 h-80 rounded-full bg-brand-gold/15 blur-3xl animate-floaty" style="animation-delay:-3s"></div>
+
+    <div class="relative w-28 h-28 mb-8">
+      <svg class="absolute inset-0 w-full h-full splash-ring" viewBox="0 0 100 100" aria-hidden="true">
+        <defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBBF24"/><stop offset="1" stop-color="#D97706" stop-opacity=".1"/></linearGradient></defs>
+        <circle cx="50" cy="50" r="46" fill="none" stroke="url(#sg)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="90 200"/>
+      </svg>
+      <div class="ju-logo-box absolute inset-4 rounded-2xl overflow-hidden bg-gradient-to-br from-brand-500 to-brand-800 flex items-center justify-center font-display font-extrabold text-xl shadow-xl shadow-brand-500/30">
         <img class="ju-logo-img hidden w-full h-full object-cover scale-[1.15]" alt="JU logo" />
         <span class="ju-logo-text">JU</span>
       </div>
     </div>
-    <h2 class="font-display font-bold text-lg mb-1">JU FreshHub</h2>
-    <p class="text-xs text-brand-200/80 mb-6">Loading student session...</p>
-    <div class="w-8 h-8 border-[3px] border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+
+    <h2 id="splash-title" class="font-display font-extrabold text-3xl tracking-tight" aria-label="JU FreshHub"></h2>
+    <p id="splash-tip" class="mt-3 min-h-[2.5rem] max-w-xs text-center text-sm text-brand-200/90 transition-opacity duration-500"></p>
+
+    <div class="mt-6 w-56 h-1.5 rounded-full bg-white/10 overflow-hidden">
+      <div id="splash-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-brand-400 to-brand-gold"></div>
+    </div>
+    <p id="splash-pct" class="mt-2 font-mono text-[11px] text-brand-200/70">0%</p>
   </div>
 
-  <!-- ======================== STUDENT LOGIN OVERLAY ======================== -->
+  <!-- ======================== LOGIN ======================== -->
   <div id="auth-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-brand-900 via-slate-900 to-slate-950 overflow-hidden">
     <img id="login-bg" class="hidden absolute inset-0 w-full h-full object-cover opacity-40" alt="" />
     <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-brand-500/30 blur-3xl animate-floaty"></div>
     <div class="absolute -bottom-24 -right-16 w-80 h-80 rounded-full bg-brand-gold/20 blur-3xl animate-floaty" style="animation-delay:-3s"></div>
 
-    <div class="relative bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/20 dark:border-slate-700">
+    <div id="login-card" class="relative bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white/20 dark:border-slate-700">
       <div id="login-hero" class="hidden -mx-8 -mt-8 mb-6 h-36 rounded-t-3xl overflow-hidden relative">
         <img id="login-hero-img" class="w-full h-full object-cover" alt="Campus view" />
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent"></div>
@@ -129,18 +208,18 @@
         </div>
         <div>
           <h2 class="text-xl font-display font-bold text-slate-900 dark:text-white">JU FreshHub</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Freshman Tutoring &amp; Study Portal</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Freshman tutoring &amp; study portal</p>
         </div>
       </div>
 
-      <div id="auth-error" class="hidden mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 text-xs font-semibold leading-relaxed border border-rose-200 dark:border-rose-500/30"></div>
+      <div id="auth-error" role="alert" class="hidden mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 text-xs font-semibold leading-relaxed border border-rose-200 dark:border-rose-500/30"></div>
 
-      <form id="login-form" onsubmit="handleStudentLogin(event)" class="space-y-4">
+      <form id="login-form" data-form="login" class="space-y-4">
         <div>
-          <label class="label" for="student-email">Student Email</label>
+          <label class="label" for="student-email">Student email</label>
           <div class="relative">
             <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input type="email" id="student-email" required autocomplete="email" placeholder="Enter your email address" class="input pl-10" />
+            <input type="email" id="student-email" required autocomplete="email" placeholder="you@example.com" class="input pl-10" />
           </div>
         </div>
         <div>
@@ -148,31 +227,25 @@
           <div class="relative">
             <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
             <input type="password" id="student-password" required autocomplete="current-password" placeholder="Enter your password" class="input pl-10 pr-11" />
-            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" title="Show or hide password">
-              <i data-lucide="eye" id="pw-eye" class="w-4 h-4"></i>
+            <button type="button" data-action="toggle-pw" class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" aria-label="Show or hide password">
+              <span id="pw-eye"><i data-lucide="eye" class="w-4 h-4"></i></span>
             </button>
           </div>
+          <p id="caps-hint" class="hidden mt-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">Caps Lock is on.</p>
         </div>
 
         <button type="submit" id="login-btn" class="btn-primary w-full py-3 text-sm">
-          <span>Sign In to Portal</span>
+          <span>Sign in to portal</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
-
-        <div class="relative flex py-2 items-center">
-          <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-          <span class="flex-shrink mx-2 text-[10px] text-slate-400 uppercase font-bold tracking-wider">JU FreshHub Student Access</span>
-          <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-        </div>
       </form>
     </div>
   </div>
 
-  <!-- ======================== MAIN STUDY PORTAL ======================== -->
+  <!-- ======================== PORTAL ======================== -->
   <div id="app-container" class="hidden min-h-screen flex flex-col">
 
-    <!-- Sticky Header Navbar -->
-    <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <header id="app-header" class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30 transition-shadow">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
           <div class="ju-logo-box w-10 h-10 shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-brand-600 to-brand-900 text-white flex items-center justify-center font-display font-extrabold text-base shadow-md shadow-brand-700/30">
@@ -183,112 +256,108 @@
             <h1 class="text-sm sm:text-base font-display font-bold text-slate-900 dark:text-white leading-tight truncate">JU FreshHub</h1>
             <p class="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>
-              <span>Freshman Study Portal</span>
+              <span>Freshman study portal</span>
             </p>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
+          <button id="focus-pill" data-action="nav" data-nav="study" class="hidden btn bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-200 border border-brand-200 dark:border-brand-500/30" aria-label="Open focus timer">
+            <i data-lucide="timer" class="w-3.5 h-3.5"></i><span id="focus-pill-time" class="font-mono">00:00</span>
+          </button>
           <div id="student-pill" class="hidden sm:flex items-center gap-2 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-800">
             <i data-lucide="user-check" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"></i>
             <span id="student-name-display" class="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[160px]">Student</span>
           </div>
-
-          <button onclick="toggleTheme()" class="btn-ghost !px-2.5" title="Toggle dark mode">
-            <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
-          </button>
-
-          <button onclick="handleSignOut()" title="Sign Out" class="btn-ghost !px-3 hover:!text-rose-600">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            <span class="hidden sm:inline">Sign Out</span>
+          <button data-action="theme" class="btn-ghost !px-2.5" aria-label="Toggle dark mode"><span id="theme-icon"><i data-lucide="moon" class="w-4 h-4"></i></span></button>
+          <button data-action="signout" class="btn-ghost !px-3 hover:!text-rose-600" aria-label="Sign out">
+            <i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">Sign out</span>
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-      <!-- Hero Banner -->
-      <section id="dash-hero" class="hidden relative h-32 sm:h-40 rounded-3xl overflow-hidden shadow-lg shadow-slate-900/10">
-        <img id="dash-hero-img" class="w-full h-full object-cover" alt="Campus Banner" />
-        <div class="absolute inset-0 bg-gradient-to-r from-brand-900/85 via-brand-900/40 to-transparent"></div>
-        <div class="absolute inset-0 p-5 sm:p-7 flex flex-col justify-end text-white">
-          <p class="text-[11px] font-bold uppercase tracking-widest text-brand-200">Academic Tutoring &amp; Study Hub</p>
-          <p class="font-display text-xl sm:text-2xl font-extrabold">JU FreshHub</p>
-        </div>
-      </section>
+      <div id="home-head" class="space-y-6">
+        <section id="dash-hero" class="hidden relative h-32 sm:h-40 rounded-3xl overflow-hidden shadow-lg shadow-slate-900/10">
+          <img id="dash-hero-img" class="w-full h-full object-cover" alt="Campus banner" />
+          <div class="absolute inset-0 bg-gradient-to-r from-brand-900/85 via-brand-900/40 to-transparent"></div>
+          <div class="absolute inset-0 p-5 sm:p-7 flex flex-col justify-end text-white">
+            <p class="text-xs font-semibold text-brand-200">Academic tutoring &amp; study hub</p>
+            <p class="font-display text-xl sm:text-2xl font-extrabold">JU FreshHub</p>
+          </div>
+        </section>
 
-      <!-- Greeting & Clock -->
-      <section class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
-        <div>
-          <h2 id="greeting" class="text-xl sm:text-2xl font-display font-bold text-slate-900 dark:text-white">Welcome back</h2>
-          <p id="greeting-sub" class="text-sm text-slate-500 dark:text-slate-400">Select a course below to open chapters, study notes, and quizzes.</p>
-        </div>
-        <div class="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-          <span id="live-clock"></span>
-        </div>
-      </section>
-
-      <!-- Navigation Breadcrumb & Back Bar -->
-      <div id="nav-bar" class="hidden card p-3 flex items-center gap-3">
-        <button id="btn-back" class="btn-ghost !bg-brand-50 dark:!bg-brand-500/15 !text-brand-700 dark:!text-brand-200 hover:!bg-brand-100 shrink-0">
-          <i data-lucide="arrow-left" class="w-4 h-4"></i>
-          <span>Back</span>
-        </button>
-        <div id="breadcrumb" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 truncate">Courses</div>
+        <section class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+          <div>
+            <h2 id="greeting" class="text-xl sm:text-2xl font-display font-bold text-slate-900 dark:text-white">Welcome back</h2>
+            <p id="greeting-sub" class="text-sm text-slate-500 dark:text-slate-400">Pick a course to open chapters and study notes.</p>
+          </div>
+          <div class="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+            <span id="live-clock"></span>
+          </div>
+        </section>
       </div>
 
-      <!-- Search Bar -->
+      <div id="nav-bar" class="hidden card p-3 flex items-center gap-3">
+        <button data-action="back" class="btn-ghost !bg-brand-50 dark:!bg-brand-500/15 !text-brand-700 dark:!text-brand-200 hover:!bg-brand-100 shrink-0">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i><span>Back</span>
+        </button>
+        <nav id="breadcrumb" aria-label="Breadcrumb" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 truncate"></nav>
+      </div>
+
       <div id="search-container" class="card p-3 sm:p-4">
         <div class="relative">
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-          <input type="text" id="search-input" placeholder="Search courses, chapters, or topics (e.g. Maths, Venn, Physics)..." class="input pl-10" />
+          <input type="search" id="search-input" aria-label="Search courses and topics" placeholder="Search courses, chapters or topics (try Venn, Newton, fallacy)" class="input pl-10 pr-16" />
+          <kbd id="search-kbd" class="hidden sm:block absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 text-[11px] font-mono text-slate-400">/</kbd>
+          <button id="search-clear" data-action="clear-search" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" aria-label="Clear search"><i data-lucide="x" class="w-4 h-4"></i></button>
         </div>
       </div>
 
-      <!-- Dynamic Views Mount -->
       <div id="app-mount"></div>
-
     </main>
 
-    <!-- Footer -->
     <footer class="max-w-5xl w-full mx-auto px-4 sm:px-6 pb-6 pt-2">
       <div class="card p-5 text-center space-y-1">
         <div class="font-display font-extrabold text-sm text-brand-700 dark:text-brand-400">JU FreshHub</div>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Empowering Freshman Students Through Structured Tutoring &amp; Guided Study Notes</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Structured tutoring and guided study notes for freshman students</p>
         <p class="text-[11px] text-slate-400 dark:text-slate-500">&copy; 2026 JU FreshHub. All rights reserved.</p>
       </div>
     </footer>
 
-    <!-- ======================== BOTTOM NAVIGATION BAR ======================== -->
-    <nav class="fixed bottom-0 inset-x-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-lg">
-      <div class="max-w-md mx-auto grid grid-cols-4 h-16">
-        <button type="button" onclick="switchNav('courses')" id="bnav-courses" class="bottom-nav-item active">
-          <i data-lucide="book-marked" class="w-5 h-5"></i>
-          <span>Courses</span>
+    <!-- Bottom navigation -->
+    <nav aria-label="Main" class="fixed bottom-0 inset-x-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-lg pb-[env(safe-area-inset-bottom)]">
+      <div class="relative max-w-md mx-auto grid grid-cols-5 h-16">
+        <span id="nav-pill" class="absolute top-0 left-0 w-1/5 h-[3px] px-4 transition-transform duration-500" style="transition-timing-function:var(--ease)">
+          <span class="block h-full rounded-b-full bg-gradient-to-r from-brand-500 to-brand-gold"></span>
+        </span>
+        <button type="button" data-action="nav" data-nav="courses" id="bnav-courses" class="bottom-nav-item active"><i data-lucide="book-marked" class="w-5 h-5"></i><span>Courses</span></button>
+        <button type="button" data-action="nav" data-nav="exams" id="bnav-exams" class="bottom-nav-item">
+          <span id="badge-exams" class="hidden absolute top-1.5 right-[22%] min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold grid place-items-center"></span>
+          <i data-lucide="clipboard-check" class="w-5 h-5"></i><span>Live Exam</span>
         </button>
-        <button type="button" onclick="switchNav('exams')" id="bnav-exams" class="bottom-nav-item relative">
-          <span class="absolute top-2 right-6 w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-          <i data-lucide="timer" class="w-5 h-5"></i>
-          <span>Live Exam</span>
+        <button type="button" data-action="nav" data-nav="notices" id="bnav-notices" class="bottom-nav-item">
+          <span id="badge-notices" class="hidden absolute top-1.5 right-[22%] min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold grid place-items-center"></span>
+          <i data-lucide="bell" class="w-5 h-5"></i><span>Notices</span>
         </button>
-        <button type="button" onclick="switchNav('notices')" id="bnav-notices" class="bottom-nav-item">
-          <i data-lucide="bell" class="w-5 h-5"></i>
-          <span>Notices</span>
-        </button>
-        <button type="button" onclick="switchNav('profile')" id="bnav-profile" class="bottom-nav-item">
-          <i data-lucide="user" class="w-5 h-5"></i>
-          <span>Profile</span>
-        </button>
+        <button type="button" data-action="nav" data-nav="study" id="bnav-study" class="bottom-nav-item"><i data-lucide="timer" class="w-5 h-5"></i><span>Study</span></button>
+        <button type="button" data-action="nav" data-nav="profile" id="bnav-profile" class="bottom-nav-item"><i data-lucide="user" class="w-5 h-5"></i><span>Profile</span></button>
       </div>
     </nav>
-
   </div>
 
-  <!-- ======================== SCRIPT ======================== -->
-  <script>
+  <!-- ======================== APP ======================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    /* ------------------------------------------------------------------
+       Config
+    ------------------------------------------------------------------ */
     const firebaseConfig = {
       apiKey: "AIzaSyDhb3KHZYGtDzAxd7v7rakyUqwNL4B2YYQ",
       authDomain: "ju-freshhub.firebaseapp.com",
@@ -297,10 +366,9 @@
       messagingSenderId: "660385131556",
       appId: "1:660385131556:web:22a98f637d890564b13cb1"
     };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const JU_BRANDING = {
       logo: 'file_0000000038ec821190116c867f864f21.png',
@@ -308,10 +376,27 @@
       dashPhoto: 'Learning Journey to the Stars.png'
     };
 
-    // ==========================================
-    // COURSES & CHAPTERS DATABASE
-    // ==========================================
-    const coursesDB = [
+    // Splash length. The full splash plays once per browser session; later reloads are short.
+    const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const SPLASH_MS = reducedMotion() ? 600 : (sessionStorage.getItem('fh_splash') ? 1200 : 5000);
+    const BASE_TITLE = document.title;
+
+    const SPLASH_TIPS = [
+      "Short, focused sessions beat long cramming nights.",
+      "Read a note, then explain it out loud in your own words.",
+      "Mark notes as read to grow your study streak.",
+      "Live mock exams auto-submit at 00:00, so pace yourself.",
+      "Flag hard questions in an exam and come back to them."
+    ];
+
+    /* ------------------------------------------------------------------
+       Course data
+    ------------------------------------------------------------------ */
+    const t = (title, file = null) => ({ title, file });
+    const seq = (prefix, titles) => titles.map((title, i) => t(title, `${prefix} ${i + 1}.html`));
+    const ch = (id, num, title, topics) => ({ id, num, title, topics });
+
+    const COURSES = [
       {
         id: "maths",
         title: "Mathematics for Natural Sciences",
@@ -320,52 +405,26 @@
         accent: "from-brand-600 to-brand-800",
         badgeBg: "bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300",
         chapters: [
-          {
-            id: "math-ch1", num: "Chapter 1", title: "Propositional Logic and Set Theory",
-            topics: [
-              { title: "Foundations of Propositional Logic", file: "maths 1.html" },
-              { title: "The Five Logical Connectives", file: "maths 2.html" },
-              { title: "Compound Propositions and Logical Equivalence", file: "maths 3.html" },
-              { title: "Tautology, Contradiction and Contingency", file: "maths 4.html" },
-              { title: "Open Propositions and Quantifiers", file: "maths 5.html" },
-              { title: "Arguments and Validity", file: "maths 6.html" },
-              { title: "The Concept of a Set", file: "maths 7.html" },
-              { title: "Description and Relationships of Sets", file: "maths 8.html" },
-              { title: "Set Operations", file: "maths 9.html" },
-              { title: "Venn Diagrams and Applications", file: "maths 10.html" }
-            ]
-          },
-          {
-            id: "math-ch2", num: "Chapter 2", title: "The Real and Complex Number Systems",
-            topics: [
-              { title: "Natural Numbers", file: "maths c2 1.html" },
-              { title: "Mathematical Induction and the Well-Ordering Principle", file: "maths c2 2.html" },
-              { title: "The Set of Integers", file: "maths c2 3.html" },
-              { title: "The Set of Rational Numbers", file: "maths c2 4.html" },
-              { title: "The Set of Real Numbers", file: "maths c2 5.html" },
-              { title: "Bounds and the Completeness Property", file: "maths c2 6.html" },
-              { title: "Introduction and Plotting Complex Numbers", file: "maths c2 7.html" },
-              { title: "Operations on Complex Numbers", file: "maths c2 8.html" },
-              { title: "Conjugate, Modulus and Inverses", file: "maths c2 9.html" },
-              { title: "Argument and Polar Form of Complex Numbers", file: "maths c2 10.html" },
-              { title: "Extraction of Roots of Complex Numbers", file: "maths c2 11.html" }
-            ]
-          },
-          {
-            id: "math-ch3", num: "Chapter 3", title: "Functions",
-            topics: [
-              { title: "Relations, Functions, Domain & Range", file: null },
-              { title: "Polynomial, Rational, Exponential & Logarithmic Functions", file: null },
-              { title: "Trigonometric & Hyperbolic Functions", file: null }
-            ]
-          },
-          {
-            id: "math-ch4", num: "Chapter 4", title: "Analytic Geometry",
-            topics: [
-              { title: "Distance, Slope & Equations of Lines", file: null },
-              { title: "Conic Sections (Circle, Parabola, Ellipse, Hyperbola)", file: null }
-            ]
-          }
+          ch("math-ch1", "Chapter 1", "Propositional Logic and Set Theory", seq("maths", [
+            "Foundations of Propositional Logic", "The Five Logical Connectives", "Compound Propositions and Logical Equivalence",
+            "Tautology, Contradiction and Contingency", "Open Propositions and Quantifiers", "Arguments and Validity",
+            "The Concept of a Set", "Description and Relationships of Sets", "Set Operations", "Venn Diagrams and Applications"
+          ])),
+          ch("math-ch2", "Chapter 2", "The Real and Complex Number Systems", seq("maths c2", [
+            "Natural Numbers", "Mathematical Induction and the Well-Ordering Principle", "The Set of Integers", "The Set of Rational Numbers",
+            "The Set of Real Numbers", "Bounds and the Completeness Property", "Introduction and Plotting Complex Numbers",
+            "Operations on Complex Numbers", "Conjugate, Modulus and Inverses", "Argument and Polar Form of Complex Numbers",
+            "Extraction of Roots of Complex Numbers"
+          ])),
+          ch("math-ch3", "Chapter 3", "Functions", [
+            t("Relations, Functions, Domain & Range"),
+            t("Polynomial, Rational, Exponential & Logarithmic Functions"),
+            t("Trigonometric & Hyperbolic Functions")
+          ]),
+          ch("math-ch4", "Chapter 4", "Analytic Geometry", [
+            t("Distance, Slope & Equations of Lines"),
+            t("Conic Sections (Circle, Parabola, Ellipse, Hyperbola)")
+          ])
         ]
       },
       {
@@ -376,31 +435,20 @@
         accent: "from-sky-600 to-sky-800",
         badgeBg: "bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300",
         chapters: [
-          { id: "phy-ch1", num: "Chapter 1", title: "Preliminaries, Measurements & Vectors", topics: [ { title: "Introduction to Physics and Physical Quantities", file: "physics c1 1.html" }, { title: "SI Units and Unit Conversions", file: "physics c1 2.html" }, { title: "Measurement Uncertainty and Significant Figures", file: "physics c1 3.html" }, { title: "Scalars and Vectors", file: "physics c1 4.html" }, { title: "Vector Representation", file: "physics c1 5.html" }, { title: "Vector Addition", file: "physics c1 6.html" }, { title: "Components and Resolution of Vectors", file: "physics c1 7.html" }, { title: "Unit Vectors", file: "physics c1 8.html" } ] },
-         {
-            id: "phy-ch2", num: "Chapter 2", title: "Kinematics and Dynamics of Particles",
-            topics: [
-              { title: "Displacement, Velocity and Acceleration in 1D and 2D", file: "physics c2 1.html" },
-              { title: "Motion with Constant Acceleration", file: "physics c2 2.html" },
-              { title: "Free Fall Motion", file: "physics c2 3.html" },
-              { title: "Projectile Motion", file: "physics c2 4.html" },
-              { title: "The Concept of Force as a Measure of Interaction", file: "physics c2 5.html" },
-              { title: "Types of Forces", file: "physics c2 6.html" },
-              { title: "Newton's Laws of Motion and Applications", file: "physics c2 7.html" },
-              { title: "Uniform Circular Motion", file: "physics c2 8.html" },
-              { title: "Newton's Law of Universal Gravitation", file: "physics c2 9.html" },
-              { title: "Kepler's Laws, Satellite Motion and Weightlessness", file: "physics c2 10.html" },
-              { title: "Work and Energy", file: "physics c2 11.html" },
-              { title: "Power", file: "physics c2 12.html" },
-              { title: "Linear Momentum", file: "physics c2 13.html" },
-              { title: "Collisions", file: "physics c2 14.html" },
-              { title: "Center of Mass", file: "physics c2 15.html" }
-            ]
-          },
-          { id: "phy-ch3", num: "Chapter 3", title: "Fluid Mechanics", topics: [{ title: "Fluid Statics, Pascal & Archimedes Principles", file: null }, { title: "Bernoulli's Equation & Fluid Dynamics", file: null }] },
-          { id: "phy-ch4", num: "Chapter 4", title: "Heat and Thermodynamics", topics: [{ title: "Temperature, Thermal Expansion & Laws of Thermodynamics", file: null }] },
-          { id: "phy-ch5", num: "Chapter 5", title: "Oscillations, Waves and Optics", topics: [{ title: "Simple Harmonic Motion & Wave Properties", file: null }] },
-          { id: "phy-ch6", num: "Chapter 6", title: "Electromagnetism and Electronics", topics: [{ title: "Coulomb's Law, Electric Fields & Circuits", file: null }] }
+          ch("phy-ch1", "Chapter 1", "Preliminaries, Measurements & Vectors", seq("physics c1", [
+            "Introduction to Physics and Physical Quantities", "SI Units and Unit Conversions", "Measurement Uncertainty and Significant Figures",
+            "Scalars and Vectors", "Vector Representation", "Vector Addition", "Components and Resolution of Vectors", "Unit Vectors"
+          ])),
+          ch("phy-ch2", "Chapter 2", "Kinematics and Dynamics of Particles", seq("physics c2", [
+            "Displacement, Velocity and Acceleration in 1D and 2D", "Motion with Constant Acceleration", "Free Fall Motion", "Projectile Motion",
+            "The Concept of Force as a Measure of Interaction", "Types of Forces", "Newton's Laws of Motion and Applications",
+            "Uniform Circular Motion", "Newton's Law of Universal Gravitation", "Kepler's Laws, Satellite Motion and Weightlessness",
+            "Work and Energy", "Power", "Linear Momentum", "Collisions", "Center of Mass"
+          ])),
+          ch("phy-ch3", "Chapter 3", "Fluid Mechanics", [t("Fluid Statics, Pascal & Archimedes Principles"), t("Bernoulli's Equation & Fluid Dynamics")]),
+          ch("phy-ch4", "Chapter 4", "Heat and Thermodynamics", [t("Temperature, Thermal Expansion & Laws of Thermodynamics")]),
+          ch("phy-ch5", "Chapter 5", "Oscillations, Waves and Optics", [t("Simple Harmonic Motion & Wave Properties")]),
+          ch("phy-ch6", "Chapter 6", "Electromagnetism and Electronics", [t("Coulomb's Law, Electric Fields & Circuits")])
         ]
       },
       {
@@ -411,33 +459,20 @@
         accent: "from-teal-600 to-teal-800",
         badgeBg: "bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300",
         chapters: [
-          {
-            id: "geo-ch1", num: "Chapter 1", title: "Introduction (Location, Shape and Size)",
-            topics: [
-              { title: "Meaning, Scope, Approaches & Themes of Geography", file: "geo c1 1.html" },
-              { title: "Location of Ethiopia & the Horn", file: "geo c1 2.html" },
-              { title: "Size and Shape of Ethiopia", file: "geo c1 3.html" },
-              { title: "Basic Skills of Map Reading", file: "geo c1 4.html" }
-            ]
-          },
-          {
-            id: "geo-ch2", num: "Chapter 2", title: "The Geology of Ethiopia and the Horn",
-            topics: [
-              { title: "Introduction to Geology and Continental Drift", file: "geo c2 1.html" },
-              { title: "Geological Processes — Endogenic and Exogenic Forces", file: "geo c2 2.html" },
-              { title: "Geological Time Scale and Age Dating Techniques", file: "geo c2 3.html" },
-              { title: "Precambrian Era (4.5 billion–600 million years ago)", file: "geo c2 4.html" },
-              { title: "Paleozoic Era (600–225 million years ago)", file: "geo c2 5.html" },
-              { title: "Mesozoic Era (225–70 million years ago)", file: "geo c2 6.html" },
-              { title: "Cenozoic Era (70 million years ago–Present)", file: "geo c2 7.html" },
-              { title: "Rock and Mineral Resources of Ethiopia", file: "geo c2 8.html" }
-            ]
-          },
-          { id: "geo-ch3", num: "Chapter 3", title: "The Topography of Ethiopia and the Horn", topics: [{ title: "Physiographic Divisions & Rift Valley", file: null }] },
-          { id: "geo-ch4", num: "Chapter 4", title: "Drainage Systems and Water Resources", topics: [{ title: "Major River Basins & Lakes", file: null }] },
-          { id: "geo-ch5", num: "Chapter 5", title: "The Climate of Ethiopia and the Horn", topics: [{ title: "Agro-ecological Zones & Rainfall Patterns", file: null }] },
-          { id: "geo-ch6", num: "Chapter 6", title: "Soils, Natural Vegetation and Wildlife", topics: [{ title: "Major Soil Types & Conservation", file: null }] },
-          { id: "geo-ch7", num: "Chapter 7", title: "Population of Ethiopia and the Horn", topics: [{ title: "Population Distribution, Density & Dynamics", file: null }] }
+          ch("geo-ch1", "Chapter 1", "Introduction (Location, Shape and Size)", seq("geo c1", [
+            "Meaning, Scope, Approaches & Themes of Geography", "Location of Ethiopia & the Horn", "Size and Shape of Ethiopia", "Basic Skills of Map Reading"
+          ])),
+          ch("geo-ch2", "Chapter 2", "The Geology of Ethiopia and the Horn", seq("geo c2", [
+            "Introduction to Geology and Continental Drift", "Geological Processes — Endogenic and Exogenic Forces",
+            "Geological Time Scale and Age Dating Techniques", "Precambrian Era (4.5 billion–600 million years ago)",
+            "Paleozoic Era (600–225 million years ago)", "Mesozoic Era (225–70 million years ago)",
+            "Cenozoic Era (70 million years ago–Present)", "Rock and Mineral Resources of Ethiopia"
+          ])),
+          ch("geo-ch3", "Chapter 3", "The Topography of Ethiopia and the Horn", [t("Physiographic Divisions & Rift Valley")]),
+          ch("geo-ch4", "Chapter 4", "Drainage Systems and Water Resources", [t("Major River Basins & Lakes")]),
+          ch("geo-ch5", "Chapter 5", "The Climate of Ethiopia and the Horn", [t("Agro-ecological Zones & Rainfall Patterns")]),
+          ch("geo-ch6", "Chapter 6", "Soils, Natural Vegetation and Wildlife", [t("Major Soil Types & Conservation")]),
+          ch("geo-ch7", "Chapter 7", "Population of Ethiopia and the Horn", [t("Population Distribution, Density & Dynamics")])
         ]
       },
       {
@@ -448,31 +483,21 @@
         accent: "from-orange-500 to-orange-700",
         badgeBg: "bg-orange-50 dark:bg-orange-500/15 text-orange-700 dark:text-orange-300",
         chapters: [
-          {
-            id: "eng-grammar",
-            num: "Section 1",
-            title: "Grammar",
-            topics: [
-              { title: "Modals and Infinitives for Giving Advice", file: "english c1 1.html" },
-              { title: "Present Perfect Tense", file: "english c1 2.html" },
-              { title: "Understanding the Four Tenses", file: "english c1 5.html" },
-              { title: "Comparing the Four Tenses in Context", file: "english c1 6.html" },
-              { title: "Using the Four Tenses in Writing", file: "english c1 7.html" },
-              { title: "Conditional Sentences", file: "english c1 4.html" },
-              { title: "Active Voice", file: "english c1 10.html" },
-              { title: "Passive Voice", file: "english c1 11.html" }
-            ]
-          },
-          {
-            id: "eng-vocab",
-            num: "Section 2",
-            title: "Vocabulary",
-            topics: [
-              { title: "Vocabulary Development & Guessing Meaning from Context", file: "english c1 3.html" },
-              { title: "Denotative and Connotative Meanings", file: "english c1 8.html" },
-              { title: "Collocations", file: "english c1 9.html" }
-            ]
-          }
+          ch("eng-grammar", "Section 1", "Grammar", [
+            t("Modals and Infinitives for Giving Advice", "english c1 1.html"),
+            t("Present Perfect Tense", "english c1 2.html"),
+            t("Understanding the Four Tenses", "english c1 5.html"),
+            t("Comparing the Four Tenses in Context", "english c1 6.html"),
+            t("Using the Four Tenses in Writing", "english c1 7.html"),
+            t("Conditional Sentences", "english c1 4.html"),
+            t("Active Voice", "english c1 10.html"),
+            t("Passive Voice", "english c1 11.html")
+          ]),
+          ch("eng-vocab", "Section 2", "Vocabulary", [
+            t("Vocabulary Development & Guessing Meaning from Context", "english c1 3.html"),
+            t("Denotative and Connotative Meanings", "english c1 8.html"),
+            t("Collocations", "english c1 9.html")
+          ])
         ]
       },
       {
@@ -483,62 +508,21 @@
         accent: "from-purple-600 to-purple-800",
         badgeBg: "bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300",
         chapters: [
-          {
-            id: "psy-ch1",
-            num: "Chapter 1",
-            title: "Essence of Psychology",
-            topics: [
-              { title: "Definition of Psychology and Related Concepts", file: "psy c1 1.html" },
-              { title: "Goals of Psychology", file: "psy c1 2.html" },
-              { title: "Historical Background and Major Perspectives in Psychology", file: "psy c1 3.html" },
-              { title: "Branches of Psychology", file: "psy c1 4.html" },
-              { title: "Research Methods in Psychology", file: "psy c1 5.html" }
-            ]
-          },
-          {
-            id: "psy-ch2",
-            num: "Chapter 2",
-            title: "Sensation and Perception",
-            topics: [
-              { title: "Meaning of Sensation and Perception", file: "psy c2 1.html" },
-              { title: "Sensory Laws: Thresholds and Adaptation", file: "psy c2 2.html" },
-              { title: "Selectivity of Perception: Attention", file: "psy c2 3.html" },
-              { title: "Form Perception and Organization", file: "psy c2 4.html" },
-              { title: "Depth Perception", file: "psy c2 5.html" },
-              { title: "Perceptual Constancy and Illusion", file: "psy c2 6.html" }
-            ]
-          },
-          {
-            id: "psy-ch3",
-            num: "Chapter 3",
-            title: "Learning and Theories of Learning",
-            topics: [
-              { title: "Definition, Characteristics and Principles of Learning", file: "psy c3 1.html" },
-              { title: "Factors Influencing Learning", file: "psy c3 2.html" },
-              { title: "Behavioral Theories of Learning", file: "psy c3 3.html" },
-              { title: "Social Learning Theory", file: "psy c3 4.html" },
-              { title: "Cognitive Learning Theory", file: "psy c3 5.html" },
-              { title: "Applications of Learning Theories", file: "psy c3 6.html" }
-            ]
-          },
-          {
-            id: "psy-ch4",
-            num: "Chapter 4",
-            title: "Memory and Forgetting",
-            topics: [{ title: "Sensory, Short-Term & Long-Term Memory", file: null }]
-          },
-          {
-            id: "psy-ch5",
-            num: "Chapter 5",
-            title: "Motivation and Emotion",
-            topics: [{ title: "Theories of Motivation & Maslow's Hierarchy", file: null }]
-          },
-          {
-            id: "psy-ch6",
-            num: "Chapter 6",
-            title: "Personality & Psychological Disorders",
-            topics: [{ title: "Psychoanalytic, Trait Theories & Mental Health", file: null }]
-          }
+          ch("psy-ch1", "Chapter 1", "Essence of Psychology", seq("psy c1", [
+            "Definition of Psychology and Related Concepts", "Goals of Psychology", "Historical Background and Major Perspectives in Psychology",
+            "Branches of Psychology", "Research Methods in Psychology"
+          ])),
+          ch("psy-ch2", "Chapter 2", "Sensation and Perception", seq("psy c2", [
+            "Meaning of Sensation and Perception", "Sensory Laws: Thresholds and Adaptation", "Selectivity of Perception: Attention",
+            "Form Perception and Organization", "Depth Perception", "Perceptual Constancy and Illusion"
+          ])),
+          ch("psy-ch3", "Chapter 3", "Learning and Theories of Learning", seq("psy c3", [
+            "Definition, Characteristics and Principles of Learning", "Factors Influencing Learning", "Behavioral Theories of Learning",
+            "Social Learning Theory", "Cognitive Learning Theory", "Applications of Learning Theories"
+          ])),
+          ch("psy-ch4", "Chapter 4", "Memory and Forgetting", [t("Sensory, Short-Term & Long-Term Memory")]),
+          ch("psy-ch5", "Chapter 5", "Motivation and Emotion", [t("Theories of Motivation & Maslow's Hierarchy")]),
+          ch("psy-ch6", "Chapter 6", "Personality & Psychological Disorders", [t("Psychoanalytic, Trait Theories & Mental Health")])
         ]
       },
       {
@@ -549,1064 +533,1490 @@
         accent: "from-rose-600 to-rose-800",
         badgeBg: "bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300",
         chapters: [
-          {
-            id: "log-ch1",
-            num: "Chapter 1",
-            title: "Introducing Philosophy",
-            topics: [
-              { title: "Meaning and Nature of Philosophy", file: "logic c1 1.html" },
-              { title: "Basic Features of Philosophy", file: "logic c1 2.html" },
-              { title: "Metaphysics and Epistemology", file: "logic c1 3.html" },
-              { title: "Axiology and Logic", file: "logic c1 4.html" },
-              { title: "Importance of Learning Philosophy", file: "logic c1 5.html" }
-            ]
-          },
-          {
-            id: "log-ch2",
-            num: "Chapter 2",
-            title: "Basic Concepts of Logic",
-            topics: [
-              { title: "Arguments, Premises and Conclusions", file: "logic c2 1.html" },
-              { title: "Techniques of Recognizing Arguments", file: "logic c2 2.html" },
-              { title: "Types of Arguments: Deduction and Induction", file: "logic c2 3.html" },
-              { title: "Evaluating Arguments", file: "logic c2 4.html" }
-            ]
-          },
-          { id: "log-ch3", num: "Chapter 3", title: "Logic and Language", topics: [{ title: "Cognitive vs Emotive Meaning & Definitions", file: null }] },
-          { id: "log-ch4", num: "Chapter 4", title: "Basic Concepts of Critical Thinking & Fallacies", topics: [{ title: "Formal vs Informal Fallacies", file: null }] },
-          { id: "log-ch5", num: "Chapter 5", title: "Categorical Propositions", topics: [{ title: "Standard Forms (A, E, I, O) & Square of Opposition", file: null }] }
+          ch("log-ch1", "Chapter 1", "Introducing Philosophy", seq("logic c1", [
+            "Meaning and Nature of Philosophy", "Basic Features of Philosophy", "Metaphysics and Epistemology",
+            "Axiology and Logic", "Importance of Learning Philosophy"
+          ])),
+          ch("log-ch2", "Chapter 2", "Basic Concepts of Logic", seq("logic c2", [
+            "Arguments, Premises and Conclusions", "Techniques of Recognizing Arguments",
+            "Types of Arguments: Deduction and Induction", "Evaluating Arguments"
+          ])),
+          ch("log-ch3", "Chapter 3", "Logic and Language", [t("Cognitive vs Emotive Meaning & Definitions")]),
+          ch("log-ch4", "Chapter 4", "Basic Concepts of Critical Thinking & Fallacies", [t("Formal vs Informal Fallacies")]),
+          ch("log-ch5", "Chapter 5", "Categorical Propositions", [t("Standard Forms (A, E, I, O) & Square of Opposition")])
         ]
       }
     ];
 
-    // ==========================================
-    // STATE & VARIABLES
-    // ==========================================
-    let state = {
-      nav: "courses",        // 'courses' | 'exams' | 'notices' | 'profile'
-      view: "courses",       // 'courses' | 'chapters' | 'topics'
-      courseId: null,
-      chapterId: null,
-      searchQuery: ""
+    /* ------------------------------------------------------------------
+       Helpers
+    ------------------------------------------------------------------ */
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const icons = () => window.lucide?.createIcons();
+    const ic = (name, cls = "w-4 h-4") => `<i data-lucide="${name}" class="${cls}"></i>`;
+    const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    const store = {
+      get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+      remove(k) { try { localStorage.removeItem(k); } catch {} }
+    };
+    const K = {
+      done: "freshhub_completed_topics", days: "fh_days", focus: "fh_focus", tasks: "fh_tasks",
+      seenNotices: "fh_seen_notices", last: "fh_last", badges: "fh_badges", exams: "fh_exam_results", session: "fh_exam_session"
     };
 
-    let currentUser = null;
-    let currentStudentName = "Student";
-    let liveExamsList = [];
-    let announcementsList = [];
-    let completedFiles = [];
-    try { completedFiles = JSON.parse(localStorage.getItem("freshhub_completed_topics") || "[]"); } catch (e) {}
+    const topicsOf = (c) => c.chapters.flatMap((x) => x.topics);
+    const readyOf = (c) => topicsOf(c).filter((x) => x.file);
+    let completed = new Set(store.get(K.done, []));
+    const doneIn = (list) => list.filter((x) => x.file && completed.has(x.file)).length;
+    const pctOf = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+    const getCourse = () => COURSES.find((c) => c.id === state.courseId);
+    const getChapter = () => getCourse()?.chapters.find((c) => c.id === state.chapterId);
+    function findTopic(file) {
+      for (const course of COURSES) for (const chapter of course.chapters) {
+        const topic = chapter.topics.find((x) => x.file === file);
+        if (topic) return { course, chapter, topic };
+      }
+      return null;
+    }
+    const noteHref = (file) => esc(encodeURI(file));
 
-    // Exam Session State
-    let activeExam = null;
-    let examAnswers = {};
-    let examTimeRemaining = 0;
-    let examTimerInterval = null;
+    function hl(text, q) {
+      if (!q) return esc(text);
+      const i = text.toLowerCase().indexOf(q);
+      if (i < 0) return esc(text);
+      return esc(text.slice(0, i)) + `<mark class="hl">${esc(text.slice(i, i + q.length))}</mark>` + hl(text.slice(i + q.length), q);
+    }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      applyBranding();
-      syncThemeIcon();
-      updateClock();
-      setInterval(updateClock, 30000);
-      setupAuthListener();
-      lucide.createIcons();
-    });
+    /* Study streak: a day counts when the student reads a note, finishes a focus session or takes an exam */
+    function markActive() {
+      const days = store.get(K.days, []);
+      const k = dayKey();
+      if (!days.includes(k)) { days.push(k); store.set(K.days, days.slice(-120)); }
+    }
+    function getStreak() {
+      const days = new Set(store.get(K.days, []));
+      const d = new Date();
+      if (!days.has(dayKey(d))) d.setDate(d.getDate() - 1);
+      let n = 0;
+      while (days.has(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+      return n;
+    }
+    function focusStats() {
+      const all = store.get(K.focus, {});
+      const today = all[dayKey()] || { m: 0, n: 0 };
+      return { todayM: today.m, todayN: today.n, totalM: Object.values(all).reduce((s, x) => s + x.m, 0) };
+    }
 
-    function setupAuthListener() {
-      auth.onAuthStateChanged(async (user) => {
-        const loadingScreen = document.getElementById("auth-loading-screen");
-        if (user) {
-          currentUser = user;
-          if (loadingScreen) loadingScreen.classList.add("hidden");
-          document.getElementById("auth-modal").classList.add("hidden");
-          document.getElementById("app-container").classList.remove("hidden");
-          currentStudentName = user.displayName || (user.email ? user.email.split("@")[0] : "Student");
-          updateUserProfileDisplay(user);
+    /* ------------------------------------------------------------------
+       State
+    ------------------------------------------------------------------ */
+    const state = { nav: "courses", view: "courses", courseId: null, chapterId: null, q: "" };
+    const snap = () => ({ nav: state.nav, view: state.view, courseId: state.courseId, chapterId: state.chapterId });
+    const NAVS = ["courses", "exams", "notices", "study", "profile"];
 
-          // Listen to live announcements from admin
-          listenToAnnouncements();
-          // Listen to live exams from Firestore collection: live_exams
-          listenToLiveExams();
+    let user = null, studentName = "Student", profileStream = "";
+    let liveExams = [], notices = [], unsubs = [];
+    let session = null;      // active exam attempt
+    let lastResult = null;   // result screen
+    let resultFilter = "all";
+    let justDone = null, justAdded = null;
 
-          try {
-            const docSnap = await db.collection("users").doc(user.uid).get();
-            if (docSnap.exists) {
-              const data = docSnap.data();
-              if (data.displayName) {
-                currentStudentName = data.displayName;
-                updateUserProfileDisplay(user, data);
-              }
-            }
-          } catch (err) {}
+    const mount = $("#app-mount");
+    const navBar = $("#nav-bar");
+    const searchBox = $("#search-container");
+    const searchInput = $("#search-input");
 
-          render();
-          lucide.createIcons();
-        } else {
-          currentUser = null;
-          if (loadingScreen) loadingScreen.classList.add("hidden");
-          document.getElementById("auth-modal").classList.remove("hidden");
-          document.getElementById("app-container").classList.add("hidden");
-          lucide.createIcons();
-        }
+    /* ------------------------------------------------------------------
+       UI primitives: rings, counters, toast, modal, confetti
+    ------------------------------------------------------------------ */
+    function ring(pct, { size = 64, stroke = 4, color = "text-brand-500", label = "" } = {}) {
+      return `
+      <div class="relative shrink-0" style="width:${size}px;height:${size}px">
+        <svg viewBox="0 0 40 40" class="-rotate-90 w-full h-full" aria-hidden="true">
+          <circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="${stroke}" class="text-slate-200 dark:text-slate-700/70"/>
+          <circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round"
+            pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" data-pct="${pct}" class="ring-fg ${color}"/>
+        </svg>
+        <div class="absolute inset-0 grid place-items-center font-display font-bold text-slate-900 dark:text-white" style="font-size:${Math.round(size * 0.24)}px">${label}</div>
+      </div>`;
+    }
+    const bar = (pct, cls = "from-brand-500 to-brand-gold") =>
+      `<div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div class="bar-fill h-full rounded-full bg-gradient-to-r ${cls}" data-w="${pct}" style="width:0"></div></div>`;
+
+    function fillProgress(instant) {
+      $$(".ring-fg", mount).forEach((el) => {
+        if (instant) el.style.transition = "none";
+        el.style.strokeDashoffset = 100 - Number(el.dataset.pct);
+      });
+      $$(".bar-fill", mount).forEach((el) => {
+        if (instant) el.style.transition = "none";
+        el.style.width = el.dataset.w + "%";
       });
     }
-
-    function listenToAnnouncements() {
-      db.collection("announcements").onSnapshot((snap) => {
-        announcementsList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (state.nav === "notices") render();
-      }, (err) => console.log("Notices listener:", err));
-    }
-
-    // =========================================================================
-    // 📡 REAL-TIME LISTENER FOR COLLECTION: live_exams (WITH AUTO-ADAPTER)
-    // =========================================================================
-    function listenToLiveExams() {
-      db.collection("live_exams").onSnapshot((snap) => {
-        liveExamsList = snap.docs.map(doc => normalizeExamDoc(doc));
-        if (state.nav === "exams") render();
-      }, (err) => {
-        console.error("Live exams listener error:", err);
-      });
-    }
-
-    // Smart adapter: Normalizes any question/option/answer structure stored in Firestore
-    function normalizeExamDoc(doc) {
-      const data = doc.data() || {};
-      const rawQuestions = data.questions || data.questionList || data.items || data.quiz || [];
-      
-      const normalizedQuestions = (Array.isArray(rawQuestions) ? rawQuestions : Object.values(rawQuestions)).map((qItem, idx) => {
-        const questionText = qItem.question || qItem.q || qItem.questionText || qItem.title || `Question ${idx + 1}`;
-        const rawOptions = qItem.options || qItem.choices || qItem.answers || [];
-        const options = Array.isArray(rawOptions) ? rawOptions : Object.values(rawOptions);
-
-        let correct = qItem.correct;
-        if (correct === undefined) correct = qItem.correctIndex;
-        if (correct === undefined) correct = qItem.answer;
-        if (correct === undefined) correct = qItem.correctAnswer;
-
-        // If correct answer is formatted as "A", "B", "C", "D"
-        if (typeof correct === 'string') {
-          const upper = correct.trim().toUpperCase();
-          if (upper === 'A') correct = 0;
-          else if (upper === 'B') correct = 1;
-          else if (upper === 'C') correct = 2;
-          else if (upper === 'D') correct = 3;
-          else {
-            const foundIdx = options.findIndex(o => String(o).trim().toLowerCase() === correct.trim().toLowerCase());
-            correct = foundIdx !== -1 ? foundIdx : (parseInt(correct) || 0);
-          }
-        } else if (typeof correct !== 'number') {
-          correct = parseInt(correct) || 0;
-        }
-
-        return {
-          q: questionText,
-          options: options,
-          correct: correct,
-          exp: qItem.exp || qItem.explanation || qItem.rationale || "Review the corresponding course lecture notes."
+    function animateCounts(root = document) {
+      $$("[data-count]", root).forEach((el) => {
+        const to = Number(el.dataset.count), suf = el.dataset.suffix || "";
+        if (reducedMotion() || to === 0) { el.textContent = to + suf; return; }
+        el.textContent = "0" + suf;
+        const t0 = performance.now(), dur = 900;
+        const step = (now) => {
+          const p = Math.min(1, (now - t0) / dur);
+          el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + suf;
+          if (p < 1) requestAnimationFrame(step);
         };
+        requestAnimationFrame(step);
       });
-
-      return {
-        id: doc.id,
-        title: data.title || data.name || data.examTitle || data.subject || "Live Examination",
-        course: data.course || data.subject || data.stream || "Freshman Common Course",
-        duration: parseInt(data.duration || data.durationMinutes || data.timeLimit || data.time || 30),
-        status: data.status || (data.isLive !== false ? "active" : "ended"),
-        questions: normalizedQuestions,
-        createdAt: data.createdAt
-      };
     }
 
-    function updateUserProfileDisplay(user, profileData) {
-      const nameEl = document.getElementById("student-name-display");
-      if (nameEl) nameEl.innerText = currentStudentName;
-
-      const h = new Date().getHours();
-      const greetWord = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-      const greetEl = document.getElementById("greeting");
-      if (greetEl) greetEl.innerText = `${greetWord}, ${currentStudentName}`;
-
-      if (profileData && profileData.stream) {
-        const subEl = document.getElementById("greeting-sub");
-        if (subEl) subEl.innerText = `${profileData.stream} • Natural Science Freshman Portal`;
-      }
-    }
-
-    async function handleStudentLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById("student-email").value.trim();
-      const password = document.getElementById("student-password").value;
-      const errorDiv = document.getElementById("auth-error");
-      const btn = document.getElementById("login-btn");
-
-      errorDiv.classList.add("hidden");
-      btn.disabled = true;
-      btn.innerHTML = `<span>Signing in...</span>`;
-
-      try {
-        await auth.signInWithEmailAndPassword(email, password);
-        toast("Signed in successfully!", "success", 2500);
-      } catch (err) {
-        let msg = "Unable to sign in. Please verify your email and password.";
-        if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
-          msg = "Incorrect email or password. Please verify your credentials.";
-        } else if (err.code === "auth/too-many-requests") {
-          msg = "Too many failed attempts. Please wait a few moments and try again.";
-        } else if (err.message) {
-          msg = err.message;
-        }
-        errorDiv.innerText = msg;
-        errorDiv.classList.remove("hidden");
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = `<span>Sign In to Portal</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-        lucide.createIcons();
-      }
-    }
-
-    function handleSignOut() {
-      if (confirm("Sign out of JU FreshHub?")) auth.signOut();
-    }
-
-    // ==========================================
-    // BOTTOM NAVIGATION SWITCHER
-    // ==========================================
-    window.switchNav = function(navTab) {
-      if (activeExam) {
-        if (!confirm("An exam is currently in progress! Leaving will cancel your session. Are you sure?")) {
-          return;
-        }
-        clearInterval(examTimerInterval);
-        activeExam = null;
-      }
-
-      state.nav = navTab;
-      document.querySelectorAll(".bottom-nav-item").forEach(item => item.classList.remove("active"));
-      const activeBtn = document.getElementById(`bnav-${navTab}`);
-      if (activeBtn) activeBtn.classList.add("active");
-
-      if (navTab === "courses") {
-        state.view = "courses";
-        state.courseId = null;
-        state.chapterId = null;
-      }
-
-      render();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    const appMount = document.getElementById("app-mount");
-    const navBar = document.getElementById("nav-bar");
-    const btnBack = document.getElementById("btn-back");
-    const breadcrumb = document.getElementById("breadcrumb");
-    const searchContainer = document.getElementById("search-container");
-    const searchInput = document.getElementById("search-input");
-
-    function render() {
-      appMount.innerHTML = "";
-
-      // Search container visibility
-      if (state.nav === "courses" && state.view === "courses") {
-        navBar.classList.add("hidden");
-        searchContainer.classList.remove("hidden");
-      } else if (state.nav === "courses") {
-        navBar.classList.remove("hidden");
-        searchContainer.classList.add("hidden");
-      } else {
-        navBar.classList.add("hidden");
-        searchContainer.classList.add("hidden");
-      }
-
-      // Handle main tabs
-      if (state.nav === "courses") {
-        if (state.view === "courses" && state.searchQuery.trim() !== "") {
-          renderSearchResults();
-        } else if (state.view === "courses") {
-          renderCourses();
-        } else if (state.view === "chapters") {
-          renderChapters();
-        } else if (state.view === "topics") {
-          renderTopics();
-        }
-      } else if (state.nav === "exams") {
-        if (activeExam) {
-          renderActiveExamInterface();
-        } else {
-          renderExamsList();
-        }
-      } else if (state.nav === "notices") {
-        renderNoticesList();
-      } else if (state.nav === "profile") {
-        renderProfileTab();
-      }
-
-      lucide.createIcons();
-    }
-
-    // ==========================================
-    // COURSES VIEWS
-    // ==========================================
-    function renderCourses() {
-      const headerRow = document.createElement("div");
-      headerRow.className = "flex items-center justify-between mb-3";
-      headerRow.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">Freshman Courses</h3>
-                             <span class="text-xs font-bold text-slate-500 dark:text-slate-400">${coursesDB.length} Courses</span>`;
-      appMount.appendChild(headerRow);
-
-      const grid = document.createElement("div");
-      grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
-
-      coursesDB.forEach(course => {
-        const readyTopicsCount = course.chapters.reduce((sum, ch) => sum + ch.topics.filter(t => t.file !== null).length, 0);
-        const card = document.createElement("div");
-        card.className = "card p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition flex flex-col justify-between";
-
-        card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between mb-3.5">
-              <div class="w-11 h-11 rounded-xl bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shadow-sm">
-                <i data-lucide="${course.icon}" class="w-5 h-5"></i>
-              </div>
-              ${readyTopicsCount > 0
-                ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">${readyTopicsCount} Notes Ready</span>`
-                : `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">Upcoming</span>`
-              }
-            </div>
-            <h4 class="font-display font-bold text-slate-900 dark:text-white text-base leading-snug mb-1.5">${escapeHtml(course.title)}</h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">${escapeHtml(course.desc)}</p>
-          </div>
-          <div>
-            <div class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-3">${course.chapters.length} Chapters</div>
-            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-brand-700 dark:text-brand-400">
-              <span>View Chapters</span>
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </div>
-          </div>
-        `;
-
-        card.addEventListener("click", () => {
-          state.courseId = course.id;
-          state.view = "chapters";
-          render();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-
-        grid.appendChild(card);
-      });
-
-      appMount.appendChild(grid);
-    }
-
-    function renderChapters() {
-      const course = coursesDB.find(c => c.id === state.courseId);
-      if (!course) {
-        state.view = "courses";
-        state.courseId = null;
-        renderCourses();
-        return;
-      }
-      breadcrumb.innerText = `Courses > ${course.title}`;
-
-      const headerRow = document.createElement("div");
-      headerRow.className = "mb-4 space-y-1";
-      headerRow.innerHTML = `
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shrink-0">
-            <i data-lucide="${course.icon}" class="w-4 h-4"></i>
-          </div>
-          <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${escapeHtml(course.title)}</h3>
-        </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400 pl-10">${escapeHtml(course.desc)}</p>
-      `;
-      appMount.appendChild(headerRow);
-
-      const stack = document.createElement("div");
-      stack.className = "space-y-3";
-
-      course.chapters.forEach(chapter => {
-        const readyCount = chapter.topics.filter(t => t.file !== null).length;
-        const card = document.createElement("div");
-        card.className = "card p-4 sm:p-5 cursor-pointer hover:border-brand-400 dark:hover:border-brand-500/50 transition flex items-center justify-between gap-4";
-
-        card.innerHTML = `
-          <div class="min-w-0">
-            <div class="flex items-center gap-2 mb-1.5">
-              <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${course.badgeBg}">${escapeHtml(chapter.num)}</span>
-              ${readyCount > 0
-                ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">${readyCount} Available</span>`
-                : `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300">Coming Soon</span>`
-              }
-            </div>
-            <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">${escapeHtml(chapter.title)}</h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${chapter.topics.length} Topic${chapter.topics.length === 1 ? '' : 's'}</p>
-          </div>
-          <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-300 shrink-0">
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
-          </div>
-        `;
-
-        card.addEventListener("click", () => {
-          state.chapterId = chapter.id;
-          state.view = "topics";
-          render();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-
-        stack.appendChild(card);
-      });
-
-      appMount.appendChild(stack);
-    }
-
-    // TOPICS VIEW: Only Title, Open Notes, and Mark as Read (NO file names displayed!)
-    function renderTopics() {
-      const course = coursesDB.find(c => c.id === state.courseId);
-      const chapter = course ? course.chapters.find(ch => ch.id === state.chapterId) : null;
-      if (!course || !chapter) {
-        state.view = "courses";
-        state.courseId = null;
-        state.chapterId = null;
-        renderCourses();
-        return;
-      }
-      breadcrumb.innerText = `${course.title} > ${chapter.num}`;
-
-      const headerRow = document.createElement("div");
-      headerRow.className = "mb-3";
-      headerRow.innerHTML = `
-        <span class="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">${escapeHtml(chapter.num)}</span>
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${escapeHtml(chapter.title)}</h3>
-      `;
-      appMount.appendChild(headerRow);
-
-      const stack = document.createElement("div");
-      stack.className = "space-y-3";
-
-      chapter.topics.forEach((topic, index) => {
-        const isDone = topic.file && completedFiles.includes(topic.file);
-        const card = document.createElement("div");
-        card.className = `card p-4 sm:p-5 transition ${isDone ? "!border-l-4 !border-l-emerald-500" : ""}`;
-
-        if (topic.file) {
-          card.innerHTML = `
-            <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-3">
-              ${index + 1}. ${escapeHtml(topic.title)}
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <a href="${escapeAttr(topic.file)}" class="btn-primary flex-1 sm:flex-initial sm:min-w-[160px]">
-                <i data-lucide="book-open" class="w-4 h-4"></i>
-                <span>Open Notes</span>
-              </a>
-              <button onclick="toggleTopicDone('${escapeAttr(topic.file)}')" class="${isDone ? "btn-ok" : "btn-ghost"}">
-                <i data-lucide="${isDone ? "check-circle-2" : "circle"}" class="w-4 h-4"></i>
-                <span>${isDone ? "Completed" : "Mark as Read"}</span>
-              </button>
-            </div>
-          `;
-        } else {
-          card.innerHTML = `
-            <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-3">
-              ${index + 1}. ${escapeHtml(topic.title)}
-            </div>
-            <div>
-              <button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost opacity-70">
-                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-                <span>Coming Soon</span>
-              </button>
-            </div>
-          `;
-        }
-
-        stack.appendChild(card);
-      });
-
-      appMount.appendChild(stack);
-    }
-
-    function renderSearchResults() {
-      const q = state.searchQuery.toLowerCase().trim();
-      const headerRow = document.createElement("div");
-      headerRow.className = "mb-3";
-      headerRow.innerHTML = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Search Results for "${escapeHtml(state.searchQuery)}"</h3>`;
-      appMount.appendChild(headerRow);
-
-      const stack = document.createElement("div");
-      stack.className = "space-y-3";
-      let matchCount = 0;
-
-      coursesDB.forEach(course => {
-        if (course.title.toLowerCase().includes(q) || course.desc.toLowerCase().includes(q)) {
-          matchCount++;
-          const card = document.createElement("div");
-          card.className = "card p-4 cursor-pointer hover:border-brand-400 transition flex items-center justify-between gap-3";
-          card.innerHTML = `
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${course.accent} text-white flex items-center justify-center shrink-0">
-                <i data-lucide="${course.icon}" class="w-5 h-5"></i>
-              </div>
-              <div class="min-w-0">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">Course</span>
-                <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm truncate">${escapeHtml(course.title)}</h4>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${escapeHtml(course.desc)}</p>
-              </div>
-            </div>
-            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 shrink-0"></i>
-          `;
-          card.addEventListener("click", () => {
-            state.searchQuery = "";
-            searchInput.value = "";
-            state.courseId = course.id;
-            state.view = "chapters";
-            render();
-          });
-          stack.appendChild(card);
-        }
-
-        course.chapters.forEach(chapter => {
-          chapter.topics.forEach(topic => {
-            if (topic.title.toLowerCase().includes(q) || chapter.title.toLowerCase().includes(q)) {
-              matchCount++;
-              const card = document.createElement("div");
-              card.className = "card p-4";
-              card.innerHTML = `
-                <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">${escapeHtml(course.title)} &rsaquo; ${escapeHtml(chapter.num)}</div>
-                <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm mb-3">${escapeHtml(topic.title)}</h4>
-                <div>
-                  ${topic.file
-                    ? `<a href="${escapeAttr(topic.file)}" class="btn-primary !py-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i><span>Open Notes</span></a>`
-                    : `<button onclick="toast('Study notes for this topic are coming soon!', 'info')" class="btn-ghost !py-1.5 opacity-70"><i data-lucide="lock" class="w-3.5 h-3.5"></i><span>Coming Soon</span></button>`
-                  }
-                </div>
-              `;
-              stack.appendChild(card);
-            }
-          });
-        });
-      });
-
-      if (matchCount === 0) {
-        stack.innerHTML = `
-          <div class="card p-10 text-center text-slate-400">
-            <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 opacity-60"></i>
-            <p class="text-sm font-semibold">No matching courses or topics found.</p>
-          </div>
-        `;
-      }
-
-      appMount.appendChild(stack);
-    }
-
-    // ==========================================
-    // 📝 LIVE MOCK EXAM SYSTEM (TIMER & AUTO-SUBMIT)
-    // ==========================================
-    function renderExamsList() {
-      const headerRow = document.createElement("div");
-      headerRow.className = "mb-4 space-y-1";
-      headerRow.innerHTML = `
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">
-          <i data-lucide="timer" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
-          <span>Live Mock Examination Hall</span>
-        </h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Timed university-standard mock exams. Tests automatically submit when the countdown expires.</p>
-      `;
-      appMount.appendChild(headerRow);
-
-      const stack = document.createElement("div");
-      stack.className = "space-y-4";
-
-      const visibleExams = liveExamsList.filter(e => e.status !== "ended" && e.status !== "closed");
-
-      if (visibleExams.length === 0) {
-        stack.innerHTML = `
-          <div class="card p-8 text-center text-slate-400">
-            <i data-lucide="clock-alert" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
-            <p class="text-sm font-semibold">No live exams posted right now.</p>
-            <p class="text-xs mt-1">Live examinations posted by the admin will appear here in real-time.</p>
-          </div>
-        `;
-      } else {
-        visibleExams.forEach(exam => {
-          const card = document.createElement("div");
-          card.className = "card p-5 border-l-4 border-l-brand-600 space-y-3";
-
-          const qCount = (exam.questions || []).length;
-          const dur = exam.duration || 30;
-
-          card.innerHTML = `
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> Live &amp; Timed
-                </span>
-                <h4 class="font-display font-bold text-slate-900 dark:text-white text-base mt-1.5">${escapeHtml(exam.title)}</h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${escapeHtml(exam.course || "Freshman Common Course")}</p>
-              </div>
-              <div class="text-right shrink-0">
-                <span class="text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/15 px-2.5 py-1 rounded-lg border border-brand-200 dark:border-brand-500/30">
-                  ⏱️ ${dur} Mins
-                </span>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">
-              <div>Questions: <strong class="text-slate-900 dark:text-white">${qCount} MCQs</strong></div>
-              <div>Mode: <strong class="text-emerald-600 dark:text-emerald-400 font-bold">Auto-Submit at 00:00</strong></div>
-            </div>
-
-            <div>
-              <button onclick="startExam('${escapeAttr(exam.id)}')" class="btn-primary w-full sm:w-auto py-2.5 !px-6 text-xs">
-                <i data-lucide="play" class="w-3.5 h-3.5"></i>
-                <span>Enter Examination &amp; Start Timer</span>
-              </button>
-            </div>
-          `;
-
-          stack.appendChild(card);
-        });
-      }
-
-      appMount.appendChild(stack);
-    }
-
-    window.startExam = function(examId) {
-      const selected = liveExamsList.find(e => e.id === examId);
-      if (!selected) {
-        toast("Exam not found or no longer active.", "error");
-        return;
-      }
-      if (!confirm(`Are you ready to begin "${selected.title}"?\n\nThe countdown timer will start immediately (${selected.duration || 30} minutes). When the timer reaches 00:00, your test will auto-submit.`)) {
-        return;
-      }
-
-      activeExam = selected;
-      examAnswers = {};
-      examTimeRemaining = (selected.duration || 30) * 60; // in seconds
-
-      clearInterval(examTimerInterval);
-      examTimerInterval = setInterval(() => {
-        examTimeRemaining--;
-        updateExamTimerDisplay();
-        if (examTimeRemaining <= 0) {
-          clearInterval(examTimerInterval);
-          submitExam(true); // Auto-submit on timeout
-        }
-      }, 1000);
-
-      render();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    function updateExamTimerDisplay() {
-      const timerEl = document.getElementById("exam-live-timer");
-      if (!timerEl) return;
-      const m = Math.floor(examTimeRemaining / 60);
-      const s = examTimeRemaining % 60;
-      const fmt = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-      timerEl.innerText = fmt;
-
-      if (examTimeRemaining <= 300) { // under 5 minutes
-        timerEl.classList.add("text-rose-600", "animate-pulse");
-      }
-    }
-
-    function renderActiveExamInterface() {
-      const exam = activeExam;
-      const questions = exam.questions || [];
-
-      const topCard = document.createElement("div");
-      topCard.className = "card p-4 sm:p-5 sticky top-20 z-20 border-2 border-brand-500 shadow-md bg-white/95 dark:bg-slate-900/95";
-
-      const m = Math.floor(examTimeRemaining / 60);
-      const s = examTimeRemaining % 60;
-      const fmt = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-
-      topCard.innerHTML = `
-        <div class="flex items-center justify-between gap-2">
-          <div>
-            <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate max-w-[220px] sm:max-w-md">${escapeHtml(exam.title)}</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Answer all questions before the timer hits 00:00</p>
-          </div>
-          <div class="text-right shrink-0">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Time Left</div>
-            <div id="exam-live-timer" class="font-mono text-lg sm:text-xl font-extrabold text-brand-600 dark:text-brand-400">${fmt}</div>
-          </div>
-        </div>
-      `;
-      appMount.appendChild(topCard);
-
-      const stack = document.createElement("div");
-      stack.className = "space-y-4";
-
-      questions.forEach((qItem, qIdx) => {
-        const qCard = document.createElement("div");
-        qCard.className = "card p-5 space-y-3";
-
-        const selectedAns = examAnswers[qIdx];
-
-        qCard.innerHTML = `
-          <div class="font-display font-semibold text-sm text-slate-900 dark:text-white">
-            <span class="text-brand-600 dark:text-brand-400 font-bold">Q${qIdx + 1}.</span> ${escapeHtml(qItem.q)}
-          </div>
-          <div class="space-y-2">
-            ${qItem.options.map((opt, optIdx) => `
-              <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50 hover:border-brand-500 cursor-pointer text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition">
-                <input type="radio" name="exam_q_${qIdx}" value="${optIdx}" ${selectedAns === optIdx ? "checked" : ""} onchange="recordExamAnswer(${qIdx}, ${optIdx})" class="w-4 h-4 text-brand-600 focus:ring-brand-500" />
-                <span>${escapeHtml(opt)}</span>
-              </label>
-            `).join("")}
-          </div>
-        `;
-        stack.appendChild(qCard);
-      });
-
-      const submitCard = document.createElement("div");
-      submitCard.className = "card p-5 flex flex-col sm:flex-row items-center justify-between gap-3";
-      submitCard.innerHTML = `
-        <p class="text-xs text-slate-500 dark:text-slate-400">Make sure you have answered all questions. Clicking submit finalizes your grade.</p>
-        <button onclick="submitExam(false)" class="btn-primary w-full sm:w-auto !py-3 !px-8 text-xs shrink-0">
-          <i data-lucide="check-check" class="w-4 h-4"></i>
-          <span>Submit Exam</span>
-        </button>
-      `;
-      stack.appendChild(submitCard);
-
-      appMount.appendChild(stack);
-    }
-
-    window.recordExamAnswer = function(qIdx, optIdx) {
-      examAnswers[qIdx] = optIdx;
-    };
-
-    window.submitExam = async function(isTimeout = false) {
-      if (!isTimeout) {
-        if (!confirm("Are you sure you want to finish and submit your exam now?")) return;
-      } else {
-        alert("⏱️ Time has expired! Your exam will now be automatically submitted.");
-      }
-
-      clearInterval(examTimerInterval);
-
-      const exam = activeExam;
-      const questions = exam.questions || [];
-      let score = 0;
-
-      questions.forEach((q, idx) => {
-        if (examAnswers[idx] === q.correct) score++;
-      });
-
-      const total = questions.length;
-      const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-
-      // Save result to Firestore for admin review in collection: live_exam_results
-      if (currentUser) {
-        try {
-          await db.collection("live_exam_results").add({
-            examId: exam.id || "live_exam",
-            examTitle: exam.title || "Live Examination",
-            userId: currentUser.uid,
-            userEmail: currentUser.email,
-            userName: currentStudentName,
-            score: score,
-            total: total,
-            percentage: pct,
-            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        } catch (e) {
-          console.log("Saving exam result error:", e);
-        }
-      }
-
-      // Render Result Screen
-      appMount.innerHTML = `
-        <div class="card p-6 sm:p-8 text-center space-y-4 border-2 border-brand-500">
-          <div class="w-14 h-14 mx-auto rounded-2xl ${pct >= 60 ? 'bg-emerald-500' : 'bg-rose-500'} text-white flex items-center justify-center shadow-lg">
-            <i data-lucide="${pct >= 60 ? 'award' : 'alert-circle'}" class="w-7 h-7"></i>
-          </div>
-          <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Exam Results</span>
-            <h3 class="font-display text-3xl font-extrabold text-slate-900 dark:text-white mt-1">${score} / ${total} (${pct}%)</h3>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">${escapeHtml(exam.title)}</p>
-          </div>
-          <p class="text-sm font-medium ${pct >= 60 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
-            ${pct >= 80 ? 'Outstanding performance! You have mastered these concepts.' : pct >= 60 ? 'Good work! Review missed questions below.' : 'Needs improvement. Read the study notes and practice again.'}
-          </p>
-
-          <div class="pt-2 flex flex-wrap justify-center gap-2">
-            <button onclick="switchNav('exams')" class="btn-primary !px-5 !py-2.5 text-xs">
-              <i data-lucide="arrow-left" class="w-4 h-4"></i>
-              <span>Back to Exams Hall</span>
-            </button>
-            <button onclick="switchNav('courses')" class="btn-ghost !px-5 !py-2.5 text-xs">
-              <i data-lucide="book-marked" class="w-4 h-4"></i>
-              <span>Study Notes</span>
-            </button>
-          </div>
-
-          <div class="text-left pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
-            <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Question Review &amp; Explanations</h4>
-            ${questions.map((q, idx) => {
-              const userAns = examAnswers[idx];
-              const isCorrect = userAns === q.correct;
-              return `
-                <div class="p-4 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/50 dark:bg-emerald-500/10' : 'border-rose-200 bg-rose-50/50 dark:bg-rose-500/10'} space-y-1.5 text-xs">
-                  <div class="font-bold text-slate-900 dark:text-white">Q${idx + 1}. ${escapeHtml(q.q)}</div>
-                  <div class="${isCorrect ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'} font-semibold">
-                    Your Answer: ${userAns !== undefined ? escapeHtml(q.options[userAns]) : 'Not answered'} ${isCorrect ? '✔' : '✖'}
-                  </div>
-                  ${!isCorrect ? `<div class="text-emerald-700 dark:text-emerald-300 font-bold">Correct Answer: ${escapeHtml(q.options[q.correct])}</div>` : ''}
-                  <div class="text-slate-500 dark:text-slate-400 pt-1"><em>Explanation:</em> ${escapeHtml(q.exp)}</div>
-                </div>
-              `;
-            }).join("")}
-          </div>
-        </div>
-      `;
-
-      activeExam = null;
-      lucide.createIcons();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    // ==========================================
-    // NOTICES / ANNOUNCEMENTS TAB
-    // ==========================================
-    function renderNoticesList() {
-      const headerRow = document.createElement("div");
-      headerRow.className = "mb-4 space-y-1";
-      headerRow.innerHTML = `
-        <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">
-          <i data-lucide="bell" class="w-5 h-5 text-brand-600 dark:text-brand-400"></i>
-          <span>Official Announcements</span>
-        </h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Direct notifications published by JU FreshHub admin.</p>
-      `;
-      appMount.appendChild(headerRow);
-
-      const stack = document.createElement("div");
-      stack.className = "space-y-3";
-
-      if (announcementsList.length === 0) {
-        stack.innerHTML = `
-          <div class="card p-8 text-center text-slate-400">
-            <i data-lucide="bell-off" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
-            <p class="text-xs font-semibold">No active announcements at this time.</p>
-          </div>
-        `;
-      } else {
-        announcementsList.forEach(a => {
-          const card = document.createElement("div");
-          card.className = "card p-5 space-y-2 border-l-4 border-l-brand-600";
-
-          card.innerHTML = `
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
-                  ${escapeHtml(a.tag || "Notice")}
-                </span>
-                ${a.priority ? `<span class="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-rose-100 text-rose-700">Urgent</span>` : ''}
-              </div>
-              <span class="text-[11px] text-slate-400">${escapeHtml(a.date || "")}</span>
-            </div>
-            <h4 class="font-display font-bold text-slate-900 dark:text-white text-base">${escapeHtml(a.title)}</h4>
-            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHtml(a.content)}</p>
-          `;
-
-          stack.appendChild(card);
-        });
-      }
-
-      appMount.appendChild(stack);
-    }
-
-    // ==========================================
-    // PROFILE TAB
-    // ==========================================
-    function renderProfileTab() {
-      const card = document.createElement("div");
-      card.className = "card p-6 space-y-5";
-
-      card.innerHTML = `
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center font-display font-bold text-xl shadow-md">
-            ${currentStudentName.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg">${escapeHtml(currentStudentName)}</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">${escapeHtml(currentUser ? currentUser.email : "student@ju.edu.et")}</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 pt-2">
-          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-            <span class="text-[11px] font-bold text-slate-400 uppercase">Completed Notes</span>
-            <div class="font-display font-bold text-xl text-slate-900 dark:text-white mt-1">${completedFiles.length}</div>
-          </div>
-          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-            <span class="text-[11px] font-bold text-slate-400 uppercase">Status</span>
-            <div class="font-display font-bold text-sm text-emerald-600 dark:text-emerald-400 mt-1.5 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active Student
-            </div>
-          </div>
-        </div>
-
-        <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
-          <button onclick="handleSignOut()" class="btn-ghost !text-rose-600 w-full py-2.5">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-            <span>Sign Out of JU FreshHub</span>
-          </button>
-        </div>
-      `;
-
-      appMount.appendChild(card);
-    }
-
-    // Toggle completed state
-    window.toggleTopicDone = function(file) {
-      if (completedFiles.includes(file)) completedFiles = completedFiles.filter(f => f !== file);
-      else completedFiles.push(file);
-      try { localStorage.setItem("freshhub_completed_topics", JSON.stringify(completedFiles)); } catch (e) {}
-      render();
-    };
-
-    btnBack.addEventListener("click", () => {
-      if (state.view === "topics") { state.view = "chapters"; state.chapterId = null; }
-      else if (state.view === "chapters") { state.view = "courses"; state.courseId = null; }
-      render();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    searchInput.addEventListener("input", (e) => {
-      state.searchQuery = e.target.value;
-      render();
-    });
-
-    function togglePasswordVisibility() {
-      const input = document.getElementById("student-password");
-      const show = input.type === "password";
-      input.type = show ? "text" : "password";
-      document.getElementById("pw-eye").setAttribute("data-lucide", show ? "eye-off" : "eye");
-      lucide.createIcons();
-    }
-
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle("dark");
-      try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {}
-      syncThemeIcon();
-    }
-
-    function syncThemeIcon() {
-      const isDark = document.documentElement.classList.contains("dark");
-      const icon = document.getElementById("theme-icon");
-      if (icon) {
-        icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
-        lucide.createIcons();
-      }
-    }
-
-    function updateClock() {
-      const clock = document.getElementById("live-clock");
-      if (clock) {
-        clock.innerText =
-          new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) +
-          " · " +
-          new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      }
-    }
-
-    function safeSrc(u) {
-      return (u.startsWith("data:") || u.includes("%")) ? u : encodeURI(u);
-    }
-
-    function getBrand(key) {
-      try { return localStorage.getItem("ju_brand_" + key) || JU_BRANDING[key] || ""; }
-      catch (e) { return JU_BRANDING[key] || ""; }
-    }
-
-    function applyBranding() {
-      const logo = getBrand("logo");
-      document.querySelectorAll(".ju-logo-box").forEach((box) => {
-        const img = box.querySelector(".ju-logo-img");
-        const txt = box.querySelector(".ju-logo-text");
-        if (logo) {
-          img.onerror = () => {
-            img.classList.add("hidden");
-            txt.classList.remove("hidden");
-            box.style.background = "";
-          };
-          img.src = safeSrc(logo);
-          img.classList.remove("hidden");
-          txt.classList.add("hidden");
-          box.style.background = "transparent";
-        } else {
-          img.classList.add("hidden");
-          txt.classList.remove("hidden");
-          box.style.background = "";
-        }
-      });
-
-      const lp = getBrand("loginPhoto");
-      const hero = document.getElementById("login-hero");
-      const heroImg = document.getElementById("login-hero-img");
-      const bg = document.getElementById("login-bg");
-      if (lp) {
-        heroImg.onerror = () => hero.classList.add("hidden");
-        bg.onerror = () => bg.classList.add("hidden");
-        heroImg.src = safeSrc(lp);
-        bg.src = safeSrc(lp);
-        hero.classList.remove("hidden");
-        bg.classList.remove("hidden");
-      } else {
-        hero.classList.add("hidden");
-        bg.classList.add("hidden");
-      }
-
-      const dp = getBrand("dashPhoto");
-      const dash = document.getElementById("dash-hero");
-      const dashImg = document.getElementById("dash-hero-img");
-      if (dp) {
-        dashImg.onerror = () => dash.classList.add("hidden");
-        dashImg.src = safeSrc(dp);
-        dash.classList.remove("hidden");
-      } else {
-        dash.classList.add("hidden");
-      }
-    }
-
-    function toast(message, type = "info", duration = 4000) {
-      const root = document.getElementById("toast-root");
-      if (!root) return;
+    function toast(message, type = "info", duration = 3800) {
+      const root = $("#toast-root");
       const styles = {
-        success: ["bg-emerald-600", "check-circle-2"],
-        error: ["bg-rose-600", "alert-triangle"],
-        warn: ["bg-amber-500", "bell-ring"],
-        info: ["bg-slate-900 dark:bg-slate-700", "info"]
+        success: ["bg-emerald-600", "circle-check"], error: ["bg-rose-600", "triangle-alert"],
+        warn: ["bg-amber-500", "bell-ring"], info: ["bg-slate-900 dark:bg-slate-700", "info"]
       };
       const [bg, icon] = styles[type] || styles.info;
       const el = document.createElement("div");
       el.className = `pointer-events-auto animate-toastIn ${bg} text-white rounded-xl shadow-xl px-4 py-3 text-xs font-semibold flex gap-3 items-start`;
-      el.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 mt-0.5 shrink-0"></i><div class="whitespace-pre-line leading-relaxed flex-1">${escapeHtml(String(message))}</div><button class="opacity-70 hover:opacity-100" aria-label="Dismiss"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>`;
+      el.innerHTML = `${ic(icon, "w-4 h-4 mt-0.5 shrink-0")}<div class="leading-relaxed flex-1 whitespace-pre-line">${esc(message)}</div><button class="opacity-70 hover:opacity-100" aria-label="Dismiss">${ic("x", "w-3.5 h-3.5")}</button>`;
       el.querySelector("button").onclick = () => el.remove();
       root.appendChild(el);
-      lucide.createIcons();
-      setTimeout(() => {
-        el.style.transition = "opacity 0.3s";
-        el.style.opacity = 0;
-        setTimeout(() => el.remove(), 300);
-      }, duration);
+      icons();
+      setTimeout(() => { el.style.transition = "opacity .3s, transform .3s"; el.style.opacity = 0; el.style.transform = "translateY(-6px)"; setTimeout(() => el.remove(), 300); }, duration);
     }
 
-    function escapeHtml(text) {
-      if (text === undefined || text === null) return "";
-      const div = document.createElement("div");
-      div.innerText = String(text);
-      return div.innerHTML;
+    let modalResolve = null;
+    function ask({ title, message, confirmText = "Confirm", cancelText = "Cancel", danger = false, single = false }) {
+      closeModal(false);
+      return new Promise((resolve) => {
+        modalResolve = resolve;
+        $("#modal-root").innerHTML = `
+          <div class="fixed inset-0 z-[150] grid place-items-center p-4" role="dialog" aria-modal="true" aria-labelledby="m-title">
+            <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm modal-bg" data-action="modal-cancel"></div>
+            <div class="relative card !bg-white dark:!bg-slate-900 max-w-sm w-full p-6 modal-pop">
+              <h3 id="m-title" class="font-display font-bold text-lg text-slate-900 dark:text-white">${esc(title)}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300 whitespace-pre-line">${esc(message)}</p>
+              <div class="flex justify-end gap-2 mt-6">
+                ${single ? "" : `<button class="btn-ghost !px-4 !py-2.5 text-sm" data-action="modal-cancel">${esc(cancelText)}</button>`}
+                <button id="modal-ok" class="${danger ? "btn-danger" : "btn-primary"} !px-4 !py-2.5 text-sm" data-action="modal-ok">${esc(confirmText)}</button>
+              </div>
+            </div>
+          </div>`;
+        $("#modal-ok").focus();
+      });
+    }
+    function closeModal(value) {
+      const r = modalResolve;
+      modalResolve = null;
+      $("#modal-root").innerHTML = "";
+      r?.(value);
     }
 
-    function escapeAttr(text) {
-      return escapeHtml(text).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    // Confetti
+    const fx = $("#fx"), fctx = fx.getContext("2d");
+    let parts = [], fxRaf = 0;
+    function sizeFx() {
+      const dpr = window.devicePixelRatio || 1;
+      fx.width = innerWidth * dpr; fx.height = innerHeight * dpr;
+      fctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
+    function confetti(x = innerWidth / 2, y = innerHeight / 3, n = 70) {
+      if (reducedMotion() || n <= 0) return;
+      const colors = ["#F59E0B", "#FBBF24", "#D97706", "#10B981", "#38BDF8", "#F43F5E"];
+      for (let i = 0; i < n; i++) {
+        parts.push({
+          x, y, vx: (Math.random() - 0.5) * 11, vy: Math.random() * -11 - 3, g: 0.3,
+          s: 4 + Math.random() * 5, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4,
+          c: colors[(Math.random() * colors.length) | 0], life: 1
+        });
+      }
+      if (!fxRaf) fxRaf = requestAnimationFrame(fxLoop);
+    }
+    function fxLoop() {
+      fctx.clearRect(0, 0, innerWidth, innerHeight);
+      parts = parts.filter((p) => p.life > 0 && p.y < innerHeight + 20);
+      for (const p of parts) {
+        p.vy += p.g; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life -= 0.008;
+        fctx.save();
+        fctx.translate(p.x, p.y); fctx.rotate(p.r); fctx.globalAlpha = Math.max(0, Math.min(1, p.life * 1.6));
+        fctx.fillStyle = p.c; fctx.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * 0.6);
+        fctx.restore();
+      }
+      if (parts.length) fxRaf = requestAnimationFrame(fxLoop);
+      else { fxRaf = 0; fctx.clearRect(0, 0, innerWidth, innerHeight); }
+    }
+
+    // Sound
+    let audioCtx;
+    function unlockAudio() {
+      try { audioCtx ||= new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume?.(); } catch {}
+    }
+    function beep() {
+      if (!audioCtx) return;
+      [0, 0.25, 0.5].forEach((off, i) => {
+        const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+        osc.frequency.value = i === 2 ? 880 : 660;
+        osc.connect(g); g.connect(audioCtx.destination);
+        const t0 = audioCtx.currentTime + off;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.2, t0 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
+        osc.start(t0); osc.stop(t0 + 0.25);
+      });
+    }
+
+    /* ------------------------------------------------------------------
+       Navigation, history and render
+    ------------------------------------------------------------------ */
+    function go(patch, { push = true } = {}) {
+      Object.assign(state, patch);
+      if (push) history.pushState(snap(), "");
+      render({ scroll: true });
+    }
+
+    async function switchNav(tab) {
+      if (session) {
+        if (tab === "exams") return;
+        const ok = await ask({
+          title: "Leave the exam?",
+          message: "Leaving now ends this attempt without a score.",
+          confirmText: "Leave exam", cancelText: "Stay", danger: true
+        });
+        if (!ok) return;
+        cancelExam();
+      }
+      if (tab !== "exams") lastResult = null;
+      if (tab === state.nav && !(tab === "courses" && state.view !== "courses")) {
+        scrollTo({ top: 0 });
+        return;
+      }
+      go(tab === "courses" ? { nav: tab, view: "courses", courseId: null, chapterId: null } : { nav: tab });
+    }
+
+    function updateNav() {
+      $$(".bottom-nav-item").forEach((b) => {
+        const on = b.id === `bnav-${state.nav}`;
+        b.classList.toggle("active", on);
+        on ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current");
+      });
+      $("#nav-pill").style.transform = `translateX(${NAVS.indexOf(state.nav) * 100}%)`;
+    }
+
+    function updateBadges() {
+      const seen = new Set(store.get(K.seenNotices, []));
+      const unread = notices.filter((n) => !seen.has(n.id)).length;
+      const live = visibleExams().length;
+      const set = (id, n) => { const el = $(id); el.textContent = n > 9 ? "9+" : n; el.classList.toggle("hidden", n === 0); };
+      set("#badge-notices", unread);
+      set("#badge-exams", live);
+    }
+
+    function crumbsHtml() {
+      const c = getCourse(), x = getChapter();
+      const sep = `<span class="mx-1.5 text-slate-300 dark:text-slate-600">&rsaquo;</span>`;
+      const link = (level, label) => `<button data-action="crumb" data-level="${level}" class="hover:text-brand-600 dark:hover:text-brand-400 transition">${esc(label)}</button>`;
+      const parts = [link("courses", "Courses")];
+      if (c) parts.push(x ? link("chapters", c.title) : `<span class="text-slate-800 dark:text-slate-100">${esc(c.title)}</span>`);
+      if (x) parts.push(`<span class="text-slate-800 dark:text-slate-100">${esc(x.num)}</span>`);
+      return parts.join(sep);
+    }
+
+    function render({ anim = true, scroll = false } = {}) {
+      const onCourses = state.nav === "courses", atRoot = state.view === "courses";
+      navBar.classList.toggle("hidden", !(onCourses && !atRoot));
+      searchBox.classList.toggle("hidden", !(onCourses && atRoot));
+      $("#home-head").classList.toggle("hidden", !(onCourses && atRoot && !state.q));
+      if (onCourses && !atRoot) $("#breadcrumb").innerHTML = crumbsHtml();
+
+      const views = { courses: viewCourses, exams: viewExams, notices: viewNotices, study: viewStudy, profile: viewProfile };
+      mount.className = anim && !reducedMotion() ? "anim" : "";
+      mount.innerHTML = views[state.nav]();
+      $$(".reveal", mount).forEach((el, i) => el.style.setProperty("--i", Math.min(i, 10)));
+      icons();
+      void mount.offsetWidth;            // flush styles so the transitions start from zero
+      fillProgress(!anim);
+      if (anim) animateCounts(mount);
+      if (state.nav === "study") tickFocus();
+      justDone = null; justAdded = null;
+      updateNav();
+      if (scroll) scrollTo({ top: 0 });
+    }
+
+    /* ------------------------------------------------------------------
+       Views: courses
+    ------------------------------------------------------------------ */
+    function weekStrip() {
+      const days = new Set(store.get(K.days, []));
+      let out = "";
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        const on = days.has(dayKey(d));
+        out += `
+          <div class="flex flex-col items-center gap-1" title="${esc(d.toLocaleDateString("en-US", { weekday: "long" }))}">
+            <span class="w-7 h-7 rounded-full grid place-items-center ${on ? "bg-brand-500 text-white" : "bg-slate-100 dark:bg-slate-800"} ${i === 0 ? "ring-2 ring-brand-500/50 ring-offset-2 ring-offset-white dark:ring-offset-slate-900" : ""}">${on ? ic("check", "w-3.5 h-3.5") : ""}</span>
+            <span class="text-[10px] font-medium text-slate-400">${d.toLocaleDateString("en-US", { weekday: "narrow" })}</span>
+          </div>`;
+      }
+      return `<div class="flex gap-2.5" aria-label="Study activity over the last 7 days">${out}</div>`;
+    }
+
+    function viewCourses() {
+      if (state.q.trim()) return viewSearch();
+      if (state.view === "chapters") return viewChapters();
+      if (state.view === "topics") return viewTopics();
+
+      const all = COURSES.flatMap(readyOf), done = doneIn(all), pct = pctOf(done, all.length);
+      const streak = getStreak();
+      const lastFile = store.get(K.last, null);
+      const last = lastFile && findTopic(lastFile);
+
+      return `
+        <div class="space-y-6">
+          <section class="card spot reveal p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-5">
+            ${ring(pct, { size: 96, stroke: 4.5, label: `<span data-count="${pct}" data-suffix="%">${pct}%</span>` })}
+            <div class="flex-1 min-w-0 space-y-3">
+              <div>
+                <p class="font-display font-bold text-lg text-slate-900 dark:text-white">${done} of ${all.length} notes read</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">${streak > 0 ? `You are on a ${streak}-day study streak.` : "Read a note or finish a focus session to start a streak."}</p>
+              </div>
+              ${weekStrip()}
+            </div>
+            <button data-action="nav" data-nav="study" class="btn-primary">${ic("timer")}<span>Start a focus session</span></button>
+          </section>
+
+          ${last ? `
+          <a href="${noteHref(last.topic.file)}" data-note="${esc(last.topic.file)}" class="card spot reveal group p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br ${last.course.accent} text-white grid place-items-center shrink-0">${ic("play", "w-5 h-5")}</div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-slate-500 dark:text-slate-400">Continue where you left off</p>
+              <p class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">${esc(last.topic.title)}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 truncate">${esc(last.course.title)}, ${esc(last.chapter.num)}</p>
+            </div>
+            ${ic("arrow-right", "w-4 h-4 text-slate-400 group-hover:translate-x-1 transition")}
+          </a>` : ""}
+
+          <section class="space-y-3">
+            <div class="reveal flex items-center justify-between">
+              <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">Freshman courses</h3>
+              <span class="text-xs font-bold text-slate-500 dark:text-slate-400">${COURSES.length} courses</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${COURSES.map((c) => {
+                const ready = readyOf(c), d = doneIn(ready), p = pctOf(d, ready.length);
+                return `
+                <article role="button" tabindex="0" data-action="open-course" data-id="${esc(c.id)}"
+                  class="card spot reveal p-5 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-3.5">
+                      <div class="w-11 h-11 rounded-xl bg-gradient-to-br ${c.accent} text-white flex items-center justify-center shadow-sm">${ic(c.icon, "w-5 h-5")}</div>
+                      ${ready.length
+                        ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">${ready.length} notes ready</span>`
+                        : `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">Upcoming</span>`}
+                    </div>
+                    <h4 class="font-display font-bold text-slate-900 dark:text-white text-base leading-snug mb-1.5">${esc(c.title)}</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">${esc(c.desc)}</p>
+                  </div>
+                  <div class="space-y-2.5">
+                    <div>
+                      ${bar(p)}
+                      <p class="mt-1.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500">${d} of ${ready.length} read &middot; ${c.chapters.length} chapters</p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-brand-700 dark:text-brand-400">
+                      <span>View chapters</span>${ic("chevron-right")}
+                    </div>
+                  </div>
+                </article>`;
+              }).join("")}
+            </div>
+          </section>
+        </div>`;
+    }
+
+    function viewChapters() {
+      const c = getCourse();
+      if (!c) { state.view = "courses"; return viewCourses(); }
+      const ready = readyOf(c), pct = pctOf(doneIn(ready), ready.length);
+      return `
+        <div class="space-y-4">
+          <div class="reveal card p-4 sm:p-5 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br ${c.accent} text-white grid place-items-center shrink-0">${ic(c.icon, "w-5 h-5")}</div>
+            <div class="min-w-0 flex-1">
+              <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-snug">${esc(c.title)}</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${esc(c.desc)}</p>
+            </div>
+            ${ring(pct, { size: 52, stroke: 5, label: `<span class="text-[11px]">${pct}%</span>` })}
+          </div>
+          <div class="space-y-3">
+            ${c.chapters.map((x) => {
+              const r = x.topics.filter((tp) => tp.file), d = doneIn(r);
+              return `
+              <article role="button" tabindex="0" data-action="open-chapter" data-id="${esc(x.id)}"
+                class="card spot reveal p-4 sm:p-5 cursor-pointer hover:border-brand-400 dark:hover:border-brand-500/50 transition flex items-center justify-between gap-4">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${c.badgeBg}">${esc(x.num)}</span>
+                    ${r.length
+                      ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">${d === r.length ? "Completed" : `${r.length} available`}</span>`
+                      : `<span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300">Coming soon</span>`}
+                  </div>
+                  <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">${esc(x.title)}</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-2">${x.topics.length} topic${x.topics.length === 1 ? "" : "s"}${r.length ? `, ${d} read` : ""}</p>
+                  ${r.length ? bar(pctOf(d, r.length)) : ""}
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-300 shrink-0">${ic("chevron-right")}</div>
+              </article>`;
+            }).join("")}
+          </div>
+        </div>`;
+    }
+
+    function viewTopics() {
+      const c = getCourse(), x = getChapter();
+      if (!c || !x) { state.view = "courses"; return viewCourses(); }
+      const r = x.topics.filter((tp) => tp.file), d = doneIn(r);
+      return `
+        <div class="space-y-3">
+          <div class="reveal card p-4 sm:p-5 space-y-3">
+            <div>
+              <span class="text-xs font-bold text-brand-600 dark:text-brand-400">${esc(x.num)}</span>
+              <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${esc(x.title)}</h3>
+            </div>
+            ${r.length ? `<div>${bar(pctOf(d, r.length))}<p class="mt-1.5 text-[11px] font-semibold text-slate-400">${d} of ${r.length} notes read</p></div>` : ""}
+          </div>
+          ${x.topics.map((tp, i) => {
+            const isDone = tp.file && completed.has(tp.file);
+            return `
+            <div class="card reveal p-4 sm:p-5 transition ${isDone ? "!border-l-4 !border-l-emerald-500" : ""}">
+              <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-3">${i + 1}. ${esc(tp.title)}</div>
+              ${tp.file ? `
+              <div class="flex flex-wrap gap-2">
+                <a href="${noteHref(tp.file)}" data-note="${esc(tp.file)}" class="btn-primary flex-1 sm:flex-initial sm:min-w-[160px]">${ic("book-open")}<span>Open notes</span></a>
+                <button data-action="toggle-done" data-file="${esc(tp.file)}" class="${isDone ? "btn-ok" : "btn-ghost"}" aria-pressed="${isDone}">
+                  <span class="${justDone === tp.file ? "pop inline-flex" : "inline-flex"}">${ic(isDone ? "circle-check" : "circle")}</span>
+                  <span>${isDone ? "Completed" : "Mark as read"}</span>
+                </button>
+              </div>` : `
+              <button data-action="soon" class="btn-ghost opacity-70">${ic("lock", "w-3.5 h-3.5")}<span>Coming soon</span></button>`}
+            </div>`;
+          }).join("")}
+        </div>`;
+    }
+
+    function viewSearch() {
+      const q = state.q.trim().toLowerCase();
+      const items = [];
+      COURSES.forEach((c) => {
+        if ((c.title + " " + c.desc).toLowerCase().includes(q)) {
+          items.push(`
+            <article role="button" tabindex="0" data-action="open-course" data-id="${esc(c.id)}" class="card spot reveal p-4 cursor-pointer hover:border-brand-400 transition flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${c.accent} text-white grid place-items-center shrink-0">${ic(c.icon, "w-5 h-5")}</div>
+                <div class="min-w-0">
+                  <span class="text-[11px] font-bold text-brand-600 dark:text-brand-400">Course</span>
+                  <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm truncate">${hl(c.title, q)}</h4>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${hl(c.desc, q)}</p>
+                </div>
+              </div>${ic("chevron-right", "w-4 h-4 text-slate-400 shrink-0")}
+            </article>`);
+        }
+        c.chapters.forEach((x) => x.topics.forEach((tp) => {
+          if (!(tp.title.toLowerCase().includes(q) || x.title.toLowerCase().includes(q))) return;
+          items.push(`
+            <div class="card reveal p-4">
+              <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">${esc(c.title)} &rsaquo; ${esc(x.num)}</div>
+              <h4 class="font-display font-bold text-slate-900 dark:text-white text-sm mb-3">${hl(tp.title, q)}</h4>
+              ${tp.file
+                ? `<a href="${noteHref(tp.file)}" data-note="${esc(tp.file)}" class="btn-primary !py-1.5">${ic("book-open", "w-3.5 h-3.5")}<span>Open notes</span></a>`
+                : `<button data-action="soon" class="btn-ghost !py-1.5 opacity-70">${ic("lock", "w-3.5 h-3.5")}<span>Coming soon</span></button>`}
+            </div>`);
+        }));
+      });
+
+      const head = `<h3 class="font-display font-bold text-slate-900 dark:text-white text-base mb-3">${items.length} result${items.length === 1 ? "" : "s"} for &ldquo;${esc(state.q.trim())}&rdquo;</h3>`;
+      if (!items.length) {
+        return `
+          <div class="card p-10 text-center text-slate-400 space-y-3">
+            ${ic("search-x", "w-8 h-8 mx-auto opacity-60")}
+            <p class="text-sm font-semibold">Nothing matches &ldquo;${esc(state.q.trim())}&rdquo;.</p>
+            <p class="text-xs">Try one of these:</p>
+            <div class="flex flex-wrap justify-center gap-2">
+              ${["Venn", "Newton", "Tense", "Memory", "Fallacy"].map((s) => `<button class="chip" data-action="suggest" data-q="${s}">${s}</button>`).join("")}
+            </div>
+          </div>`;
+      }
+      return `<div>${head}<div class="space-y-3">${items.join("")}</div></div>`;
+    }
+
+    /* ------------------------------------------------------------------
+       Views: exams
+    ------------------------------------------------------------------ */
+    const visibleExams = () => liveExams.filter((e) => e.status !== "ended" && e.status !== "closed");
+
+    function normalizeExamDoc(d) {
+      const data = d.data() || {};
+      const raw = data.questions || data.questionList || data.items || data.quiz || [];
+      const list = Array.isArray(raw) ? raw : Object.values(raw);
+      const questions = list.map((item, idx) => {
+        const text = item.question || item.q || item.questionText || item.title || `Question ${idx + 1}`;
+        const rawOpts = item.options || item.choices || item.answers || [];
+        const options = (Array.isArray(rawOpts) ? rawOpts : Object.values(rawOpts)).map(String);
+
+        let correct = item.correct;
+        if (correct === undefined) correct = item.correctIndex;
+        if (correct === undefined) correct = item.answer;
+        if (correct === undefined) correct = item.correctAnswer;
+
+        if (typeof correct === "string") {
+          const up = correct.trim().toUpperCase();
+          if (["A", "B", "C", "D"].includes(up)) correct = up.charCodeAt(0) - 65;
+          else {
+            const found = options.findIndex((o) => o.trim().toLowerCase() === correct.trim().toLowerCase());
+            correct = found !== -1 ? found : (parseInt(correct) || 0);
+          }
+        } else if (typeof correct !== "number") {
+          correct = parseInt(correct) || 0;
+        }
+        return { q: String(text), options, correct, exp: item.exp || item.explanation || item.rationale || "Review the matching course notes." };
+      });
+      return {
+        id: d.id,
+        title: data.title || data.name || data.examTitle || data.subject || "Live examination",
+        course: data.course || data.subject || data.stream || "Freshman common course",
+        duration: parseInt(data.duration || data.durationMinutes || data.timeLimit || data.time || 30) || 30,
+        status: data.status || (data.isLive !== false ? "active" : "ended"),
+        questions
+      };
+    }
+
+    function viewExams() {
+      if (session) return viewExamRun();
+      if (lastResult) return viewResult();
+
+      const exams = visibleExams();
+      let saved = store.get(K.session, null);
+      if (saved && saved.endAt <= Date.now()) { store.remove(K.session); saved = null; }
+      const resumable = saved && exams.find((e) => e.id === saved.examId);
+      const history = store.get(K.exams, []).slice(-3).reverse();
+
+      return `
+        <div class="space-y-4">
+          <div class="reveal space-y-1">
+            <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">${ic("clipboard-check", "w-5 h-5 text-brand-600 dark:text-brand-400")}<span>Live mock exams</span></h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Timed mock exams posted by your tutors. Your attempt submits itself when the clock reaches 00:00.</p>
+          </div>
+
+          ${resumable ? `
+          <div class="card reveal p-4 flex items-center gap-3 border-2 border-brand-500/60">
+            <div class="w-10 h-10 rounded-xl bg-brand-500 text-white grid place-items-center shrink-0 bob">${ic("hourglass", "w-5 h-5")}</div>
+            <div class="min-w-0 flex-1">
+              <p class="font-display font-bold text-sm text-slate-900 dark:text-white truncate">${esc(resumable.title)} is still running</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">${fmt(Math.ceil((saved.endAt - Date.now()) / 1000))} left on your clock.</p>
+            </div>
+            <button class="btn-primary" data-action="resume-exam" data-id="${esc(resumable.id)}">Resume</button>
+          </div>` : ""}
+
+          ${exams.length === 0 ? `
+          <div class="card reveal p-10 text-center text-slate-400">
+            <div class="bob inline-block">${ic("clock-alert", "w-9 h-9 opacity-60")}</div>
+            <p class="text-sm font-semibold mt-2">No live exams right now.</p>
+            <p class="text-xs mt-1">New exams show up here the moment a tutor posts them. No refresh needed.</p>
+          </div>` : exams.map((e) => `
+          <div class="card spot reveal p-5 border-l-4 border-l-brand-600 space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>Live and timed
+                </span>
+                <h4 class="font-display font-bold text-slate-900 dark:text-white text-base mt-1.5">${esc(e.title)}</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${esc(e.course)}</p>
+              </div>
+              <span class="shrink-0 text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/15 px-2.5 py-1 rounded-lg border border-brand-200 dark:border-brand-500/30">${e.duration} min</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">
+              <div>Questions: <strong class="text-slate-900 dark:text-white">${e.questions.length}</strong></div>
+              <div>Ends: <strong class="text-emerald-600 dark:text-emerald-400">auto-submit at 00:00</strong></div>
+            </div>
+            <button data-action="start-exam" data-id="${esc(e.id)}" class="btn-primary w-full sm:w-auto !px-6 !py-2.5">${ic("play", "w-3.5 h-3.5")}<span>Enter exam and start timer</span></button>
+          </div>`).join("")}
+
+          ${history.length ? `
+          <div class="card reveal p-5 space-y-3">
+            <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Your recent attempts</h4>
+            ${history.map((h) => `
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5"><span class="font-semibold text-slate-700 dark:text-slate-200 truncate pr-3">${esc(h.title)}</span><span class="font-bold ${h.pct >= 60 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}">${h.pct}%</span></div>
+                ${bar(h.pct, h.pct >= 60 ? "from-emerald-500 to-emerald-400" : "from-rose-500 to-rose-400")}
+              </div>`).join("")}
+          </div>` : ""}
+        </div>`;
+    }
+
+    const examRemaining = () => Math.max(0, Math.ceil((session.endAt - Date.now()) / 1000));
+    function persistExam() {
+      if (!session) return;
+      store.set(K.session, { examId: session.data.id, endAt: session.endAt, answers: session.answers, flags: [...session.flags], idx: session.idx });
+    }
+
+    async function startExam(id, resume = false) {
+      const data = liveExams.find((e) => e.id === id);
+      if (!data) return toast("This exam is no longer available.", "error");
+      if (!data.questions.length) return toast("This exam has no questions yet.", "warn");
+      const saved = resume ? store.get(K.session, null) : null;
+      if (!resume) {
+        const ok = await ask({
+          title: `Start "${data.title}"?`,
+          message: `The ${data.duration}-minute timer starts immediately. When it reaches 00:00 your answers are submitted automatically.`,
+          confirmText: "Start exam", cancelText: "Not yet"
+        });
+        if (!ok) return;
+      }
+      session = {
+        data, idx: saved?.idx || 0, answers: saved?.answers || {}, flags: new Set(saved?.flags || []),
+        endAt: saved?.endAt || Date.now() + data.duration * 60000, dir: null, done: false
+      };
+      persistExam();
+      session.timer = setInterval(tickExam, 250);
+      render({ anim: false });
+      scrollTo({ top: 0 });
+    }
+
+    function cancelExam() {
+      if (!session) return;
+      clearInterval(session.timer);
+      session = null;
+      store.remove(K.session);
+    }
+
+    function tickExam() {
+      if (!session) return;
+      const rem = examRemaining();
+      const low = rem <= 300;
+      const timer = $("#exam-timer"), barEl = $("#exam-bar");
+      if (timer) {
+        timer.textContent = fmt(rem);
+        timer.classList.toggle("text-rose-600", low);
+        timer.classList.toggle("animate-pulse", rem <= 60);
+      }
+      if (barEl) {
+        barEl.style.width = (rem / (session.data.duration * 60)) * 100 + "%";
+        barEl.classList.toggle("bg-rose-500", low);
+        barEl.classList.toggle("bg-brand-500", !low);
+      }
+      if (rem <= 0) finishExam(true);
+    }
+
+    function viewExamRun() {
+      const d = session.data, qs = d.questions, n = qs.length, i = session.idx, q = qs[i];
+      const answered = Object.keys(session.answers).length;
+      const rem = examRemaining(), low = rem <= 300;
+      const dir = session.dir ? `slide-${session.dir}` : "";
+      session.dir = null;
+      const flagged = session.flags.has(i);
+
+      return `
+        <div class="card sticky top-[4.5rem] z-20 p-4 pb-5 border-2 border-brand-500/70 !bg-white/95 dark:!bg-slate-900/95 overflow-hidden">
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <h4 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">${esc(d.title)}</h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">${answered} of ${n} answered</p>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-[11px] font-semibold text-slate-400">Time left</div>
+              <div id="exam-timer" class="font-mono text-xl font-bold ${low ? "text-rose-600" : "text-brand-600 dark:text-brand-400"}">${fmt(rem)}</div>
+            </div>
+          </div>
+          <div class="absolute left-0 bottom-0 h-1 w-full bg-slate-100 dark:bg-slate-800">
+            <div id="exam-bar" class="h-full ${low ? "bg-rose-500" : "bg-brand-500"}" style="width:${(rem / (d.duration * 60)) * 100}%;transition:width .3s linear"></div>
+          </div>
+        </div>
+
+        <div class="card p-5 sm:p-6 mt-4 ${dir}">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Question ${i + 1} of ${n}</span>
+            <button data-action="flag" class="chip ${flagged ? "!bg-rose-600 !border-rose-600 !text-white" : ""}" aria-pressed="${flagged}">${ic("flag", "w-3.5 h-3.5")}<span>${flagged ? "Flagged" : "Flag for review"}</span></button>
+          </div>
+          <p class="font-display font-semibold text-base sm:text-lg text-slate-900 dark:text-white leading-snug mb-4">${esc(q.q)}</p>
+          <div class="space-y-2.5" role="radiogroup" aria-label="Answer options">
+            ${q.options.map((o, k) => `
+              <button data-action="pick" data-i="${k}" role="radio" aria-checked="${session.answers[i] === k}" class="opt ${session.answers[i] === k ? "sel" : ""}">
+                <span class="opt-key">${String.fromCharCode(65 + k)}</span><span class="flex-1">${esc(o)}</span>
+                ${session.answers[i] === k ? `<span class="pop text-brand-600 dark:text-brand-400">${ic("circle-check", "w-5 h-5")}</span>` : ""}
+              </button>`).join("")}
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 mt-4">
+          <button data-action="prev" class="btn-ghost !px-4 !py-2.5" ${i === 0 ? "disabled" : ""}>${ic("arrow-left")}<span>Previous</span></button>
+          ${i === n - 1
+            ? `<button data-action="submit-exam" class="btn-primary !px-5 !py-2.5">${ic("check-check")}<span>Submit exam</span></button>`
+            : `<button data-action="next" class="btn-primary !px-5 !py-2.5"><span>Next</span>${ic("arrow-right")}</button>`}
+        </div>
+
+        <div class="card p-4 mt-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Jump to a question</p>
+            <button data-action="submit-exam" class="text-xs font-bold text-brand-700 dark:text-brand-400 hover:underline">Submit now</button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${qs.map((_, k) => `<button data-action="goq" data-i="${k}" aria-label="Question ${k + 1}" class="qdot ${session.answers[k] !== undefined ? "answered" : ""} ${session.flags.has(k) ? "flagged" : ""} ${k === i ? "current" : ""}">${k + 1}</button>`).join("")}
+          </div>
+          <p class="hidden sm:block text-[11px] text-slate-400">Tip: press 1 to ${Math.min(q.options.length, 9)} to answer, arrow keys to move, F to flag.</p>
+        </div>`;
+    }
+
+    function gotoQ(i) {
+      const n = session.data.questions.length;
+      if (i < 0 || i >= n || i === session.idx) return;
+      session.dir = i > session.idx ? "next" : "prev";
+      session.idx = i;
+      persistExam();
+      render({ anim: false });
+      scrollTo({ top: 0 });
+    }
+
+    async function submitExam() {
+      if (!session) return;
+      const un = session.data.questions.length - Object.keys(session.answers).length;
+      const ok = await ask({
+        title: "Submit exam?",
+        message: un ? `You have ${un} unanswered question${un > 1 ? "s" : ""}. Unanswered questions score zero.` : "You answered every question. Your score is final once you submit.",
+        confirmText: "Submit exam", cancelText: "Keep working"
+      });
+      if (ok) finishExam(false);
+    }
+
+    async function finishExam(timeout) {
+      if (!session || session.done) return;
+      session.done = true;
+      clearInterval(session.timer);
+      closeModal(false);
+
+      const { data } = session, qs = data.questions, answers = { ...session.answers };
+      let score = 0;
+      qs.forEach((q, i) => { if (answers[i] === q.correct) score++; });
+      const total = qs.length, pct = pctOf(score, total);
+
+      store.remove(K.session);
+      const hist = store.get(K.exams, []);
+      hist.push({ title: data.title, pct, at: Date.now() });
+      store.set(K.exams, hist.slice(-50));
+      markActive();
+
+      if (user) {
+        try {
+          await addDoc(collection(db, "live_exam_results"), {
+            examId: data.id, examTitle: data.title, userId: user.uid, userEmail: user.email, userName: studentName,
+            score, total, percentage: pct, submittedAt: serverTimestamp()
+          });
+        } catch (e) { console.warn("Saving exam result failed:", e); }
+      }
+
+      lastResult = { exam: data, qs, answers, score, total, pct };
+      resultFilter = "all";
+      session = null;
+      if (timeout) await ask({ title: "Time is up", message: "Your exam was submitted automatically.", confirmText: "See results", single: true });
+      state.nav = "exams";
+      render();
+      scrollTo({ top: 0 });
+      checkBadges();
+      if (pct >= 60) setTimeout(() => confetti(innerWidth / 2, innerHeight * 0.3, pct >= 80 ? 150 : 70), 450);
+    }
+
+    function viewResult() {
+      const r = lastResult, pass = r.pct >= 60;
+      const msg = r.pct >= 80 ? "Outstanding. You have these concepts down." : pass ? "Good work. Review the questions you missed below." : "Not there yet. Read the notes and try again.";
+      const missed = r.qs.filter((q, i) => r.answers[i] !== q.correct).length;
+      return `
+        <div class="space-y-4">
+          <section class="card reveal p-6 sm:p-8 text-center space-y-4 border-2 ${pass ? "border-emerald-400/60" : "border-rose-400/60"}">
+            <div class="flex justify-center">${ring(r.pct, { size: 132, stroke: 4.5, color: pass ? "text-emerald-500" : "text-rose-500", label: `<span data-count="${r.pct}" data-suffix="%">${r.pct}%</span>` })}</div>
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">${esc(r.exam.title)}</p>
+              <h3 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white mt-1">${r.score} of ${r.total} correct</h3>
+            </div>
+            <p class="text-sm font-medium ${pass ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}">${msg}</p>
+            <div class="flex flex-wrap justify-center gap-2">
+              <button data-action="exam-home" class="btn-primary !px-5 !py-2.5">${ic("arrow-left")}<span>Back to exams</span></button>
+              <button data-action="nav" data-nav="courses" class="btn-ghost !px-5 !py-2.5">${ic("book-marked")}<span>Study notes</span></button>
+            </div>
+          </section>
+
+          <section class="card reveal p-5 space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Question review</h4>
+              <div class="flex gap-2">
+                <button class="chip ${resultFilter === "all" ? "on" : ""}" data-action="result-filter" data-f="all">All ${r.total}</button>
+                <button class="chip ${resultFilter === "missed" ? "on" : ""}" data-action="result-filter" data-f="missed">Missed ${missed}</button>
+              </div>
+            </div>
+            ${r.qs.map((q, i) => {
+              const ua = r.answers[i], ok = ua === q.correct;
+              if (resultFilter === "missed" && ok) return "";
+              return `
+              <div class="p-4 rounded-xl border ${ok ? "border-emerald-200 dark:border-emerald-500/30 bg-emerald-50/60 dark:bg-emerald-500/10" : "border-rose-200 dark:border-rose-500/30 bg-rose-50/60 dark:bg-rose-500/10"} space-y-1.5 text-xs">
+                <div class="font-bold text-slate-900 dark:text-white">Q${i + 1}. ${esc(q.q)}</div>
+                <div class="${ok ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"} font-semibold">Your answer: ${ua !== undefined ? esc(q.options[ua]) : "Not answered"}</div>
+                ${ok ? "" : `<div class="text-emerald-700 dark:text-emerald-300 font-bold">Correct answer: ${esc(q.options[q.correct])}</div>`}
+                <div class="text-slate-500 dark:text-slate-400 pt-1"><em>Why:</em> ${esc(q.exp)}</div>
+              </div>`;
+            }).join("") || `<p class="text-sm text-center text-slate-400 py-4">No missed questions. Nice work.</p>`}
+          </section>
+        </div>`;
+    }
+
+    /* ------------------------------------------------------------------
+       Views: notices
+    ------------------------------------------------------------------ */
+    function noticeDate(a) {
+      if (a.date) return String(a.date);
+      const d = a.createdAt?.toDate?.();
+      return d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "";
+    }
+    function viewNotices() {
+      const seen = new Set(store.get(K.seenNotices, []));
+      const sorted = [...notices].sort((a, b) =>
+        (b.priority ? 1 : 0) - (a.priority ? 1 : 0) || (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      const html = `
+        <div class="space-y-4">
+          <div class="reveal space-y-1">
+            <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">${ic("bell", "w-5 h-5 text-brand-600 dark:text-brand-400")}<span>Official announcements</span></h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Messages from the JU FreshHub team. New ones arrive live.</p>
+          </div>
+          ${sorted.length === 0 ? `
+            <div class="card reveal p-8 text-center text-slate-400">${ic("bell-off", "w-8 h-8 mx-auto mb-2 opacity-50")}<p class="text-xs font-semibold">No announcements right now.</p></div>`
+          : sorted.map((a) => {
+              const long = String(a.content || "").length > 180;
+              return `
+              <article class="card reveal p-5 space-y-2 border-l-4 ${a.priority ? "border-l-rose-500" : "border-l-brand-600"}">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">${esc(a.tag || "Notice")}</span>
+                    ${a.priority ? `<span class="px-2 py-0.5 rounded text-[11px] font-black bg-rose-100 text-rose-700">Urgent</span>` : ""}
+                    ${seen.has(a.id) ? "" : `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-brand-500 text-white pop">New</span>`}
+                  </div>
+                  <span class="text-[11px] text-slate-400 shrink-0">${esc(noticeDate(a))}</span>
+                </div>
+                <h4 class="font-display font-bold text-slate-900 dark:text-white text-base">${esc(a.title)}</h4>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed ${long ? "line-clamp-3" : ""}">${esc(a.content)}</p>
+                ${long ? `<button data-action="notice-toggle" class="text-xs font-bold text-brand-700 dark:text-brand-400 hover:underline">Read more</button>` : ""}
+              </article>`;
+            }).join("")}
+        </div>`;
+      store.set(K.seenNotices, notices.map((n) => n.id));
+      updateBadges();
+      return html;
+    }
+
+    /* ------------------------------------------------------------------
+       Views: study (focus timer and planner)
+    ------------------------------------------------------------------ */
+    const MODES = { focus: "Focus", short: "Short break", long: "Long break" };
+    const focus = { mode: "focus", mins: { focus: 25, short: 5, long: 15 }, left: 25 * 60, total: 25 * 60, running: false, endAt: 0 };
+    const focusRem = () => (focus.running ? Math.max(0, Math.ceil((focus.endAt - Date.now()) / 1000)) : focus.left);
+
+    function setFocusMode(m) { focus.mode = m; focus.total = focus.left = focus.mins[m] * 60; focus.running = false; render({ anim: false }); }
+    function toggleFocus() {
+      unlockAudio();
+      if (focus.running) { focus.left = focusRem(); focus.running = false; }
+      else { if (focus.left <= 0) focus.left = focus.total; focus.endAt = Date.now() + focus.left * 1000; focus.running = true; }
+      render({ anim: false });
+    }
+    function resetFocus() { focus.running = false; focus.left = focus.total; render({ anim: false }); }
+    function adjustFocus(delta) {
+      if (focus.running) return;
+      const m = Math.min(90, Math.max(5, focus.mins[focus.mode] + delta));
+      focus.mins[focus.mode] = m; focus.total = focus.left = m * 60;
+      render({ anim: false });
+    }
+    function tickFocus() {
+      const rem = focusRem();
+      if (focus.running && rem <= 0) return finishFocus();
+      const timeEl = $("#focus-time"), ringEl = $("#focus-ring");
+      if (timeEl) timeEl.textContent = fmt(rem);
+      if (ringEl) ringEl.style.strokeDashoffset = 100 * (1 - rem / focus.total);
+      const pill = $("#focus-pill");
+      pill.classList.toggle("hidden", !focus.running);
+      if (focus.running) $("#focus-pill-time").textContent = fmt(rem);
+      const title = focus.running ? `${fmt(rem)} · ${BASE_TITLE}` : BASE_TITLE;
+      if (document.title !== title) document.title = title;
+    }
+    function finishFocus() {
+      const wasFocus = focus.mode === "focus";
+      focus.running = false;
+      if (wasFocus) {
+        const all = store.get(K.focus, {}), k = dayKey(), d = all[k] || { m: 0, n: 0 };
+        d.m += Math.round(focus.total / 60); d.n += 1; all[k] = d;
+        store.set(K.focus, all);
+        markActive();
+      }
+      beep();
+      if (wasFocus) confetti(innerWidth / 2, innerHeight / 2, 70);
+      toast(wasFocus ? "Focus session complete. Take a break." : "Break over. Ready for another round?", "success", 6000);
+      const next = wasFocus ? (focusStats().todayN % 4 === 0 ? "long" : "short") : "focus";
+      focus.mode = next; focus.total = focus.left = focus.mins[next] * 60;
+      document.title = BASE_TITLE;
+      $("#focus-pill").classList.add("hidden");
+      if (wasFocus) checkBadges();
+      if (state.nav === "study") render({ anim: false });
+    }
+
+    function viewStudy() {
+      const fs = focusStats();
+      const tasks = store.get(K.tasks, []);
+      const doneN = tasks.filter((x) => x.done).length;
+      return `
+        <div class="space-y-4">
+          <section class="card spot reveal p-5 sm:p-6 text-center space-y-5">
+            <div class="flex flex-wrap justify-center gap-2">
+              ${Object.entries(MODES).map(([k, label]) => `<button class="chip ${focus.mode === k ? "on" : ""}" data-action="focus-mode" data-mode="${k}">${label}</button>`).join("")}
+            </div>
+
+            <div class="relative mx-auto w-56 h-56 sm:w-60 sm:h-60">
+              <svg viewBox="0 0 100 100" class="-rotate-90 w-full h-full" aria-hidden="true">
+                <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3.5" class="text-slate-200 dark:text-slate-700/70"/>
+                <circle id="focus-ring" cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"
+                  pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 * (1 - focusRem() / focus.total)}" class="${focus.mode === "focus" ? "text-brand-500" : "text-emerald-500"}" style="transition:stroke-dashoffset .3s linear"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <div id="focus-time" class="font-mono text-5xl font-bold text-slate-900 dark:text-white" aria-live="off">${fmt(focusRem())}</div>
+                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">${focus.running ? (focus.mode === "focus" ? "Stay with it" : "Rest your eyes") : "Ready when you are"}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-3">
+              <button data-action="focus-adjust" data-d="-5" class="btn-ghost !px-3 !py-2.5" ${focus.running ? "disabled" : ""} aria-label="Remove 5 minutes">${ic("minus")}<span>5</span></button>
+              <button data-action="focus-toggle" class="btn-primary !px-7 !py-3 text-sm">${ic(focus.running ? "pause" : "play", "w-4 h-4")}<span>${focus.running ? "Pause" : "Start"}</span></button>
+              <button data-action="focus-adjust" data-d="5" class="btn-ghost !px-3 !py-2.5" ${focus.running ? "disabled" : ""} aria-label="Add 5 minutes">${ic("plus")}<span>5</span></button>
+            </div>
+            <button data-action="focus-reset" class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-brand-600 inline-flex items-center gap-1">${ic("rotate-ccw", "w-3.5 h-3.5")}<span>Reset timer</span></button>
+
+            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div><div class="font-display text-xl font-bold text-slate-900 dark:text-white" data-count="${fs.todayM}">${fs.todayM}</div><p class="text-[11px] text-slate-500 dark:text-slate-400">Focus minutes today</p></div>
+              <div><div class="font-display text-xl font-bold text-slate-900 dark:text-white" data-count="${fs.todayN}">${fs.todayN}</div><p class="text-[11px] text-slate-500 dark:text-slate-400">Sessions today</p></div>
+            </div>
+          </section>
+
+          <section class="card reveal p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">${ic("list-todo", "w-5 h-5 text-brand-600 dark:text-brand-400")}<span>Study planner</span></h3>
+              ${tasks.length ? `<span class="text-xs font-bold text-slate-500 dark:text-slate-400">${doneN} of ${tasks.length} done</span>` : ""}
+            </div>
+            ${tasks.length ? bar(pctOf(doneN, tasks.length), "from-emerald-500 to-emerald-400") : ""}
+            <form data-form="task" class="flex flex-col sm:flex-row gap-2">
+              <input id="task-input" name="text" maxlength="120" autocomplete="off" placeholder="What will you study today?" class="input" aria-label="New study task" />
+              <select name="course" class="input sm:max-w-[190px]" aria-label="Course">
+                <option value="">General</option>
+                ${COURSES.map((c) => `<option value="${esc(c.id)}">${esc(c.title.split(" ")[0] === "Mathematics" ? "Mathematics" : c.title.length > 22 ? c.title.slice(0, 22) + "…" : c.title)}</option>`).join("")}
+              </select>
+              <button type="submit" class="btn-primary !py-2.5">${ic("plus")}<span>Add</span></button>
+            </form>
+            <ul class="space-y-2">
+              ${tasks.length === 0 ? `<li class="text-center text-sm text-slate-400 py-6">Your plan is empty. Add one small task to get moving.</li>` : tasks.map((x) => {
+                const c = COURSES.find((cc) => cc.id === x.course);
+                return `
+                <li data-task="${esc(x.id)}" class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-800/40 transition ${justAdded === x.id ? "task-in" : ""}">
+                  <button data-action="task-toggle" data-id="${esc(x.id)}" class="w-6 h-6 rounded-lg border-2 grid place-items-center shrink-0 transition ${x.done ? "bg-emerald-500 border-emerald-500 text-white" : "border-slate-300 dark:border-slate-600 hover:border-brand-500"}" aria-label="${x.done ? "Mark as not done" : "Mark as done"}" aria-pressed="${!!x.done}">${x.done ? ic("check", "w-3.5 h-3.5") : ""}</button>
+                  <span class="flex-1 min-w-0 text-sm ${x.done ? "line-through text-slate-400" : "text-slate-800 dark:text-slate-100"} break-words">${esc(x.text)}</span>
+                  ${c ? `<span class="hidden sm:inline px-2 py-0.5 rounded-md text-[11px] font-bold ${c.badgeBg}">${esc(c.title.split(" ")[0])}</span>` : ""}
+                  <button data-action="task-del" data-id="${esc(x.id)}" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 transition" aria-label="Delete task">${ic("trash-2", "w-4 h-4")}</button>
+                </li>`;
+              }).join("")}
+            </ul>
+            ${doneN ? `<button data-action="task-clear" class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-rose-600">Clear completed</button>` : ""}
+          </section>
+        </div>`;
+    }
+
+    function addTask(form) {
+      const input = form.elements.text, text = input.value.trim().slice(0, 120);
+      if (!text) {
+        input.classList.remove("shake"); void input.offsetWidth; input.classList.add("shake"); input.focus();
+        return;
+      }
+      const tasks = store.get(K.tasks, []);
+      const id = Date.now().toString(36);
+      tasks.unshift({ id, text, course: form.elements.course.value, done: false });
+      store.set(K.tasks, tasks.slice(0, 100));
+      justAdded = id;
+      render({ anim: false });
+      $("#task-input")?.focus();
+    }
+
+    /* ------------------------------------------------------------------
+       Views: profile and badges
+    ------------------------------------------------------------------ */
+    function stats() {
+      const all = COURSES.flatMap(readyOf), hist = store.get(K.exams, []);
+      return { done: doneIn(all), total: all.length, streak: getStreak(), focusTotal: focusStats().totalM, exams: hist.length, best: Math.max(0, ...hist.map((h) => h.pct)) };
+    }
+    const BADGES = [
+      { id: "first", icon: "book-open-check", title: "First note", hint: "Mark one note as read", test: (s) => s.done >= 1 },
+      { id: "ten", icon: "library", title: "Ten notes", hint: "Read 10 notes", test: (s) => s.done >= 10 },
+      { id: "streak3", icon: "flame", title: "3-day streak", hint: "Study 3 days in a row", test: (s) => s.streak >= 3 },
+      { id: "streak7", icon: "calendar-check", title: "7-day streak", hint: "Study 7 days in a row", test: (s) => s.streak >= 7 },
+      { id: "focus60", icon: "timer", title: "One focused hour", hint: "Log 60 focus minutes", test: (s) => s.focusTotal >= 60 },
+      { id: "exam", icon: "clipboard-check", title: "Exam taker", hint: "Finish a live exam", test: (s) => s.exams >= 1 },
+      { id: "ace", icon: "trophy", title: "Top score", hint: "Score 80% or more in an exam", test: (s) => s.best >= 80 }
+    ];
+    function checkBadges(silent = false) {
+      const s = stats(), have = new Set(store.get(K.badges, []));
+      BADGES.forEach((b) => {
+        if (have.has(b.id) || !b.test(s)) return;
+        have.add(b.id);
+        if (!silent) { toast(`Badge unlocked: ${b.title}`, "success", 4500); confetti(innerWidth / 2, innerHeight / 2, 60); }
+      });
+      store.set(K.badges, [...have]);
+    }
+
+    function viewProfile() {
+      const s = stats(), have = new Set(store.get(K.badges, []));
+      const tile = (value, label, suffix = "") => `
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <div class="font-display font-bold text-2xl text-slate-900 dark:text-white" data-count="${value}" data-suffix="${suffix}">${value}${suffix}</div>
+          <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">${label}</span>
+        </div>`;
+      return `
+        <div class="space-y-4">
+          <section class="card reveal p-6 space-y-5">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center font-display font-bold text-xl shadow-md">${esc(studentName.charAt(0).toUpperCase())}</div>
+              <div class="min-w-0">
+                <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg truncate">${esc(studentName)}</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">${esc(user?.email || "student@ju.edu.et")}</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              ${tile(s.done, "Notes read")}
+              ${tile(s.streak, "Day streak")}
+              ${tile(s.focusTotal, "Focus minutes")}
+              ${tile(s.exams, "Exams taken")}
+            </div>
+          </section>
+
+          <section class="card reveal p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display font-bold text-slate-900 dark:text-white text-base">Badges</h3>
+              <span class="text-xs font-bold text-slate-500 dark:text-slate-400">${have.size} of ${BADGES.length} earned</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              ${BADGES.map((b) => {
+                const on = have.has(b.id);
+                return `
+                <div class="p-3 rounded-xl border text-center transition ${on ? "border-brand-400/60 bg-brand-50 dark:bg-brand-500/10" : "border-slate-200 dark:border-slate-700 opacity-60"}">
+                  <div class="mx-auto w-10 h-10 rounded-full grid place-items-center mb-2 ${on ? "bg-gradient-to-br from-brand-500 to-brand-700 text-white pop" : "bg-slate-100 dark:bg-slate-800 text-slate-400"}">${ic(on ? b.icon : "lock", "w-5 h-5")}</div>
+                  <p class="text-xs font-bold text-slate-800 dark:text-slate-100">${b.title}</p>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug mt-0.5">${b.hint}</p>
+                </div>`;
+              }).join("")}
+            </div>
+          </section>
+
+          <section class="card reveal p-5 space-y-2">
+            <button data-action="signout" class="btn-ghost !text-rose-600 w-full py-2.5">${ic("log-out")}<span>Sign out of JU FreshHub</span></button>
+            <button data-action="reset-progress" class="w-full text-xs font-semibold text-slate-400 hover:text-rose-600 py-2 transition">Reset my progress on this device</button>
+          </section>
+        </div>`;
+    }
+
+    /* ------------------------------------------------------------------
+       Actions (event delegation, no inline handlers)
+    ------------------------------------------------------------------ */
+    function toggleDone(file, btn) {
+      const was = completed.has(file);
+      was ? completed.delete(file) : completed.add(file);
+      store.set(K.done, [...completed]);
+      justDone = file;
+      if (!was) {
+        markActive();
+        const rect = btn?.getBoundingClientRect();
+        confetti(rect ? rect.left + rect.width / 2 : undefined, rect ? rect.top : undefined, 40);
+        const info = findTopic(file);
+        const ready = info?.chapter.topics.filter((x) => x.file) || [];
+        if (ready.length > 1 && doneIn(ready) === ready.length) {
+          toast(`Chapter complete: ${info.chapter.title}`, "success", 4500);
+          confetti(innerWidth / 2, innerHeight / 3, 120);
+        }
+      }
+      checkBadges();
+      render({ anim: false });
+    }
+
+    function clearSearch() {
+      searchInput.value = "";
+      state.q = "";
+      $("#search-clear").classList.add("hidden");
+      $("#search-kbd").classList.remove("hidden");
+      render({ anim: false });
+    }
+
+    function toggleTheme(e) {
+      const apply = () => {
+        const dark = document.documentElement.classList.toggle("dark");
+        try { localStorage.setItem("ju_theme", dark ? "dark" : "light"); } catch {}
+        syncTheme();
+      };
+      if (!document.startViewTransition || reducedMotion()) return apply();
+      const x = e?.clientX ?? innerWidth - 40, y = e?.clientY ?? 30;
+      const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      const vt = document.startViewTransition(apply);
+      vt.ready.then(() => document.documentElement.animate(
+        { clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
+        { duration: 550, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
+      )).catch(() => {});
+    }
+    function syncTheme() {
+      const dark = document.documentElement.classList.contains("dark");
+      $("#theme-icon").innerHTML = ic(dark ? "sun" : "moon");
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", dark ? "#0B1020" : "#D97706");
+      icons();
+    }
+
+    const actions = {
+      nav: (el) => switchNav(el.dataset.nav),
+      "open-course": (el) => go({ view: "chapters", courseId: el.dataset.id, chapterId: null, q: "" }, {}) || clearSearchSilently(),
+      "open-chapter": (el) => go({ view: "topics", chapterId: el.dataset.id }),
+      crumb: (el) => go(el.dataset.level === "courses" ? { view: "courses", courseId: null, chapterId: null } : { view: "chapters", chapterId: null }),
+      back: () => go(state.view === "topics" ? { view: "chapters", chapterId: null } : { view: "courses", courseId: null }),
+      "toggle-done": (el) => toggleDone(el.dataset.file, el),
+      soon: () => toast("Study notes for this topic are coming soon.", "info"),
+      suggest: (el) => { searchInput.value = el.dataset.q; searchInput.dispatchEvent(new Event("input")); searchInput.focus(); },
+      "clear-search": clearSearch,
+      theme: (_el, e) => toggleTheme(e),
+      signout: async () => {
+        const ok = await ask({ title: "Sign out of JU FreshHub?", message: "Your progress stays saved on this device.", confirmText: "Sign out", cancelText: "Stay signed in" });
+        if (ok) { cancelExam(); await signOut(auth); }
+      },
+      "toggle-pw": () => {
+        const input = $("#student-password"), show = input.type === "password";
+        input.type = show ? "text" : "password";
+        $("#pw-eye").innerHTML = ic(show ? "eye-off" : "eye");
+        icons();
+      },
+      "modal-ok": () => closeModal(true),
+      "modal-cancel": () => closeModal(false),
+      "start-exam": (el) => startExam(el.dataset.id),
+      "resume-exam": (el) => startExam(el.dataset.id, true),
+      pick: (el) => { session.answers[session.idx] = Number(el.dataset.i); persistExam(); render({ anim: false }); },
+      goq: (el) => gotoQ(Number(el.dataset.i)),
+      prev: () => gotoQ(session.idx - 1),
+      next: () => gotoQ(session.idx + 1),
+      flag: () => { session.flags.has(session.idx) ? session.flags.delete(session.idx) : session.flags.add(session.idx); persistExam(); render({ anim: false }); },
+      "submit-exam": submitExam,
+      "result-filter": (el) => { resultFilter = el.dataset.f; render({ anim: false }); },
+      "exam-home": () => { lastResult = null; render(); scrollTo({ top: 0 }); },
+      "focus-mode": (el) => setFocusMode(el.dataset.mode),
+      "focus-toggle": toggleFocus,
+      "focus-reset": resetFocus,
+      "focus-adjust": (el) => adjustFocus(Number(el.dataset.d)),
+      "task-toggle": (el) => {
+        const tasks = store.get(K.tasks, []), x = tasks.find((i) => i.id === el.dataset.id);
+        if (!x) return;
+        x.done = !x.done;
+        store.set(K.tasks, tasks);
+        if (x.done) { markActive(); const r = el.getBoundingClientRect(); confetti(r.left + r.width / 2, r.top, 25); }
+        render({ anim: false });
+      },
+      "task-del": (el) => {
+        const row = el.closest("[data-task]");
+        row?.classList.add("task-out");
+        setTimeout(() => { store.set(K.tasks, store.get(K.tasks, []).filter((i) => i.id !== el.dataset.id)); render({ anim: false }); }, 240);
+      },
+      "task-clear": () => { store.set(K.tasks, store.get(K.tasks, []).filter((i) => !i.done)); render({ anim: false }); },
+      "notice-toggle": (el) => {
+        const p = el.previousElementSibling, open = p.classList.toggle("line-clamp-3");
+        el.textContent = open ? "Read more" : "Show less";
+      },
+      "reset-progress": async () => {
+        const ok = await ask({ title: "Reset your progress?", message: "This clears read notes, streak, focus time, badges and exam history on this device. Your planner stays.", confirmText: "Reset progress", danger: true });
+        if (!ok) return;
+        completed = new Set();
+        [K.done, K.days, K.focus, K.badges, K.exams, K.last].forEach((k) => store.remove(k));
+        toast("Progress reset.", "info");
+        render({ anim: false });
+      }
+    };
+    function clearSearchSilently() {
+      if (!state.q) return;
+      searchInput.value = ""; state.q = "";
+      $("#search-clear").classList.add("hidden");
+      $("#search-kbd").classList.remove("hidden");
+    }
+
+    document.addEventListener("click", (e) => {
+      const note = e.target.closest("a[data-note]");
+      if (note) {
+        store.set(K.last, note.dataset.note);
+        markActive();
+        checkBadges(true);
+        return;
+      }
+      const el = e.target.closest("[data-action]");
+      if (el) actions[el.dataset.action]?.(el, e);
+    });
+
+    document.addEventListener("submit", (e) => {
+      const form = e.target.closest("form[data-form]");
+      if (!form) return;
+      e.preventDefault();
+      ({ login: handleLogin, task: addTask })[form.dataset.form]?.(form);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (modalResolve) return closeModal(false);
+        if (document.activeElement === searchInput && state.q) { clearSearch(); }
+        return;
+      }
+      if ((e.key === "Enter" || e.key === " ") && e.target.matches?.('[role="button"][data-action]')) {
+        e.preventDefault();
+        e.target.click();
+        return;
+      }
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+      if (typing || e.metaKey || e.ctrlKey || e.altKey || modalResolve) return;
+
+      if (session && state.nav === "exams") {
+        const q = session.data.questions[session.idx], k = e.key.toLowerCase();
+        if (/^[1-9]$/.test(k) && Number(k) <= q.options.length) { session.answers[session.idx] = Number(k) - 1; persistExam(); render({ anim: false }); }
+        else if (/^[a-d]$/.test(k) && k.charCodeAt(0) - 97 < q.options.length) { session.answers[session.idx] = k.charCodeAt(0) - 97; persistExam(); render({ anim: false }); }
+        else if (k === "arrowright") gotoQ(session.idx + 1);
+        else if (k === "arrowleft") gotoQ(session.idx - 1);
+        else if (k === "f") actions.flag();
+      } else if (e.key === "/" && state.nav === "courses" && state.view === "courses") {
+        e.preventDefault();
+        searchInput.focus();
+      }
+    });
+
+    // Search (debounced)
+    let searchTimer;
+    searchInput.addEventListener("input", (e) => {
+      const v = e.target.value;
+      $("#search-clear").classList.toggle("hidden", !v);
+      $("#search-kbd").classList.toggle("hidden", !!v);
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { state.q = v; render({ anim: false }); }, 120);
+    });
+
+    // Card spotlight follows the pointer
+    mount.addEventListener("pointermove", (e) => {
+      const s = e.target.closest?.(".spot");
+      if (!s) return;
+      const r = s.getBoundingClientRect();
+      s.style.setProperty("--mx", e.clientX - r.left + "px");
+      s.style.setProperty("--my", e.clientY - r.top + "px");
+    });
+
+    // Phone back button walks through the app instead of leaving it
+    addEventListener("popstate", (e) => {
+      if (session) {
+        history.pushState(snap(), "");
+        toast("Finish or leave the exam before going back.", "warn");
+        return;
+      }
+      if (e.state) Object.assign(state, e.state);
+      render({ scroll: true });
+    });
+    addEventListener("beforeunload", (e) => { if (session) { e.preventDefault(); e.returnValue = ""; } });
+
+    // Scroll progress and header shadow
+    let scrollTick = false;
+    addEventListener("scroll", () => {
+      if (scrollTick) return;
+      scrollTick = true;
+      requestAnimationFrame(() => {
+        const max = document.documentElement.scrollHeight - innerHeight;
+        $("#scroll-bar").style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
+        $("#app-header").classList.toggle("shadow-md", scrollY > 8);
+        scrollTick = false;
+      });
+    }, { passive: true });
+
+    addEventListener("resize", sizeFx);
+    addEventListener("offline", () => $("#offline-banner").classList.remove("hidden"));
+    addEventListener("online", () => { $("#offline-banner").classList.add("hidden"); toast("Back online.", "success", 2200); });
+    $("#student-password").addEventListener("keyup", (e) => $("#caps-hint").classList.toggle("hidden", !e.getModifierState?.("CapsLock")));
+
+    /* ------------------------------------------------------------------
+       Auth and live data
+    ------------------------------------------------------------------ */
+    function authMessage(err) {
+      const c = err?.code;
+      if (["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found"].includes(c)) return "Incorrect email or password. Check your details and try again.";
+      if (c === "auth/too-many-requests") return "Too many failed attempts. Wait a few minutes, then try again.";
+      if (c === "auth/network-request-failed") return "No connection. Check your internet and try again.";
+      return err?.message || "Unable to sign in. Please try again.";
+    }
+
+    async function handleLogin() {
+      const email = $("#student-email").value.trim(), pw = $("#student-password").value;
+      const errBox = $("#auth-error"), btn = $("#login-btn"), card = $("#login-card");
+      errBox.classList.add("hidden");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span><span>Signing in</span>`;
+      try {
+        await signInWithEmailAndPassword(auth, email, pw);
+        toast("Signed in.", "success", 2200);
+      } catch (err) {
+        errBox.textContent = authMessage(err);
+        errBox.classList.remove("hidden");
+        card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>Sign in to portal</span>${ic("arrow-right")}`;
+        icons();
+      }
+    }
+
+    function updateGreeting() {
+      const h = new Date().getHours();
+      const word = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+      $("#greeting").textContent = `${word}, ${studentName}`;
+      $("#student-name-display").textContent = studentName;
+      $("#greeting-sub").textContent = profileStream ? `${profileStream}, Natural Science freshman portal` : "Pick a course to open chapters and study notes.";
+    }
+
+    function startListeners() {
+      stopListeners();
+      unsubs.push(onSnapshot(collection(db, "announcements"), (snap) => {
+        notices = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        updateBadges();
+        if (state.nav === "notices") render({ anim: false });
+      }, (err) => console.warn("Announcements listener:", err)));
+
+      unsubs.push(onSnapshot(collection(db, "live_exams"), (snap) => {
+        liveExams = snap.docs.map(normalizeExamDoc);
+        updateBadges();
+        if (state.nav === "exams" && !session) render({ anim: false });
+      }, (err) => console.error("Live exams listener:", err)));
+    }
+    function stopListeners() { unsubs.forEach((u) => u()); unsubs = []; }
+
+    const splashState = { timeUp: false, authReady: false };
+    function maybeHideSplash() {
+      if (!(splashState.timeUp && splashState.authReady)) return;
+      const el = $("#splash");
+      if (!el) return;
+      el.classList.add("out");
+      setTimeout(() => el.remove(), 950);
+    }
+
+    onAuthStateChanged(auth, async (u) => {
+      splashState.authReady = true;
+      $("#auth-modal").classList.toggle("hidden", !!u);
+      $("#app-container").classList.toggle("hidden", !u);
+      if (u) {
+        user = u;
+        studentName = u.displayName || (u.email ? u.email.split("@")[0] : "Student");
+        updateGreeting();
+        startListeners();
+        render();
+        try {
+          const snap = await getDoc(doc(db, "users", u.uid));
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data.displayName) studentName = data.displayName;
+            if (data.stream) profileStream = data.stream;
+            updateGreeting();
+            if (state.nav === "profile") render({ anim: false });
+          }
+        } catch {}
+      } else {
+        user = null;
+        stopListeners();
+        liveExams = []; notices = [];
+        cancelExam();
+        $("#student-password").value = "";
+      }
+      icons();
+      maybeHideSplash();
+    });
+
+    /* ------------------------------------------------------------------
+       Branding, clock, splash and boot
+    ------------------------------------------------------------------ */
+    const safeSrc = (u) => (u.startsWith("data:") || u.includes("%") ? u : encodeURI(u));
+    function getBrand(key) {
+      try { return localStorage.getItem("ju_brand_" + key) || JU_BRANDING[key] || ""; }
+      catch { return JU_BRANDING[key] || ""; }
+    }
+    function applyBranding() {
+      const logo = getBrand("logo");
+      $$(".ju-logo-box").forEach((box) => {
+        const img = box.querySelector(".ju-logo-img"), txt = box.querySelector(".ju-logo-text");
+        if (logo) {
+          img.onerror = () => { img.classList.add("hidden"); txt.classList.remove("hidden"); box.style.background = ""; };
+          img.src = safeSrc(logo);
+          img.classList.remove("hidden"); txt.classList.add("hidden"); box.style.background = "transparent";
+        } else {
+          img.classList.add("hidden"); txt.classList.remove("hidden"); box.style.background = "";
+        }
+      });
+
+      const lp = getBrand("loginPhoto"), hero = $("#login-hero"), heroImg = $("#login-hero-img"), bg = $("#login-bg");
+      if (lp) {
+        heroImg.onerror = () => hero.classList.add("hidden");
+        bg.onerror = () => bg.classList.add("hidden");
+        heroImg.src = safeSrc(lp); bg.src = safeSrc(lp);
+        hero.classList.remove("hidden"); bg.classList.remove("hidden");
+      } else { hero.classList.add("hidden"); bg.classList.add("hidden"); }
+
+      const dp = getBrand("dashPhoto"), dash = $("#dash-hero"), dashImg = $("#dash-hero-img");
+      if (dp) {
+        dashImg.onerror = () => dash.classList.add("hidden");
+        dashImg.src = safeSrc(dp);
+        dash.classList.remove("hidden");
+      } else dash.classList.add("hidden");
+    }
+
+    function updateClock() {
+      const now = new Date();
+      $("#live-clock").textContent =
+        now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) + ", " +
+        now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function runSplash() {
+      sessionStorage.setItem("fh_splash", "1");
+      $("#splash-title").innerHTML = [..."JU FreshHub"].map((c, i) =>
+        c === " " ? `<span class="inline-block w-3"></span>` : `<span class="splash-letter" style="--i:${i}">${c}</span>`).join("");
+
+      const tipEl = $("#splash-tip"), barEl = $("#splash-bar"), pctEl = $("#splash-pct");
+      let tip = 0;
+      tipEl.textContent = SPLASH_TIPS[0];
+      const tipTimer = setInterval(() => {
+        tipEl.style.opacity = 0;
+        setTimeout(() => { tip = (tip + 1) % SPLASH_TIPS.length; tipEl.textContent = SPLASH_TIPS[tip]; tipEl.style.opacity = 1; }, 400);
+      }, 1800);
+
+      const t0 = performance.now();
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / SPLASH_MS), eased = 1 - Math.pow(1 - p, 2);
+        barEl.style.width = eased * 100 + "%";
+        pctEl.textContent = Math.round(eased * 100) + "%";
+        if (p < 1) return requestAnimationFrame(step);
+        clearInterval(tipTimer);
+        splashState.timeUp = true;
+        if (!splashState.authReady) pctEl.textContent = "Connecting...";
+        maybeHideSplash();
+      };
+      requestAnimationFrame(step);
+    }
+
+    applyBranding();
+    syncTheme();
+    updateClock();
+    setInterval(updateClock, 30000);
+    setInterval(tickFocus, 250);
+    sizeFx();
+    checkBadges(true);
+    history.replaceState(snap(), "");
+    runSplash();
+    icons();
   </script>
 </body>
 </html>
