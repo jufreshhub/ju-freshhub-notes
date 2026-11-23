@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Cenozoic Era (70 million years ago–Present) — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+    .swipe-row::-webkit-scrollbar { height: 6px; }
+    .swipe-row::-webkit-scrollbar-thumb { background: rgba(217,119,6,.35); border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Geography</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="flame" class="w-3.5 h-3.5"></i> Geological History · Present Landscape
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Cenozoic Era (70 million years ago–Present)</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Highland Uplifting, Trap Series Flood Basalts, Ethiopian Rift Valley Formation, and Quaternary Volcanism &amp; Lakes</p>
+      </div>
+    </section>
+
+    <!-- 1. What is the Cenozoic Era? (With Swipeable Gallery) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What Is the Cenozoic Era?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Beginning approximately <strong>70 million years ago</strong> and continuing to the present, the Cenozoic Era is commonly called the <strong>Age of Mammals</strong> because mammals became dominant following dinosaur extinction. For Ethiopia, it shaped our present-day plateaus, Great Rift Valley, volcanoes, hot springs, and lakes.
+      </p>
+
+      <!-- 7 Cenozoic Era Images Swipeable Row -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+          <span>Cenozoic Era &amp; Prehistoric Mammals Gallery (Tap to zoom)</span>
+          <span class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400">Swipe left <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+        </div>
+
+        <div class="swipe-row flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/CCe-A5YJpSxPVXg9X2VicQ-wCkYX-necvcK7VsTs64HjJlS0O1KJ5iC8AG4oxS1S-OnziiZPhrxETkNAE7jFA76AVoq7pFq0RgJnr9_WCL7k6gw_TiDAWK1rsbbZ_kW1cWVJIBgfcYIwxlzZzqAcJnAT7HqsEEgXeJ-wzn1Hq-lQbgrplWC-WJta0RkTWuCK?purpose=fullsize', 'Prehistoric Mammals of the Cenozoic')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/CCe-A5YJpSxPVXg9X2VicQ-wCkYX-necvcK7VsTs64HjJlS0O1KJ5iC8AG4oxS1S-OnziiZPhrxETkNAE7jFA76AVoq7pFq0RgJnr9_WCL7k6gw_TiDAWK1rsbbZ_kW1cWVJIBgfcYIwxlzZzqAcJnAT7HqsEEgXeJ-wzn1Hq-lQbgrplWC-WJta0RkTWuCK?purpose=fullsize" alt="Cenozoic 1" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">1. Prehistoric Mammals</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/ZSgwEWNQdxTl3ryvhekLRH7pt3YRbkt__sfYLGjPTrpVaWOkJDNEBUIWTmxG14Al-jGcabeDl77G0ZmLv1WWjcX5mTcCrrwXiohGMmqtuKdHJ-6UfQWsQo6npTQAy2JIJcaz8czeQSP96YfNTtQLcEOUJqj-f_-MabdSYHutTBrEKDkCtmfner_0gzwQliaP?purpose=fullsize', 'Cenozoic Geochronological Scale')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/ZSgwEWNQdxTl3ryvhekLRH7pt3YRbkt__sfYLGjPTrpVaWOkJDNEBUIWTmxG14Al-jGcabeDl77G0ZmLv1WWjcX5mTcCrrwXiohGMmqtuKdHJ-6UfQWsQo6npTQAy2JIJcaz8czeQSP96YfNTtQLcEOUJqj-f_-MabdSYHutTBrEKDkCtmfner_0gzwQliaP?purpose=fullsize" alt="Cenozoic 2" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">2. Cenozoic Scale</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/CZrMVzWyru9eC_5oBzx34nf1TgFsvFK1Mo-qhyRoh4p7MMR1zwBOHswjk9bPIg0MSmExjD7v8T-aB5vDIAyn9cNLvRu-gqAIZWWUnEEZQoBua1tCvZqNaoddiLQhA-lnM6J9hOKWRDPDdmYtz4H94ZFZkNkG7xiqsiT_dpL9cmzziuNG-ONPPCPv6vbzu8dQ?purpose=fullsize', 'Mammal Evolution & Elephants')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/CZrMVzWyru9eC_5oBzx34nf1TgFsvFK1Mo-qhyRoh4p7MMR1zwBOHswjk9bPIg0MSmExjD7v8T-aB5vDIAyn9cNLvRu-gqAIZWWUnEEZQoBua1tCvZqNaoddiLQhA-lnM6J9hOKWRDPDdmYtz4H94ZFZkNkG7xiqsiT_dpL9cmzziuNG-ONPPCPv6vbzu8dQ?purpose=fullsize" alt="Cenozoic 3" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">3. Mammal Adaptation</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/xc-9FUw2rmNJrzK2h2g9qtw8932udXBsbgS2I3nNb1q2bVIkoGdzPe8PiphvzHZv-wpIis8j6vgWAgOf8YsSPilKEhbI50pd_2tmEtE9hs5SIq8JQjfpBD2In71wlwfJBpuMibRzIrJqwfsjVZyOhOLy9xb5-2rUaw0y2YRgAo9tuxvRr4d2H3HiDSLaaMCa?purpose=fullsize', 'Geosphere and Biosphere Interactions')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/xc-9FUw2rmNJrzK2h2g9qtw8932udXBsbgS2I3nNb1q2bVIkoGdzPe8PiphvzHZv-wpIis8j6vgWAgOf8YsSPilKEhbI50pd_2tmEtE9hs5SIq8JQjfpBD2In71wlwfJBpuMibRzIrJqwfsjVZyOhOLy9xb5-2rUaw0y2YRgAo9tuxvRr4d2H3HiDSLaaMCa?purpose=fullsize" alt="Cenozoic 4" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">4. Biosphere Shifts</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/fbmADnBYoJvrMSMNqejB-Bksh8WXs_gij0AapUS5pjBloa0wJBwU2w2oVPlH1VeD-xskEsElq-cQmmYCrRy5Tbkucik_1aQpQ4uwpElYX0xQRyPJ3FJTxJXuU7WbWsTAEwFlFtacNSc6unwD4jv9wlpIR_9eo3MNU_0Qjvgm5YGkMPnELe45dTyAADZ4dqRS?purpose=fullsize', 'Cenozoic Era Infographic')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/fbmADnBYoJvrMSMNqejB-Bksh8WXs_gij0AapUS5pjBloa0wJBwU2w2oVPlH1VeD-xskEsElq-cQmmYCrRy5Tbkucik_1aQpQ4uwpElYX0xQRyPJ3FJTxJXuU7WbWsTAEwFlFtacNSc6unwD4jv9wlpIR_9eo3MNU_0Qjvgm5YGkMPnELe45dTyAADZ4dqRS?purpose=fullsize" alt="Cenozoic 5" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">5. Cenozoic Overview</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/d0Y0a4btRX6GuRdvpqm9YvqVSngLv2uQAWKpN2Fw-zBBivali5xL8uew5z49ukKvy-KzkI8jG_RayutDREciXQCdsXS6ZQnNFKyisRZHlGwEiBTponcwJD7X5pi_1Hd4uOnr_rdZsfH8d_jhqCYtSdoqqw3Po4DYEahUk1HOWDouQI0HurdAS1Sk9pNoivY_?purpose=fullsize', 'Late Miocene Eastern Africa')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/d0Y0a4btRX6GuRdvpqm9YvqVSngLv2uQAWKpN2Fw-zBBivali5xL8uew5z49ukKvy-KzkI8jG_RayutDREciXQCdsXS6ZQnNFKyisRZHlGwEiBTponcwJD7X5pi_1Hd4uOnr_rdZsfH8d_jhqCYtSdoqqw3Po4DYEahUk1HOWDouQI0HurdAS1Sk9pNoivY_?purpose=fullsize" alt="Cenozoic 6" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">6. Miocene East Africa</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/-mLMxvj2dUcyIINm9gTWTqlSXFFOTD6sRrVMAC-KOTguBow3zAvfaV_au4YVR8AcKH-ZuhX1ffV3OHcZh6y_vnzsoMkb6YDh4BKZ2lD1txB10iMYrjQFGtctTsemfYHXhE-zh63BLEv15O1FnG2m12MWbg-SAFzJP-KJrYEx5gE7mhEn3-wUg4zT7emt4Avo?purpose=fullsize', 'Earth Geological Timeline')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/-mLMxvj2dUcyIINm9gTWTqlSXFFOTD6sRrVMAC-KOTguBow3zAvfaV_au4YVR8AcKH-ZuhX1ffV3OHcZh6y_vnzsoMkb6YDh4BKZ2lD1txB10iMYrjQFGtctTsemfYHXhE-zh63BLEv15O1FnG2m12MWbg-SAFzJP-KJrYEx5gE7mhEn3-wUg4zT7emt4Avo?purpose=fullsize" alt="Cenozoic 7" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">7. Earth History</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-xs space-y-1">
+        <strong class="font-display text-brand-900 dark:text-brand-300 block">Five Major Events in Ethiopia:</strong>
+        <ul class="list-disc pl-5 text-slate-700 dark:text-slate-300 space-y-0.5">
+          <li>Uplifting of the Arabo-Ethiopian landmass</li>
+          <li>Formation of extensive volcanic rocks (Flood basalt &amp; Trap Series)</li>
+          <li>Development of the Ethiopian Rift Valley</li>
+          <li>Quaternary volcanic activity</li>
+          <li>Formation of lakes and accumulation of sediments</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. Uplifting, Flood Basalt & Trap Series -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Highland Uplift, Flood Basalt &amp; Trap Series Lava</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">A. Uplifting of Arabo-Ethiopian Landmass:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Upward crustal rise—like raising bread dough from underneath—elevating highlands, creating steep escarpments, and intensifying river erosion.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/aZQS-Jy4Yz4AJoUVuV3RZ1LGp6y9PiTW5nuOCIcoGJLjjC7-txyH177n4dmcakCGFerU2gl1OvHI_XwN39n1e97aw-iNCT38_vwImRysnKhMGCQ4C-9HLgtV3MJJSxlpbWax0BaQ5XaHw3Kis0HwS3-iT4GVs5jKbcH-k4E2lscezw_yOY09LtMmhaUCFMi7?purpose=fullsize', 'Simien Mountains Elevated Highlands')">
+            <img src="https://images.openai.com/static-rsc-4/aZQS-Jy4Yz4AJoUVuV3RZ1LGp6y9PiTW5nuOCIcoGJLjjC7-txyH177n4dmcakCGFerU2gl1OvHI_XwN39n1e97aw-iNCT38_vwImRysnKhMGCQ4C-9HLgtV3MJJSxlpbWax0BaQ5XaHw3Kis0HwS3-iT4GVs5jKbcH-k4E2lscezw_yOY09LtMmhaUCFMi7?purpose=fullsize" alt="Simien Mountains" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">B. Flood Basalt &amp; Trap Series:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Enormous basaltic lava flows erupted repeatedly through fissures, forming thick step-like plateau layers called the <strong>Trap Series</strong> (<em>trap</em> = staircase).</p>
+          <div class="grid grid-cols-2 gap-1.5">
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/llEKN5D7k-iauO7Yz6BT-_729kA4qL5edRHToT7uT4PWSJUV7_e2Xu8a2VJr5pV_Jn0fTn-nzeMOgm1IUJRHU-W5ej32xADxHvOzG8diOJTVJVmcHbUphbHBonSZexi0_JLAiWFckXFKRya6u8p_jxIuER_ctlyo1rMzN4F2OKXj7sP8Rv0-zCLgzP8FdOHg?purpose=fullsize', 'Trap Series Volcanic Plateau Layers')">
+              <img src="https://images.openai.com/static-rsc-4/llEKN5D7k-iauO7Yz6BT-_729kA4qL5edRHToT7uT4PWSJUV7_e2Xu8a2VJr5pV_Jn0fTn-nzeMOgm1IUJRHU-W5ej32xADxHvOzG8diOJTVJVmcHbUphbHBonSZexi0_JLAiWFckXFKRya6u8p_jxIuER_ctlyo1rMzN4F2OKXj7sP8Rv0-zCLgzP8FdOHg?purpose=fullsize" alt="Trap Series" class="w-full h-24 object-contain" />
+            </figure>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/cR2tvalm8TPrVMGHiytcXdvsyo2Y73vgzR-GHZg6iAEY4XeL-0lIJcNvuhCGWQjM1rUWnXyp1zpwIfTleEbUnktxFTk5lMcY3Rffp29KqTRKiItlmiXaAIDRnv9kFwaqDzSVJbApmbWqYFF3AJyFY9mdgAlxUPsBd_FKRkrC0CWTpQ_0wWplhGj8NDm5-vyt?purpose=fullsize', 'Central Ethiopian Plateau Volcanism')">
+              <img src="https://images.openai.com/static-rsc-4/cR2tvalm8TPrVMGHiytcXdvsyo2Y73vgzR-GHZg6iAEY4XeL-0lIJcNvuhCGWQjM1rUWnXyp1zpwIfTleEbUnktxFTk5lMcY3Rffp29KqTRKiItlmiXaAIDRnv9kFwaqDzSVJbApmbWqYFF3AJyFY9mdgAlxUPsBd_FKRkrC0CWTpQ_0wWplhGj8NDm5-vyt?purpose=fullsize" alt="Plateau" class="w-full h-24 object-contain" />
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Formation of the Ethiopian Rift Valley -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Formation of the Ethiopian Rift Valley</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Part of the East African Rift System, the Ethiopian Rift Valley formed when <strong>tensional forces</strong> stretched and thinned the crust—much like gently pulling a piece of chocolate from opposite sides until cracks form and central blocks sink downward.
+      </p>
+
+      <div class="grid sm:grid-cols-3 gap-2">
+        <figure class="cursor-pointer rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/3dQKJKVTGGblV9E67Yd2gSmq_Ml6KKqDGA8kbX2WISK95qkq-JPwYtDaosKKg5A-3ij_s46TCwaDz5QLvxHDbVZXMPrwA4nB0pXHYIAOH0lh3I8_EGWIQGV7cEH3U0A-Vf5nuz9f6HYCxvPyAcaLQ_295pSxcdf5F0yKl2e7A1WHRaTxdf9F2ZelfYQ9XV2x?purpose=fullsize', 'Great East African Rift Valley')">
+          <img src="https://images.openai.com/static-rsc-4/3dQKJKVTGGblV9E67Yd2gSmq_Ml6KKqDGA8kbX2WISK95qkq-JPwYtDaosKKg5A-3ij_s46TCwaDz5QLvxHDbVZXMPrwA4nB0pXHYIAOH0lh3I8_EGWIQGV7cEH3U0A-Vf5nuz9f6HYCxvPyAcaLQ_295pSxcdf5F0yKl2e7A1WHRaTxdf9F2ZelfYQ9XV2x?purpose=fullsize" alt="Rift Valley" class="w-full h-28 object-contain" />
+        </figure>
+        <figure class="cursor-pointer rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/P3iLaSkGgBC1N4xCQWanLg4d4n_TLZker8az8d-M-mBlNEfFi4hFq_ESmMNqKypti5fzzoBb3W3_707gALe3Yzpz95yBUZ9VpHbaBY3Bu_HKvywnUSOQ4Q2lyPdG6mA_Uwg9sDnfMpBW_6XXqn_5pWG62pEKY3RD3-n7CNdEdvsy1t1ce7BzsGeGwyPiDaRP?purpose=fullsize', 'Rift-Related Normal Faulting')">
+          <img src="https://images.openai.com/static-rsc-4/P3iLaSkGgBC1N4xCQWanLg4d4n_TLZker8az8d-M-mBlNEfFi4hFq_ESmMNqKypti5fzzoBb3W3_707gALe3Yzpz95yBUZ9VpHbaBY3Bu_HKvywnUSOQ4Q2lyPdG6mA_Uwg9sDnfMpBW_6XXqn_5pWG62pEKY3RD3-n7CNdEdvsy1t1ce7BzsGeGwyPiDaRP?purpose=fullsize" alt="Rift Faulting" class="w-full h-28 object-contain" />
+        </figure>
+        <figure class="cursor-pointer rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/fkI3h0z8KXGfyJOramTEhZkISMpH4QwgsV_DCaJBpEU56Bd0p1ihXJN7cbRgtmu8KCQpsrzNZa4JUc9wn3BWXmb_7aRs8GymI8SB5egRco_7-dvU21qEtlIny45XC2FBEFbmsBegnq6R3Ap3pGKxF-kCZYDYHHg63NwNMjkI3fLrtG6TKm8ONevNkoUMwzzM?purpose=fullsize', 'Horst and Graben Tectonic Blocks')">
+          <img src="https://images.openai.com/static-rsc-4/fkI3h0z8KXGfyJOramTEhZkISMpH4QwgsV_DCaJBpEU56Bd0p1ihXJN7cbRgtmu8KCQpsrzNZa4JUc9wn3BWXmb_7aRs8GymI8SB5egRco_7-dvU21qEtlIny45XC2FBEFbmsBegnq6R3Ap3pGKxF-kCZYDYHHg63NwNMjkI3fLrtG6TKm8ONevNkoUMwzzM?purpose=fullsize" alt="Horst and Graben" class="w-full h-28 object-contain" />
+        </figure>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">Key Tectonic Terms &amp; Significance:</strong>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5">
+          <li><strong>Tension / Normal Fault:</strong> Pulling force creating fractures where the hanging wall moves down.</li>
+          <li><strong>Graben vs. Horst:</strong> A <em>graben</em> is the block that sinks between faults; a <em>horst</em> remains higher.</li>
+          <li>Separates the Northwestern and Southeastern Ethiopian Highlands and hosts Rift lakes &amp; geothermal sites.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. Quaternary Volcanism & Lakes (With Swipeable Gallery) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Quaternary Volcanism, Deposition &amp; Lake Formation</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Beginning ~2.6 million years ago and continuing today, the Quaternary Period produced volcanic cones, calderas, lava fields, hot springs, and active volcanoes like <strong>Erta Ale</strong> in Afar.
+      </p>
+
+      <!-- 7 Quaternary Volcanism Images Swipeable Row -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+          <span>Quaternary Volcanism &amp; Danakil Features (Tap to zoom)</span>
+          <span class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400">Swipe left <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+        </div>
+
+        <div class="swipe-row flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/PL2iZcpLXKmBVfOtIkOuytMqlPkfgCNY7HEa9MmVga703TQsvPNnRUjcj1t_gWh6Q9XVwbNYuOv-MvVgabIAeMySZ0h9CuxUo4NB3iIPvjexK-M3_n81A8VXPtAq9OfLkQ1s6-fxlvS9ENr66Y3v1Z5zgmWpYVrKTnPMo3qRcnORzZDGTKbMWVyV0jf_g3UI?purpose=fullsize', 'Erta Ale Persistent Lava Lake')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/PL2iZcpLXKmBVfOtIkOuytMqlPkfgCNY7HEa9MmVga703TQsvPNnRUjcj1t_gWh6Q9XVwbNYuOv-MvVgabIAeMySZ0h9CuxUo4NB3iIPvjexK-M3_n81A8VXPtAq9OfLkQ1s6-fxlvS9ENr66Y3v1Z5zgmWpYVrKTnPMo3qRcnORzZDGTKbMWVyV0jf_g3UI?purpose=fullsize" alt="Erta Ale" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">1. Erta Ale Lava</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/mCzSeKvANOOfNf3Irm6HtcBRZhukGGPQ-x_eYzHrzrgDkVyOwgi_iCnwd49W2UPPu-aT8S8H_p3hSQjbBii86wnIPwgUISVsqjInBrfSiPvJllyzTO_AFl2iw0xd88IHO8nMK-hi3DyED2cl7qPJepbqyKykIZKGl4piSDN94fjGBbbzl-65pyznJR2b8NEl?purpose=fullsize', 'Dallol Danakil Depression')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/mCzSeKvANOOfNf3Irm6HtcBRZhukGGPQ-x_eYzHrzrgDkVyOwgi_iCnwd49W2UPPu-aT8S8H_p3hSQjbBii86wnIPwgUISVsqjInBrfSiPvJllyzTO_AFl2iw0xd88IHO8nMK-hi3DyED2cl7qPJepbqyKykIZKGl4piSDN94fjGBbbzl-65pyznJR2b8NEl?purpose=fullsize" alt="Dallol" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">2. Dallol Depression</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/y_e1lhieBY2FWV5mmAH6eLXlfDZDVAC2_DxiwWofK6lR1Rktup3bSyu4E1pmJgO3kkN1VsrwW4uvP4ufco5TTj1tJ7fNci77XKs6LOreyVPRZlLd4q38YFLzj7s7TtN4F8hRrfLXXO4dee7Vj1MLIfAxKG5xA7gmBVcmc5GU8BeoiAk7epK-xwHGQh4-KX96?purpose=fullsize', 'Bishoftu Crater Lakes')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/y_e1lhieBY2FWV5mmAH6eLXlfDZDVAC2_DxiwWofK6lR1Rktup3bSyu4E1pmJgO3kkN1VsrwW4uvP4ufco5TTj1tJ7fNci77XKs6LOreyVPRZlLd4q38YFLzj7s7TtN4F8hRrfLXXO4dee7Vj1MLIfAxKG5xA7gmBVcmc5GU8BeoiAk7epK-xwHGQh4-KX96?purpose=fullsize" alt="Bishoftu" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">3. Bishoftu Lakes</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/sqHUg7V-fbe9vGgH7ZUgeQv6X8zPJoho-9bvR5aTNkJnB5hAQefD_-kFtcVsjK0du4vU88sQ9cPNne9sNV_7MBqthMsC36fOMh0V7wS46iihRIF3midtyDwIZ_2R-dG8ugbG-b1BFRdA-VCeEph76v1ssJNOjA4br5ob8_N8DdpH-6i1QYqMce7s64rNO4I4?purpose=fullsize', 'Erupting Erta Ale Volcano')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/sqHUg7V-fbe9vGgH7ZUgeQv6X8zPJoho-9bvR5aTNkJnB5hAQefD_-kFtcVsjK0du4vU88sQ9cPNne9sNV_7MBqthMsC36fOMh0V7wS46iihRIF3midtyDwIZ_2R-dG8ugbG-b1BFRdA-VCeEph76v1ssJNOjA4br5ob8_N8DdpH-6i1QYqMce7s64rNO4I4?purpose=fullsize" alt="Erta Ale 2" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">4. Active Eruption</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/rvTw03no_fXzbYL6wKvucTuexnj6wOz3aPGwgss8yTXNPERLP-Ys00yXoVj33TTkPr1rfj3Ti1QHIaroPutYhd00egNiS52E8Z-IglajCA8WqNKikBM00xA8l9DFzHuGjOcxTTRyIF6GYK_NIOc_tXeyqoyGxvAY76Kh5RHJseNLy0VUnSlFzkGcp4HJo6MJ?purpose=fullsize', 'Danakil Geothermal Formations')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/rvTw03no_fXzbYL6wKvucTuexnj6wOz3aPGwgss8yTXNPERLP-Ys00yXoVj33TTkPr1rfj3Ti1QHIaroPutYhd00egNiS52E8Z-IglajCA8WqNKikBM00xA8l9DFzHuGjOcxTTRyIF6GYK_NIOc_tXeyqoyGxvAY76Kh5RHJseNLy0VUnSlFzkGcp4HJo6MJ?purpose=fullsize" alt="Danakil" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">5. Danakil Minerals</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/CCnrLoh7iUiWQ1Wd17I544PTbBiS_4CMqr9WkgaczQT8TkoknjHQ0cVs6azhKQIIGmGv307L6sz9nM20-iMs5zZwVH6YSgR9utAW9aTN5R_eD3cdBE5mhCmK9sKhZIi4UH08OO0EhwIF6g8rFZmnU5V_IBWa03cdDkHSaYrf_78YaMta2VWvwwr21cKELJW0?purpose=fullsize', 'Crater Lake in Bishoftu')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/CCnrLoh7iUiWQ1Wd17I544PTbBiS_4CMqr9WkgaczQT8TkoknjHQ0cVs6azhKQIIGmGv307L6sz9nM20-iMs5zZwVH6YSgR9utAW9aTN5R_eD3cdBE5mhCmK9sKhZIi4UH08OO0EhwIF6g8rFZmnU5V_IBWa03cdDkHSaYrf_78YaMta2VWvwwr21cKELJW0?purpose=fullsize" alt="Crater Lake" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">6. Caldera Lake</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/hJPTzSEe-KfYRWyQmdcB3J0yeBQ4WFiuDZACOCjqWFH1vw6jKjE6qupVi9hP2rapC3usU6QbLoaR-MgF3uU_kBxDH6OP8peqneOQpZPSZDjujsaxyce5LhZ2H4cwsxL5bjWsCfB8sxPwm6Q3RAYUU1pmGRgZVJ6fmpW77DJwjmcT94NlCYyVAZhgOQ4-rVdu?purpose=fullsize', 'Glowing Lava Lake at Erta Ale')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/hJPTzSEe-KfYRWyQmdcB3J0yeBQ4WFiuDZACOCjqWFH1vw6jKjE6qupVi9hP2rapC3usU6QbLoaR-MgF3uU_kBxDH6OP8peqneOQpZPSZDjujsaxyce5LhZ2H4cwsxL5bjWsCfB8sxPwm6Q3RAYUU1pmGRgZVJ6fmpW77DJwjmcT94NlCYyVAZhgOQ4-rVdu?purpose=fullsize" alt="Lava Lake" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">7. Glowing Lava</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- Quaternary Deposition & Lake Formation -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Quaternary Deposition &amp; Rift Valley Lakes:</strong>
+        <p class="text-slate-600 dark:text-slate-300">Tectonic basins combined with drainage and climate shifts formed major lakes including <strong>Lake Ziway, Lake Abijatta, Lake Shala, and Lake Hawassa</strong>.</p>
+        <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/n_v9DMcAgdpZi0vpk6h9JQRhdLAiKgupGcRBsQsSS-grlF8LxkKTon-47lHWKz_IDw1oGIn7eeaFEWF3Uh-I-dvI96i9SKtuT8mloYKdawTxhzv0yZUg-Ld3xTiWrXN5HQ7niuu-l3OuKvRAsTLrYRF3em3SKcG3GpC8X6yaJV-VDpHmykbXzMveI48TYwYE?purpose=fullsize', 'Lake Ziway in the Ethiopian Rift Valley')">
+          <img src="https://images.openai.com/static-rsc-4/n_v9DMcAgdpZi0vpk6h9JQRhdLAiKgupGcRBsQsSS-grlF8LxkKTon-47lHWKz_IDw1oGIn7eeaFEWF3Uh-I-dvI96i9SKtuT8mloYKdawTxhzv0yZUg-Ld3xTiWrXN5HQ7niuu-l3OuKvRAsTLrYRF3em3SKcG3GpC8X6yaJV-VDpHmykbXzMveI48TYwYE?purpose=fullsize" alt="Lake Ziway" class="w-full max-h-36 object-contain" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 5. Quick Revision Table -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Quick Revision Summary</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Geological Event</th><th class="py-2 px-3">Main Result</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Uplifting</td><td class="py-1.5 px-3">Elevated plateaus and highlands</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Flood Basalt &amp; Trap Series</td><td class="py-1.5 px-3">Extensive, thick step-like layered volcanic rocks</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Rift Formation</td><td class="py-1.5 px-3">Long depression caused by crustal extension and faulting (Graben)</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Quaternary Volcanism</td><td class="py-1.5 px-3">Cones, craters, lava fields, and active Erta Ale</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Quaternary Deposition</td><td class="py-1.5 px-3">Sediment accumulation and Rift Valley lake environments</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing Cenozoic events, flood basalts, and the Rift Valley</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Cenozoic Era
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. The Cenozoic Era is commonly known as the:",
+        options: ["A. Age of Reptiles", "B. Age of Fish", "C. Age of Mammals", "D. Age of Amphibians"],
+        correct: 2,
+        exp: "The Cenozoic Era (70 million years ago–Present) is called the Age of Mammals because mammals became dominant after dinosaur extinction."
+      },
+      {
+        q: "Q2. Flood basalt refers to:",
+        options: [
+          "A. A large amount of lava spreading over extensive areas",
+          "B. A river depositing mud",
+          "C. The sinking of a single rock layer",
+          "D. The breaking down of rocks by rain"
+        ],
+        correct: 0,
+        exp: "Flood basalt refers to enormous quantities of basaltic lava erupting through fissures and spreading over extensive plateau regions."
+      },
+      {
+        q: "Q3. The Ethiopian Rift Valley developed mainly through:",
+        options: [
+          "A. Compression and folding only",
+          "B. Crustal extension, faulting and sinking of blocks",
+          "C. River deposition only",
+          "D. Wind erosion"
+        ],
+        correct: 1,
+        exp: "Tensional forces stretched and thinned the crust, creating normal faults along which central crustal blocks sank downward."
+      },
+      {
+        q: "Q4. A block of land that sinks between faults is called a:",
+        options: ["A. Horst", "B. Anticline", "C. Graben", "D. Peneplain"],
+        correct: 2,
+        exp: "A graben is a down-dropped crustal block bounded by normal faults, whereas a horst is an uplifted block between faults."
+      },
+      {
+        q: "Q5. Which of the following is an example of Quaternary volcanic activity in Ethiopia?",
+        options: [
+          "A. Formation of Adigrat Sandstone",
+          "B. Formation of Hintalo Limestone",
+          "C. Formation of ancient Precambrian basement rocks",
+          "D. Volcanic activity at Erta Ale"
+        ],
+        correct: 3,
+        exp: "Erta Ale in the Afar region is an active volcanic feature associated with Quaternary volcanism, famous for its persistent lava lake."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on the Cenozoic Era!" : "Great performance! You clearly understand highland uplifting, Trap Series, and Rift Valley formation.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the definitions of Graben vs. Horst and Trap Series flood basalts.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the Cenozoic geological events and Rift Valley notes above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

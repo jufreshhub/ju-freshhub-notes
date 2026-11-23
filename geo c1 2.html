@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Location of Ethiopia & the Horn — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Geography</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="compass" class="w-3.5 h-3.5"></i> Regional Geography · Ethiopia &amp; The Horn
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Location of Ethiopia &amp; The Horn</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Astronomical Coordinates, Vicinal Relationships, Extents, and Climatic &amp; Geopolitical Implications</p>
+      </div>
+    </section>
+
+    <!-- 1. The Horn of Africa -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>The Horn of Africa</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The Horn of Africa is a prominent projection of eastern Africa jutting into the northern Indian Ocean and separating it from the Gulf of Aden, resembling an animal's horn.
+      </p>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/TSe_raZahk6sm3hPGcj4D0VrBQxFKP3KUK_1uGLR1dzFFK-LpKaA2Vy93W1yz20vJB6841jof-1TG_rwRvYVc9zv02ejoLwl4_LkI7S-2HQhbI0l1xVth8vYVfbX3-XryJNU_j07fFglPBskpbM8C5Ah3YbnwVZ0iww-dfpPCRrB5bIH7QKDzg7tUK3TRWtc?purpose=fullsize', 'Map of the Horn of Africa')">
+        <img src="https://images.openai.com/static-rsc-4/TSe_raZahk6sm3hPGcj4D0VrBQxFKP3KUK_1uGLR1dzFFK-LpKaA2Vy93W1yz20vJB6841jof-1TG_rwRvYVc9zv02ejoLwl4_LkI7S-2HQhbI0l1xVth8vYVfbX3-XryJNU_j07fFglPBskpbM8C5Ah3YbnwVZ0iww-dfpPCRrB5bIH7QKDzg7tUK3TRWtc?purpose=fullsize" alt="Horn of Africa Map" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Four Member Countries:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Ethiopia, Eritrea, Djibouti, and Somalia.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Size Extremes &amp; Ties:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Ethiopia is the largest; Djibouti is the smallest. They share deep historical, geographical, and cultural links.</p>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/7ucrIL4-cEU2iH3bp1IPsoobEB3gZ745lwyAsOdPI8qdNnp6YdiQP47uL0RzVddFrjsCw1_vkjx8jULQcDL7YKI4oEwNRa6beKd-MZobQeAi_-R9GOfCfsrpbYOH-jUXTYaqPEMqYTJ67gfL4DtIjb-iW4Pg3OzSOEYyfNXW_B2kQAAvNqUV57-3OWU2l3mv?purpose=fullsize', 'Ethiopia and Eritrea Relations in the Horn')">
+        <img src="https://images.openai.com/static-rsc-4/7ucrIL4-cEU2iH3bp1IPsoobEB3gZ745lwyAsOdPI8qdNnp6YdiQP47uL0RzVddFrjsCw1_vkjx8jULQcDL7YKI4oEwNRa6beKd-MZobQeAi_-R9GOfCfsrpbYOH-jUXTYaqPEMqYTJ67gfL4DtIjb-iW4Pg3OzSOEYyfNXW_B2kQAAvNqUV57-3OWU2l3mv?purpose=fullsize" alt="Ethiopia and Eritrea" class="w-full max-h-40 object-contain group-hover:scale-105 transition duration-300" />
+      </figure>
+
+      <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200">
+        <strong>Exam Trap:</strong> Neighboring countries like Kenya, Sudan, and South Sudan share borders with Ethiopia, but they are NOT included in the module's 4-country definition of the Horn of Africa.
+      </div>
+    </section>
+
+    <!-- 2. Astronomical Location of Ethiopia -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Astronomical (Absolute) Location of Ethiopia</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Astronomical location expresses a place's exact mathematical position using latitude (horizontal distance north/south of the Equator) and longitude (vertical distance east/west of the Prime Meridian).
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3">
+        <figure class="cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/3BoAtBvERQnWkUtaeOfWtprcCnOqqTbLxa70Cdlk5_zxV9-Zheeh82ws0HkPEbnshiUsPPHIhGuKG4GY2KZcsQlTZUM7Po_1jcEF3IylNDLWOPfjF0unWQoy4UYt08wsZsXiQ-gtaSUS4p5kw_TGcYG_lHQn1k6Wy28lAp_080wNubF9qK9gcppYCXjbJbf4?purpose=fullsize', 'Ancient Navigation and Coordinates')">
+          <img src="https://images.openai.com/static-rsc-4/3BoAtBvERQnWkUtaeOfWtprcCnOqqTbLxa70Cdlk5_zxV9-Zheeh82ws0HkPEbnshiUsPPHIhGuKG4GY2KZcsQlTZUM7Po_1jcEF3IylNDLWOPfjF0unWQoy4UYt08wsZsXiQ-gtaSUS4p5kw_TGcYG_lHQn1k6Wy28lAp_080wNubF9qK9gcppYCXjbJbf4?purpose=fullsize" alt="Navigation" class="w-full max-h-36 object-contain" />
+        </figure>
+        <figure class="cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/eWJ21dRZSRMNuWMLIVh7qtFiSfSa5-OKq-mmzmsH8PrcLyUKoefQZjgaG_yfLbE7yjtmpjaca2pjKF5bjcRdL22c2SeheIf3D2MmTfdm4TgMrPLgvvnnONTGe9_NcdTO9EfT3DE8fJx0GJ4c7Q_Vt-DokgN3JgrRvlPgmQrEbkUpt-gw3e5TRv5uYXIbWEf1?purpose=fullsize', 'Hemispheres and Latitudes')">
+          <img src="https://images.openai.com/static-rsc-4/eWJ21dRZSRMNuWMLIVh7qtFiSfSa5-OKq-mmzmsH8PrcLyUKoefQZjgaG_yfLbE7yjtmpjaca2pjKF5bjcRdL22c2SeheIf3D2MmTfdm4TgMrPLgvvnnONTGe9_NcdTO9EfT3DE8fJx0GJ4c7Q_Vt-DokgN3JgrRvlPgmQrEbkUpt-gw3e5TRv5uYXIbWEf1?purpose=fullsize" alt="Latitudes" class="w-full max-h-36 object-contain" />
+        </figure>
+      </div>
+
+      <!-- Coordinates Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 font-sans uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Boundary Extent</th><th class="py-2 px-3">Coordinate</th><th class="py-2 px-3 font-sans">Specific Landmark</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3 font-sans font-bold">Southernmost</td><td class="py-2 px-3 text-brand-600 font-bold">3°N</td><td class="py-2 px-3">Moyale</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Northernmost</td><td class="py-2 px-3 text-brand-600 font-bold">15°N</td><td class="py-2 px-3">Bademe</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Westernmost</td><td class="py-2 px-3 text-brand-600 font-bold">33°E</td><td class="py-2 px-3">Akobo</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Easternmost</td><td class="py-2 px-3 text-brand-600 font-bold">48°E</td><td class="py-2 px-3">Tip of Ogaden</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <figure class="cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/mP2ADtZ1RJGX3PTkUR1q4uPQYVDt4EdIMpLxTB9Dt-dE_qHtUiNVD6GvZ6DmBJZ659W42ddl4KrN6iWbocOsZ9Lg3Rtd78A1RbzIS_iLTvYLhJIQsIQbUUWIJI1khCuPRqJFiuHW9RTqOxK0sPYOX40hElSgYcxP2LhfIcsvuewynGBPe66bsL2LgXXc1RNk?purpose=fullsize', 'Latitude and Longitude Guide')">
+        <img src="https://images.openai.com/static-rsc-4/mP2ADtZ1RJGX3PTkUR1q4uPQYVDt4EdIMpLxTB9Dt-dE_qHtUiNVD6GvZ6DmBJZ659W42ddl4KrN6iWbocOsZ9Lg3Rtd78A1RbzIS_iLTvYLhJIQsIQbUUWIJI1khCuPRqJFiuHW9RTqOxK0sPYOX40hElSgYcxP2LhfIcsvuewynGBPe66bsL2LgXXc1RNk?purpose=fullsize" alt="Lat Long" class="w-full max-h-36 object-contain" />
+      </figure>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Summary Coordinates:</strong>
+          <p class="font-mono font-bold text-brand-700 dark:text-brand-400">Latitude: 3°N to 15°N<br>Longitude: 33°E to 48°E</p>
+          <p class="text-slate-600 dark:text-slate-300">All northern and eastern values place Ethiopia entirely in the Northern and Eastern Hemispheres.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">Extents Comparison:</strong>
+          <p class="text-slate-600 dark:text-slate-300">&bull; <strong>East–West Extent:</strong> \(15^\circ\) (\(48^\circ - 33^\circ\))<br>&bull; <strong>North–South Extent:</strong> \(12^\circ\) (\(15^\circ - 3^\circ\))</p>
+          <p class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">Ethiopia's East-West extent is greater than its North-South extent.</p>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/YpRN0hIiy2cxwgZFaXa9-SCFeyVu9eeahD29OLv4Ytzx-s8Q1G9CEDB8LyLZGUd08xsBEJei0G9ndHGG893aYQJo2wh5DG9pUf2qeHoTdKoiEL9qIbCkLJ4bDXC-EoZx9b8kxWYBeacOXoYrQmxmBq-k9_dg5YG-iSU0FEkf6WWdM53ZHoNcPCzbGWIaBVPQ?purpose=fullsize', 'Ethiopia Geographical Extents Map')">
+        <img src="https://images.openai.com/static-rsc-4/YpRN0hIiy2cxwgZFaXa9-SCFeyVu9eeahD29OLv4Ytzx-s8Q1G9CEDB8LyLZGUd08xsBEJei0G9ndHGG893aYQJo2wh5DG9pUf2qeHoTdKoiEL9qIbCkLJ4bDXC-EoZx9b8kxWYBeacOXoYrQmxmBq-k9_dg5YG-iSU0FEkf6WWdM53ZHoNcPCzbGWIaBVPQ?purpose=fullsize" alt="Ethiopia Extents" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+      </figure>
+    </section>
+
+    <!-- 3. Implications of Astronomical Location -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Implications of Astronomical Location</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">A. Climatic Implications:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Lying between the Equator and the Tropic of Cancer gives Ethiopia a <strong>tropical climate</strong>, which is heavily modified by high altitude across the highlands.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">B. Time-Zone Implications:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Due to longitudinal span (\(15^\circ\)), there is about a <strong>1-hour local solar time difference</strong> between east and west, though the country uniformly uses **UTC+3** standard time.</p>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/ZmOfZA9GrCbBwpttrk37fQvlot0k678MEbp0OCiZMWJmxEmW1RAeJxPdLHYHjh9WMhH3QcVUcW_9NHpT7k9yKrE8AlQKmHhurHUPyqb2GbIVqqTYnSPN_MvpGvosG09ZIddA_cEB75GVoL1iPN-g9Wn6DcAtjlEsReMLD-dkIq0HDOGcqoj_cnVZ3MBYLETl?purpose=fullsize', 'Ethiopia Climate and Location Map')">
+        <img src="https://images.openai.com/static-rsc-4/ZmOfZA9GrCbBwpttrk37fQvlot0k678MEbp0OCiZMWJmxEmW1RAeJxPdLHYHjh9WMhH3QcVUcW_9NHpT7k9yKrE8AlQKmHhurHUPyqb2GbIVqqTYnSPN_MvpGvosG09ZIddA_cEB75GVoL1iPN-g9Wn6DcAtjlEsReMLD-dkIq0HDOGcqoj_cnVZ3MBYLETl?purpose=fullsize" alt="Climate Map" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+      </figure>
+    </section>
+
+    <!-- 4. Relative Location of Ethiopia -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Relative Location of Ethiopia</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Relative location describes position compared to neighboring countries (vicinal location) and larger geographical landmasses or water bodies.
+      </p>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/erNe1lh1wyi5Dkw78p2frulcBkRZiq8r6dCUZgPSES-l_lk4EmkimSZIlJRgVNz16H9VEAyhOiIcME4L22eyrvEHARRB1_5BrB9CuBTSM2Vjm0Jx_Ru1iEXhpe0HtchzICUbQZr2QB2kDS5vSXgn32v8DwGtrgVfFzHOL5qqsjfW5Ygix6RA9FsqjFhB832Q?purpose=fullsize', 'Strategic Port Cities and Neighbors in the Horn')">
+        <img src="https://images.openai.com/static-rsc-4/erNe1lh1wyi5Dkw78p2frulcBkRZiq8r6dCUZgPSES-l_lk4EmkimSZIlJRgVNz16H9VEAyhOiIcME4L22eyrvEHARRB1_5BrB9CuBTSM2Vjm0Jx_Ru1iEXhpe0HtchzICUbQZr2QB2kDS5vSXgn32v8DwGtrgVfFzHOL5qqsjfW5Ygix6RA9FsqjFhB832Q?purpose=fullsize" alt="Vicinal Location Map" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <!-- Vicinal Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Neighboring Country</th><th class="py-2 px-3">Direction Relative to Ethiopia</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+            <tr><td class="py-2 px-3 font-sans font-bold">Sudan</td><td class="py-2 px-3 text-brand-700 dark:text-brand-400 font-bold">West and Northwest</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">South Sudan</td><td class="py-2 px-3 text-brand-700 dark:text-brand-400 font-bold">Southwest</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Djibouti</td><td class="py-2 px-3 text-brand-700 dark:text-brand-400 font-bold">East</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Somalia</td><td class="py-2 px-3 text-brand-700 dark:text-brand-400 font-bold">East and Southeast</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Eritrea</td><td class="py-2 px-3 text-brand-700 dark:text-brand-400 font-bold">North and Northeast</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Kenya</td><td class="py-2 px-3 text-brand-700 dark:text-brand-400 font-bold">South</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Landmasses & Water Bodies -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5 text-xs">
+        <strong class="font-display text-slate-900 dark:text-white block">Relation to Major Features:</strong>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5 font-mono">
+          <li>Horn of Africa: Located within it.</li>
+          <li>Arabian Peninsula: Located southwest of it.</li>
+          <li>Europe: Located south of it.</li>
+          <li>Indian Ocean: Located northwest of it.</li>
+          <li>Nile Basin: Located within it.</li>
+        </ul>
+      </div>
+
+      <figure class="cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/_N3uM8xrYu23h7ygX1oSmjrYBHbsfx-_FWEXmT4A0ssS4X_52S4PdMprN-L1LaJyJjO8G7i1j60Z-lU_EPVnw8ttMbDyxgd7N8x5hdGivaCANrORzIhw747w_lKv88_yYerWDDdLYo8TaajcPtMdNaDr1LpzVRMkFEunzyVMRgR70VHAs7qUet7Qt-cD6OeJ?purpose=fullsize', 'Trade and Regional Relations')">
+        <img src="https://images.openai.com/static-rsc-4/_N3uM8xrYu23h7ygX1oSmjrYBHbsfx-_FWEXmT4A0ssS4X_52S4PdMprN-L1LaJyJjO8G7i1j60Z-lU_EPVnw8ttMbDyxgd7N8x5hdGivaCANrORzIhw747w_lKv88_yYerWDDdLYo8TaajcPtMdNaDr1LpzVRMkFEunzyVMRgR70VHAs7qUet7Qt-cD6OeJ?purpose=fullsize" alt="Trade Relations" class="w-full max-h-36 object-contain" />
+      </figure>
+    </section>
+
+    <!-- 5. Implications of Location -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Implications of Ethiopia's Location</span>
+      </h2>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">1. Climatic Implications:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Driven by tropical latitudinal span combined with surrounding ocean/landmass positions and regional altitude.</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">2. Socio-Cultural Implications:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Proximity to the Middle East enabled Ethiopia to become one of the earliest recipients of <strong>Christianity, Islam, and Judaism</strong>, alongside rich linguistic ties with neighbors.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/XzHcC3x9zLesYxokI6q34Y9yI5VGYF3RmuMDIGWWGtdHKq5JpJ5T6b1vMmVXWS-pzxJr3nSSDnJZQq5HDQO95pcxJ4GybOWQNlXx7VLk_nKun9EX2At90iwej91AXvFF0D6SRk8CNROOJ6qHrYHA6z7Zz8_xHPgMJKQ-HNfRscuWeu5atGLbydOYbUI4xTmz?purpose=fullsize', 'Rock-Hewn Churches of Lalibela')">
+            <img src="https://images.openai.com/static-rsc-4/XzHcC3x9zLesYxokI6q34Y9yI5VGYF3RmuMDIGWWGtdHKq5JpJ5T6b1vMmVXWS-pzxJr3nSSDnJZQq5HDQO95pcxJ4GybOWQNlXx7VLk_nKun9EX2At90iwej91AXvFF0D6SRk8CNROOJ6qHrYHA6z7Zz8_xHPgMJKQ-HNfRscuWeu5atGLbydOYbUI4xTmz?purpose=fullsize" alt="Lalibela" class="w-full max-h-36 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">3. Political Implications:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Influenced by <strong>superpower geopolitical interests</strong>, <strong>adjacency to the Red Sea</strong> global trade route, and <strong>Middle East geopolitical paradigms</strong>.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/3MKEI4jEcktqZVc7qgHb8q0_VAfImIWUuw8oKCc1zwG2c4NBxTc-4MLNoJAsxQzg4SfpQ3DwDvC1rq4vT1zC2ItPkRTA6sAHTN50uxiKfw3yY7VEDPzXURH5oF8ofSFKEJplm_b58hHNtEJDabe4DKscduBmAs_dlSZKqzvEt02wv11rHIUMTARARFzOZKNG?purpose=fullsize', 'Red Sea and Strategic Waterways')">
+            <img src="https://images.openai.com/static-rsc-4/3MKEI4jEcktqZVc7qgHb8q0_VAfImIWUuw8oKCc1zwG2c4NBxTc-4MLNoJAsxQzg4SfpQ3DwDvC1rq4vT1zC2ItPkRTA6sAHTN50uxiKfw3yY7VEDPzXURH5oF8ofSFKEJplm_b58hHNtEJDabe4DKscduBmAs_dlSZKqzvEt02wv11rHIUMTARARFzOZKNG?purpose=fullsize" alt="Red Sea" class="w-full max-h-36 object-contain" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Complete Revision Summary Table -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Complete Revision Summary</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Geographical Feature</th><th class="py-2 px-3 font-mono">Fact / Coordinate</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr><td class="py-2 px-3 font-sans font-bold">Horn of Africa Countries</td><td class="py-2 px-3">Ethiopia, Eritrea, Djibouti, Somalia</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Largest / Smallest in Horn</td><td class="py-2 px-3">Ethiopia (Largest) / Djibouti (Smallest)</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Latitude Span</td><td class="py-2 px-3 text-brand-600 font-bold">3°N (Moyale) to 15°N (Bademe)</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Longitude Span</td><td class="py-2 px-3 text-brand-600 font-bold">33°E (Akobo) to 48°E (Ogaden)</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Extents</td><td class="py-2 px-3">East–West: 15° | North–South: 12°</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Time Difference &amp; Zone</td><td class="py-2 px-3">~1 hour East-West diff | Standard UTC+3</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing Ethiopia's location and the Horn</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Location of Ethiopia &amp; The Horn
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. Which of the following countries is NOT included in the four-country definition of the Horn of Africa?",
+        options: ["A. Eritrea", "B. Djibouti", "C. Kenya", "D. Somalia"],
+        correct: 2,
+        exp: "The four countries of the Horn defined in the module are Ethiopia, Eritrea, Djibouti, and Somalia. Kenya is a neighbor but not part of the Horn."
+      },
+      {
+        q: "Q2. Astronomically, Ethiopia is located between which latitudes and longitudes?",
+        options: [
+          "A. 3°S–15°S and 33°W–48°W",
+          "B. 3°N–15°N and 33°E–48°E",
+          "C. 3°N–15°S and 33°E–48°W",
+          "D. 15°N–33°N and 48°E–60°E"
+        ],
+        correct: 1,
+        exp: "Ethiopia lies between 3°N–15°N latitude and 33°E–48°E longitude entirely in the Northern and Eastern hemispheres."
+      },
+      {
+        q: "Q3. Which neighboring country is located southwest of Ethiopia?",
+        options: ["A. Eritrea", "B. Djibouti", "C. South Sudan", "D. Kenya"],
+        correct: 2,
+        exp: "South Sudan is located southwest of Ethiopia, whereas Sudan is west/northwest and Kenya is south."
+      },
+      {
+        q: "Q4. The approximate one-hour difference between the easternmost and westernmost parts of Ethiopia is associated with its:",
+        options: ["A. Latitudinal extension", "B. Longitudinal extension", "C. Altitude", "D. Distance from the Equator"],
+        correct: 1,
+        exp: "Differences in local solar time and sunrise/sunset times across regions depend on longitudinal extension (15° span)."
+      },
+      {
+        q: "Q5. Which of the following is a socio-cultural implication of Ethiopia's geographical location?",
+        options: [
+          "A. Its tropical climate",
+          "B. Its adjacency to the Red Sea",
+          "C. Its early reception of Christianity, Islam and Judaism",
+          "D. The one-hour difference in local solar time"
+        ],
+        correct: 2,
+        exp: "Proximity to the Middle East enabled Ethiopia to become an early recipient of Christianity, Islam, and Judaism."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Ethiopia's Location!" : "Great performance! You clearly understand coordinates, vicinal neighbors, and geopolitical implications.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review latitude/longitude extents and neighboring countries directions.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the coordinate details and revision table above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

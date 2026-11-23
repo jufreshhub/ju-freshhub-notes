@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Meaning, Scope, Approaches & Themes of Geography — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Geography</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="globe-2" class="w-3.5 h-3.5"></i> Foundations of Geography · Introduction
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Meaning, Scope, Approaches &amp; Themes of Geography</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Spatial &amp; Temporal Variations, Earth Spheres, Human-Physical Continuums, and the Five Core Themes</p>
+      </div>
+    </section>
+
+    <!-- 1. Meaning of Geography -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Meaning of Geography</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Geography is much more than memorizing countries, capitals, rivers, and mountains. Rooted in the Greek words <strong>Geo</strong> (Earth) and <strong>Graphy</strong> (description), modern geography scientifically analyzes Earth and its spatial phenomena.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Working Definition:</strong>
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed italic">
+          &ldquo;Geography is the scientific study of the Earth that describes and analyses spatial and temporal variations of physical, biological and human phenomena, and their interrelationships and dynamism over the surface of the Earth.&rdquo;
+        </p>
+      </div>
+
+      <!-- 5 Core Ideas -->
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">1. Scientific Study:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Employs systematic observation, measurement, and analysis (e.g., investigating why rainfall amounts differ across regions in Ethiopia).</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+            <strong class="font-display text-slate-900 dark:text-white block">2. Spatial Variation:</strong>
+            <p class="text-xs text-slate-600 dark:text-slate-300">Studies how conditions differ across locations (e.g., wet Jimma vs. dry Afar).</p>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/mdUXL8Mkg8YjCyUodyDjIu053x6SsAaiyKMBjeNwo_BGeCH6hIEr8iiuXpxJoO97G_1ceLJzm6xgXvWZjL3MdwpieB80SDBX6bJ4z0MNssiXpIDT739I26LcHu5dtztuQbCdgA1Zq8054nd-zCaPnVhywP6VDOKZRfmgxff8ZmCJwnUfBEJRac-lCkkr8bob?purpose=fullsize', 'Spatial Variation: Coffee Forests in Ethiopia')">
+              <img src="https://images.openai.com/static-rsc-4/mdUXL8Mkg8YjCyUodyDjIu053x6SsAaiyKMBjeNwo_BGeCH6hIEr8iiuXpxJoO97G_1ceLJzm6xgXvWZjL3MdwpieB80SDBX6bJ4z0MNssiXpIDT739I26LcHu5dtztuQbCdgA1Zq8054nd-zCaPnVhywP6VDOKZRfmgxff8ZmCJwnUfBEJRac-lCkkr8bob?purpose=fullsize" alt="Spatial Variation" class="w-full max-h-32 object-contain" />
+            </figure>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+            <strong class="font-display text-slate-900 dark:text-white block">3. Temporal Variation:</strong>
+            <p class="text-xs text-slate-600 dark:text-slate-300">Studies how conditions change over time (e.g., historical deforestation).</p>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/BcsSyE4Oec-Kly1Os1t4G_yu1gaM4FzOWxlQqbOt5PNq2ilgt6GPTunnj7gShDSUqFx1Za2oAT7L72xmbbb16vCQ6Ry6nwIykpGZArb94hNP8kjqB2TUB-Je5czqlz-NBENRj7c5ZCCF5-cF0qsRG2PqurI8zG4F_SrIMvRjQhNqvd015rxjMCps31NExOXu?purpose=fullsize', 'Temporal Variation: Earth Changes Over Time')">
+              <img src="https://images.openai.com/static-rsc-4/BcsSyE4Oec-Kly1Os1t4G_yu1gaM4FzOWxlQqbOt5PNq2ilgt6GPTunnj7gShDSUqFx1Za2oAT7L72xmbbb16vCQ6Ry6nwIykpGZArb94hNP8kjqB2TUB-Je5czqlz-NBENRj7c5ZCCF5-cF0qsRG2PqurI8zG4F_SrIMvRjQhNqvd015rxjMCps31NExOXu?purpose=fullsize" alt="Temporal Variation" class="w-full max-h-32 object-contain" />
+            </figure>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">4. Physical, Biological, and Human Phenomena:</strong>
+          <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 mt-1">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-white dark:bg-slate-900 uppercase font-bold text-slate-500">
+                <tr><th class="py-2 px-3">Category</th><th class="py-2 px-3">Meaning</th><th class="py-2 px-3">Examples</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr><td class="py-1.5 px-3 font-bold">Physical</td><td class="py-1.5 px-3">Non-living natural features</td><td class="py-1.5 px-3">Mountains, rivers, climate</td></tr>
+                <tr><td class="py-1.5 px-3 font-bold">Biological</td><td class="py-1.5 px-3">Living organisms</td><td class="py-1.5 px-3">Plants, animals</td></tr>
+                <tr><td class="py-1.5 px-3 font-bold">Human</td><td class="py-1.5 px-3">Human activities &amp; settlements</td><td class="py-1.5 px-3">Population, agriculture, cities</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">5. Interrelationships &amp; Dynamism:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Nothing exists in isolation. Climate affects soil, soil affects crops, crops affect human livelihoods, and humans modify the environment continuously.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Scope of Geography -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Scope of Geography — The Thin Habitable Zone</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The scope of geography encompasses the surface of the Earth—specifically a very thin habitable zone where four major Earth systems intersect and support life.
+      </p>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/z4ZZasU4WdLFeNKflKTztuzv4_0dZoVuJPmQZQEwm9biCnZYQUclzG5GsdqDFUY3Tb152_op2V7p7_UXMWLrrwWXX9gOXz5tGPzPQmsXrK2wdjliCkAVtdYNhRyeacmrQ0pAi6gWQhzi5-7IVijcQn_nAo1_-Z2EP_B0z3pJzNJj4dTHbbV012e8Mk1hc5My?purpose=fullsize', 'The Four Major Earth Spheres')">
+        <img src="https://images.openai.com/static-rsc-4/z4ZZasU4WdLFeNKflKTztuzv4_0dZoVuJPmQZQEwm9biCnZYQUclzG5GsdqDFUY3Tb152_op2V7p7_UXMWLrrwWXX9gOXz5tGPzPQmsXrK2wdjliCkAVtdYNhRyeacmrQ0pAi6gWQhzi5-7IVijcQn_nAo1_-Z2EP_B0z3pJzNJj4dTHbbV012e8Mk1hc5My?purpose=fullsize" alt="Earth Spheres" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">1. Atmosphere (Air Blanket):</strong>
+          <p class="text-slate-600 dark:text-slate-300">Gaseous envelope surrounding Earth (air, oxygen, clouds, weather).</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">2. Lithosphere (Solid Floor):</strong>
+          <p class="text-slate-600 dark:text-slate-300">Solid outer shell comprising rocks, mountains, and soil landforms.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">3. Hydrosphere (Water Supplies):</strong>
+          <p class="text-slate-600 dark:text-slate-300">All water on Earth (oceans, rivers, lakes, groundwater).</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">4. Biosphere (Living Zone):</strong>
+          <p class="text-slate-600 dark:text-slate-300">All living organisms (plants, animals, human beings).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Approaches of Geography -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Approaches of Geography</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Geography is explored through two major continuums: the <strong>Human–Physical continuum</strong> and the <strong>Topical–Regional continuum</strong>.
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">A. Human–Physical Continuum</strong>
+          <p class="text-slate-600 dark:text-slate-300">Physical geography examines natural features (landforms, climate, vegetation), while human geography studies societies, populations, and economic activities.</p>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/toxZoXaQ88CbIO3H66n8UlwQy5NJmgjJ_oRYgg6S191YPr297TEf3-_1lJ5okPYIhDcokvprfXL_JZr-7k3CvNXOypIkdghlUvYSRpR8KCjctR3uYtiZnlQecH7KHNFfM431YdHxY8BenTIguzbWS9R0a00Nhc7bWCwXRcvVr9j41nCQKGEwpxEnCFXXQZNh?purpose=fullsize', 'Physical Geography: Bale Mountains Escarpment')">
+              <img src="https://images.openai.com/static-rsc-4/toxZoXaQ88CbIO3H66n8UlwQy5NJmgjJ_oRYgg6S191YPr297TEf3-_1lJ5okPYIhDcokvprfXL_JZr-7k3CvNXOypIkdghlUvYSRpR8KCjctR3uYtiZnlQecH7KHNFfM431YdHxY8BenTIguzbWS9R0a00Nhc7bWCwXRcvVr9j41nCQKGEwpxEnCFXXQZNh?purpose=fullsize" alt="Physical Geo" class="w-full max-h-24 object-contain" />
+            </figure>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/2Id7zsLw5sxypCKJhj0_FqxpSRUqjtfJ2Q67Gv9bo7JV0-csPE2vsopY4IbWG8zn0ITLdISOwBwNX0fU3C-rP-Ih7shmXKDDDk3XSO5ik6LNDDsHgH_wfxsWUkl2VJNZ6mSDYK1ipjsf5wtH0yqd30Q7xNZpCd1TTThPhKOpz2yB9R0hODaUFJpv2sAbB5zo?purpose=fullsize', 'Human Geography: Cultural Sites in Addis Ababa')">
+              <img src="https://images.openai.com/static-rsc-4/2Id7zsLw5sxypCKJhj0_FqxpSRUqjtfJ2Q67Gv9bo7JV0-csPE2vsopY4IbWG8zn0ITLdISOwBwNX0fU3C-rP-Ih7shmXKDDDk3XSO5ik6LNDDsHgH_wfxsWUkl2VJNZ6mSDYK1ipjsf5wtH0yqd30Q7xNZpCd1TTThPhKOpz2yB9R0hODaUFJpv2sAbB5zo?purpose=fullsize" alt="Human Geo" class="w-full max-h-24 object-contain" />
+            </figure>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">B. Topical vs. Regional Geography</strong>
+          <ul class="list-disc pl-4 text-slate-600 dark:text-slate-300 space-y-1">
+            <li><strong>Topical (Systematic):</strong> One topic studied across many places (e.g., rainfall in Ethiopia, Kenya, and Brazil).</li>
+            <li><strong>Regional:</strong> Many topics studied within one specific region (e.g., climate, agriculture, and population of Ethiopia).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. The Five Themes of Geography -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>The Five Themes of Geography</span>
+      </h2>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <!-- 1. Location -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">1. Location (WHERE?):</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">
+            &bull; <strong>Absolute Location:</strong> Exact mathematical coordinates (latitude and longitude).<br>
+            &bull; <strong>Relative Location:</strong> Position relative to other places (e.g., Ethiopia is south of Eritrea).
+          </p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/36DBTfns_ENtqmwHUzqS9HnvHjyimeRW6vEdvz_-cP3Y39So3ryF8KWe2yBnZTD63cLeMy_AsWax9A4Spn_gF6cWOS4QR8D2P4-7l_w8mqHti_kPlr8NuHKscUJMwziLFp_l27cUvjY4_qxwsyoCGUD1KV7KY1SwaJV7UISHRhKYGGRieyGnQge43gCDIZH5?purpose=fullsize', 'Geographic Grid and Absolute Location')">
+            <img src="https://images.openai.com/static-rsc-4/36DBTfns_ENtqmwHUzqS9HnvHjyimeRW6vEdvz_-cP3Y39So3ryF8KWe2yBnZTD63cLeMy_AsWax9A4Spn_gF6cWOS4QR8D2P4-7l_w8mqHti_kPlr8NuHKscUJMwziLFp_l27cUvjY4_qxwsyoCGUD1KV7KY1SwaJV7UISHRhKYGGRieyGnQge43gCDIZH5?purpose=fullsize" alt="Geographic Grid" class="w-full max-h-32 object-contain" />
+          </figure>
+        </div>
+
+        <!-- 2. Place -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">2. Place (WHAT IS IT LIKE?):</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Describes physical and human characteristics. Analyzed via:</p>
+          <ul class="list-disc pl-5 text-xs text-slate-600 dark:text-slate-300 space-y-0.5">
+            <li><strong>Toponym:</strong> Name of a place (e.g., Jimma).</li>
+            <li><strong>Site:</strong> Actual physical features (plateau, valley).</li>
+            <li><strong>Situation:</strong> Geographical setting relative to surroundings.</li>
+          </ul>
+        </div>
+
+        <!-- 3. Human-Environment Interaction -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">3. Human–Environment Interaction:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">
+            &bull; <strong>Dependency:</strong> Humans rely on nature (water, soil).<br>
+            &bull; <strong>Adaptation:</strong> Humans adjust to nature (warm clothes, drought crops).<br>
+            &bull; <strong>Modification:</strong> Humans alter nature (dams, roads, irrigation).
+          </p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/f8oq1-Pibov-W8KljBBi8ktyDkuUIk4xP0JWGdXWbGdUHEO2KiUIZBZCjNQSw12tgoj92rNOf2JvKX3l3GTF8Yf1wTrjVjGywo520RnzfrNIofGSnnDPnNbJNdlKT_OYH-1kg2KVlzc3aJ3-snODDu8dmR6eORRtJat7h44IZE2ItbqNH68TtnCe15E3t6A7?purpose=fullsize', 'Agricultural Interaction with Environment')">
+            <img src="https://images.openai.com/static-rsc-4/f8oq1-Pibov-W8KljBBi8ktyDkuUIk4xP0JWGdXWbGdUHEO2KiUIZBZCjNQSw12tgoj92rNOf2JvKX3l3GTF8Yf1wTrjVjGywo520RnzfrNIofGSnnDPnNbJNdlKT_OYH-1kg2KVlzc3aJ3-snODDu8dmR6eORRtJat7h44IZE2ItbqNH68TtnCe15E3t6A7?purpose=fullsize" alt="Agriculture" class="w-full max-h-32 object-contain" />
+          </figure>
+        </div>
+
+        <!-- 4. Movement -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">4. Movement:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Transfer of <strong>people</strong> (migration), <strong>goods</strong> (exporting coffee), and <strong>ideas</strong> (internet, communication).</p>
+          <div class="grid grid-cols-2 gap-2">
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/C8Fsn4FKKWth-v5FcdboaWjlOo6WexUlLmSP0FSu-W7VKXxk75lUfkl-xCdSoJ-hvBf_2ur17zNfsCReOaveigXvYRHQQ1N0FUYabgnIlvXR7ayzmln_R9Nn4doZ-LWkY0uQPkQMjNzr6T1ubnjQKVwocS7M_EQEpm-i0FXi6VmLFT4dt_d0adf4s9AY98Ou?purpose=fullsize', 'Transport Solutions')">
+              <img src="https://images.openai.com/static-rsc-4/C8Fsn4FKKWth-v5FcdboaWjlOo6WexUlLmSP0FSu-W7VKXxk75lUfkl-xCdSoJ-hvBf_2ur17zNfsCReOaveigXvYRHQQ1N0FUYabgnIlvXR7ayzmln_R9Nn4doZ-LWkY0uQPkQMjNzr6T1ubnjQKVwocS7M_EQEpm-i0FXi6VmLFT4dt_d0adf4s9AY98Ou?purpose=fullsize" alt="Transport" class="w-full max-h-24 object-contain" />
+            </figure>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/23moa7Wh4NbTp8cPNPo4HCrsELk9ofYDnUYpd5dRg6_1Rf3XD0XFVrUwJKiyvV5zE-mx7w3xbFA3CuCNwyW6OJ5PG3qQgno2EoHYLBTBCGb9PBNMxzwprlfAlJ7a3rJn3CX0zDmaF7_7yJPgzZ0nOc-XGMHFEN6QuLAxFfaJ7syUyFel0kPGvGHssfu6LPCT?purpose=fullsize', 'Pick Up Ethiopia Goods Flow')">
+              <img src="https://images.openai.com/static-rsc-4/23moa7Wh4NbTp8cPNPo4HCrsELk9ofYDnUYpd5dRg6_1Rf3XD0XFVrUwJKiyvV5zE-mx7w3xbFA3CuCNwyW6OJ5PG3qQgno2EyOHYLBTBCGb9PBNMxzwprlfAlJ7a3rJn3CX0zDmaF7_7yJPgzZ0nOc-XGMHFEN6QuLAxFfaJ7syUyFel0kPGvGHssfu6LPCT?purpose=fullsize" alt="Goods" class="w-full max-h-24 object-contain" />
+            </figure>
+          </div>
+        </div>
+
+        <!-- 5. Region -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">5. Region:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">
+            &bull; <strong>Formal Region:</strong> Based on homogeneity or similarity (e.g., language, rainfall zone).<br>
+            &bull; <strong>Functional (Nodal) Region:</strong> Based on connections and functional relationships (e.g., Jimma city and surrounding trading areas).
+          </p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/l5ylNALZsCflZoyv6E4nSZB0s-jT9g5rc5zApyL46q5gxDeBNtvOTNoDNBMqkX0RZiWBm0agyi9gnXtwMLFjsC2oEO0lJtgOxszPjffylPzDiORiArfBTBs_N7gX4xRO2sbMooiyFjV6n7vm5zdbk-O2De1vqugPqPbVMOkgZ6HRjvuUzQFSQw37EDSA9vOh?purpose=fullsize', 'Functional Regional Node')">
+            <img src="https://images.openai.com/static-rsc-4/l5ylNALZsCflZoyv6E4nSZB0s-jT9g5rc5zApyL46q5gxDeBNtvOTNoDNBMqkX0RZiWBm0agyi9gnXtwMLFjsC2oEO0lJtgOxszPjffylPzDiORiArfBTBs_N7gX4xRO2sbMooiyFjV6n7vm5zdbk-O2De1vqugPqPbVMOkgZ6HRjvuUzQFSQw37EDSA9vOh?purpose=fullsize" alt="Functional Region" class="w-full max-h-32 object-contain" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing geography meaning, scope, approaches, and themes</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Meaning, Scope, Approaches &amp; Themes of Geography
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. Which of the following best describes the modern meaning of Geography?",
+        options: [
+          "A. The study of maps and countries only",
+          "B. The scientific study of spatial and temporal variations of physical, biological and human phenomena",
+          "C. The study of rocks and mountains only",
+          "D. The study of human population only"
+        ],
+        correct: 1,
+        exp: "Modern geography scientifically investigates spatial and temporal variations of physical, biological, and human phenomena and their interrelationships."
+      },
+      {
+        q: "Q2. Which of the following is NOT one of the four spheres forming the habitable zone discussed in the module?",
+        options: ["A. Atmosphere", "B. Lithosphere", "C. Stratosphere", "D. Hydrosphere"],
+        correct: 2,
+        exp: "The four major spheres are Atmosphere, Lithosphere, Hydrosphere, and Biosphere. Stratosphere is merely a layer within the atmosphere."
+      },
+      {
+        q: "Q3. A geographer studies rainfall patterns in Ethiopia, Kenya, Brazil and India. Which approach is being used?",
+        options: ["A. Regional Geography", "B. Topical (Systematic) Geography", "C. Human Geography only", "D. Functional Geography"],
+        correct: 1,
+        exp: "Studying one single topic (rainfall) across multiple places exemplifies Topical (Systematic) Geography."
+      },
+      {
+        q: "Q4. A farmer changes their lifestyle and uses drought-resistant crops to survive in a dry environment. This is an example of:",
+        options: ["A. Dependency", "B. Modification", "C. Adaptation", "D. Movement"],
+        correct: 2,
+        exp: "Adjusting lifestyles and behaviors to fit environmental conditions is called adaptation."
+      },
+      {
+        q: "Q5. Which statement correctly distinguishes formal and functional regions?",
+        options: [
+          "A. Formal regions are based on connections, while functional regions are based on similarity",
+          "B. Both are based only on climate",
+          "C. Formal regions are based on homogeneity, while functional regions are based on functional relationships",
+          "D. Both refer only to political boundaries"
+        ],
+        correct: 2,
+        exp: "Formal regions are defined by homogeneity/similarity, whereas functional (nodal) regions are defined by functional connections and relationships."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Geography Fundamentals!" : "Great performance! You clearly understand spatial/temporal variations, Earth spheres, and the five themes of geography.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review topical vs. regional geography and dependency vs. adaptation.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the definitions and five themes notes above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

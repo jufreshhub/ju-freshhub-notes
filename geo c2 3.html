@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Geological Time Scale and Age Dating Techniques — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Geography</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="clock" class="w-3.5 h-3.5"></i> Geochronology · Earth History
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Geological Time Scale and Age Dating Techniques</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Eons, Eras, Periods &amp; Epochs, Major Life Evolutions, Relative vs. Absolute Dating, Carbon-14 &amp; Potassium-Argon</p>
+      </div>
+    </section>
+
+    <!-- 1. Meaning & Hierarchy of Geological Time -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>The Geological Time Scale &amp; Hierarchy</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The <strong>geological time scale</strong> organizes Earth's immense history—like chapters in a very long book—describing major geological events, climate shifts, and biological evolution. Earth formed approximately <strong>4.5 billion years ago</strong>, and earliest life originated around <strong>3.5 billion years ago</strong> (the time prior to life is included in the Precambrian).
+      </p>
+
+      <!-- Hierarchy Ladder -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+        <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30">
+          <strong class="font-display text-brand-800 dark:text-brand-300 block">1. EON</strong>
+          <span class="text-[11px] text-slate-600 dark:text-slate-300">Largest unit</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-display text-slate-900 dark:text-white block">2. ERA</strong>
+          <span class="text-[11px] text-slate-600 dark:text-slate-300">Subdivision of Eon</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-display text-slate-900 dark:text-white block">3. PERIOD</strong>
+          <span class="text-[11px] text-slate-600 dark:text-slate-300">Subdivision of Era</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-display text-slate-900 dark:text-white block">4. EPOCH</strong>
+          <span class="text-[11px] text-slate-600 dark:text-slate-300">Smallest listed unit</span>
+        </div>
+      </div>
+
+      <p class="text-[11px] text-slate-500 italic text-center">
+        Memory Order (Largest to Smallest): <strong>Eon &rarr; Era &rarr; Period &rarr; Epoch</strong>. Divisions are based on major events like mass extinctions rather than equal lengths.
+      </p>
+    </section>
+
+    <!-- 2. The Four Major Geological Divisions -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>The Four Major Geological Eras (P &rarr; P &rarr; M &rarr; C)</span>
+      </h2>
+
+      <!-- A. Precambrian -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400">A. Precambrian Era</strong>
+          <span class="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300">4,500–600 Million Years Ago</span>
+        </div>
+        <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/GY4qgjouf3cBq0T99HFjaMfSdXPns1F5Aqe-ab0Dgfs4Cpa9F_1saakE_8wDEqQdYTEh_nZlrmtsKX9-slfsCpP81uSXPfe2maRytto6qGwWwXLEj5qbjtmAgKSfThLa172izViPA7DXflNBwk48hvIC6fmMhbBxQduvIcGqLoZYnRhs6S-UP6XvqaJbcyBG?purpose=fullsize', 'The Archean Eon and Precambrian Earth')">
+          <img src="https://images.openai.com/static-rsc-4/GY4qgjouf3cBq0T99HFjaMfSdXPns1F5Aqe-ab0Dgfs4Cpa9F_1saakE_8wDEqQdYTEh_nZlrmtsKX9-slfsCpP81uSXPfe2maRytto6qGwWwXLEj5qbjtmAgKSfThLa172izViPA7DXflNBwk48hvIC6fmMhbBxQduvIcGqLoZYnRhs6S-UP6XvqaJbcyBG?purpose=fullsize" alt="Precambrian" class="w-full max-h-36 object-contain" />
+        </figure>
+        <p class="text-slate-600 dark:text-slate-300">
+          Oldest and longest division, covering approximately <strong>five-sixths (5/6) of Earth's history</strong>. Earth formed (~4.5B yrs ago), earliest rocks (~4B yrs ago), earliest fossils (~3.5B yrs ago), and marine invertebrates (~600M yrs ago).
+        </p>
+      </div>
+
+      <!-- B. Paleozoic -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <strong class="font-display text-sm text-emerald-700 dark:text-emerald-400">B. Paleozoic Era — Age of Ancient Life</strong>
+          <span class="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300">600–225 Million Years Ago</span>
+        </div>
+        <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/FMl6QfJLoW1nO2PKmLWzf8ssol9lDzxBB-lmXtep3PPlzyTeHb2dzpYoi4YifmvG3xlxiJAIer1o8VavPrQK_KlWWsiNo3UXzvfEUaNXzbSf0nlGvcb7dxQ-GBF_xvTg8mLGRvDTUGaSeDn10S3yOVeF__GpYwFWUHMiB43xSgKMuOShNoyULCjf0XhadoPQ?purpose=fullsize', 'Paleozoic Era: Ancient Marine and Early Land Life')">
+          <img src="https://images.openai.com/static-rsc-4/FMl6QfJLoW1nO2PKmLWzf8ssol9lDzxBB-lmXtep3PPlzyTeHb2dzpYoi4YifmvG3xlxiJAIer1o8VavPrQK_KlWWsiNo3UXzvfEUaNXzbSf0nlGvcb7dxQ-GBF_xvTg8mLGRvDTUGaSeDn10S3yOVeF__GpYwFWUHMiB43xSgKMuOShNoyULCjf0XhadoPQ?purpose=fullsize" alt="Paleozoic" class="w-full max-h-36 object-contain" />
+        </figure>
+        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-white dark:bg-slate-900 uppercase font-bold text-slate-500">
+              <tr><th class="py-1.5 px-3">Period</th><th class="py-1.5 px-3">Major Biological/Geological Event</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1 px-3 font-bold">Cambrian</td><td class="py-1 px-3">Great diversity of marine invertebrates</td></tr>
+              <tr><td class="py-1 px-3 font-bold">Ordovician</td><td class="py-1 px-3">First fish appeared</td></tr>
+              <tr><td class="py-1 px-3 font-bold">Silurian</td><td class="py-1 px-3">Life invaded land</td></tr>
+              <tr><td class="py-1 px-3 font-bold">Devonian</td><td class="py-1 px-3">First land animals and first forests</td></tr>
+              <tr><td class="py-1 px-3 font-bold">Mississippian</td><td class="py-1 px-3">Coal-forming forests</td></tr>
+              <tr><td class="py-1 px-3 font-bold">Pennsylvanian</td><td class="py-1 px-3">First reptiles</td></tr>
+              <tr><td class="py-1 px-3 font-bold text-rose-600">Permian</td><td class="py-1 px-3">Greatest extinction on Earth (245 million years ago)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- C. Mesozoic -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <strong class="font-display text-sm text-amber-700 dark:text-amber-400">C. Mesozoic Era — Age of Reptiles (Middle Life)</strong>
+          <span class="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300">225–70 Million Years Ago</span>
+        </div>
+        <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/QCzSEAKfcBpTZgfYb08kW_KuAviyoHIL38fhWUUWE9rF9ZzwqZTO7bhlnPrl_n_ykamR1HvzZuP1boOL6pQ75RUeVftbzGya-omahwfv_KwXGOK1bGMM17-wPOyaUCdjy0WH_m4cYRaUTr10jGm0wnjukvcl7pYoQVENTX6SaAZNvqK-4Do9Z4gyD6tH-Blt?purpose=fullsize', 'Mesozoic Era: Age of Reptiles and Dinosaurs')">
+          <img src="https://images.openai.com/static-rsc-4/QCzSEAKfcBpTZgfYb08kW_KuAviyoHIL38fhWUUWE9rF9ZzwqZTO7bhlnPrl_n_ykamR1HvzZuP1boOL6pQ75RUeVftbzGya-omahwfv_KwXGOK1bGMM17-wPOyaUCdjy0WH_m4cYRaUTr10jGm0wnjukvcl7pYoQVENTX6SaAZNvqK-4Do9Z4gyD6tH-Blt?purpose=fullsize" alt="Mesozoic" class="w-full max-h-36 object-contain" />
+        </figure>
+        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-white dark:bg-slate-900 uppercase font-bold text-slate-500">
+              <tr><th class="py-1.5 px-3">Period</th><th class="py-1.5 px-3">Major Event</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1 px-3 font-bold">Triassic</td><td class="py-1 px-3">First mammals and dinosaurs</td></tr>
+              <tr><td class="py-1 px-3 font-bold">Jurassic</td><td class="py-1 px-3">Pangaea began to break up (~200 million years ago)</td></tr>
+              <tr><td class="py-1 px-3 font-bold text-rose-600">Cretaceous</td><td class="py-1 px-3">Dinosaurs became extinct (~65 million years ago)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- D. Cenozoic -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <strong class="font-display text-sm text-indigo-700 dark:text-indigo-400">D. Cenozoic Era — Age of Mammals (Recent Life)</strong>
+          <span class="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300">70 Million Years Ago–Present</span>
+        </div>
+        <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/E99sY1OewtkgyIed3u7lY7UTrRSknhjt_GWvtGhnX4-RHvYMZW9HXNOR3C1Mv4HHYy_JftXUe4jivUgVIfxjNTtyo8bnnzuzaJNXim6Y4a6a4u_3MIvICPLpud-X2-FRx3GqF0NVDLVAUf2SIM2xuiwq5bQbCQklTIqk8ZDB0azCziiztVb8sJoqSZfD9r6y?purpose=fullsize', 'Cenozoic Era: Age of Mammals')">
+          <img src="https://images.openai.com/static-rsc-4/E99sY1OewtkgyIed3u7lY7UTrRSknhjt_GWvtGhnX4-RHvYMZW9HXNOR3C1Mv4HHYy_JftXUe4jivUgVIfxjNTtyo8bnnzuzaJNXim6Y4a6a4u_3MIvICPLpud-X2-FRx3GqF0NVDLVAUf2SIM2xuiwq5bQbCQklTIqk8ZDB0azCziiztVb8sJoqSZfD9r6y?purpose=fullsize" alt="Cenozoic" class="w-full max-h-36 object-contain" />
+        </figure>
+        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-white dark:bg-slate-900 uppercase font-bold text-slate-500">
+              <tr><th class="py-1.5 px-3">Period</th><th class="py-1.5 px-3 font-mono">Time</th><th class="py-1.5 px-3">Major Event</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1 px-3 font-bold">Tertiary</td><td class="py-1 px-3 font-mono">70–1.6M yrs ago</td><td class="py-1 px-3">Individual continents take shape</td></tr>
+              <tr><td class="py-1 px-3 font-bold">Quaternary</td><td class="py-1 px-3 font-mono">1.6M yrs ago–Present</td><td class="py-1 px-3">Major glaciers in North America and Europe</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Age Dating Techniques & Half-Life -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Age Dating Techniques (Relative &amp; Absolute)</span>
+      </h2>
+
+      <!-- A. Relative Dating -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">A. Relative Dating (Older vs. Younger Comparison)</strong>
+        <p class="text-slate-600 dark:text-slate-300">Determines relative order rather than exact numerical years via <strong>Fossil Evidence</strong> and <strong>Position of Rock Layers</strong> (<em>&ldquo;Younger rocks generally lie on top of older rocks,&rdquo;</em> just like a sandwich).</p>
+
+        <div class="grid sm:grid-cols-2 gap-2.5">
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/LJVX762nuCoEhs7ysK0TfuNcQiLTYABfMY3FXsdQNi6ujZhApYqYI9P2ufB_llYJYfjtiPYOYF2nko-uNkz2B_maWp0bZc_pPKrwyMGvhigsCHHygXYWvWZySDE0nMjlJrBg_MQSiVaMrlFFmnU9hPC2HMA7nvCfKaLKqA8vTJvKwgbO2FOzaFFkg4ecOD8J?purpose=fullsize', 'Index Fossils Used in Relative Dating')">
+            <img src="https://images.openai.com/static-rsc-4/LJVX762nuCoEhs7ysK0TfuNcQiLTYABfMY3FXsdQNi6ujZhApYqYI9P2ufB_llYJYfjtiPYOYF2nko-uNkz2B_maWp0bZc_pPKrwyMGvhigsCHHygXYWvWZySDE0nMjlJrBg_MQSiVaMrlFFmnU9hPC2HMA7nvCfKaLKqA8vTJvKwgbO2FOzaFFkg4ecOD8J?purpose=fullsize" alt="Fossil Evidence" class="w-full max-h-28 object-contain" />
+          </figure>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/opqpK1iqaOg_rrRmAi3qSkXgEQ1qEFlsTTmWM1GTJPXvt6ZTKqtYJug8hMMW6nk4nmnjqoFGpPaV54VtJniiLMc4YRLTEPgPijkZZRrXOuc_Jl_AHdXD_Xerv2Izc2IwmEj7dZnSMHFH5mhWsc6-DRoy01bwz7NiqV4Fsb2-kXtko5RzEcol_mDmJOE8f07O?purpose=fullsize', 'Stratigraphic Rock Layers Superposition')">
+            <img src="https://images.openai.com/static-rsc-4/opqpK1iqaOg_rrRmAi3qSkXgEQ1qEFlsTTmWM1GTJPXvt6ZTKqtYJug8hMMW6nk4nmnjqoFGpPaV54VtJniiLMc4YRLTEPgPijkZZRrXOuc_Jl_AHdXD_Xerv2Izc2IwmEj7dZnSMHFH5mhWsc6-DRoy01bwz7NiqV4Fsb2-kXtko5RzEcol_mDmJOE8f07O?purpose=fullsize" alt="Rock Layers" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="step-box font-mono">
+          <strong>Worked Example 1:</strong> A cliff has undisturbed layers A (bottom), B (middle), and C (top). <span class="text-emerald-600 dark:text-emerald-400 font-bold">Oldest = Layer A; Youngest = Layer C.</span>
+        </div>
+      </div>
+
+      <!-- B. Absolute Dating & Half-Life -->
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 space-y-3 text-xs">
+        <strong class="font-display text-sm text-brand-900 dark:text-brand-300 block">B. Absolute (Radiometric) Dating &amp; Half-Life</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          Estimates numerical age using radioactive clocks (e.g., Uranium, Thorium). <strong>Half-life</strong> is the time needed for half of an original radioactive sample to decay:
+        </p>
+        <div class="math-scroll font-mono text-center text-sm font-bold text-brand-800 dark:text-brand-200 py-1">
+          $$100\text{ g} \xrightarrow{\text{1 half-life}} 50\text{ g} \xrightarrow{\text{2 half-lives}} 25\text{ g} \xrightarrow{\text{3 half-lives}} 12.5\text{ g}$$
+        </div>
+
+        <div class="step-box font-mono">
+          <strong class="font-sans text-slate-900 dark:text-white block">Worked Example 2:</strong>
+          <div>Half-life = \(10\text{ yrs}\), Original mass = \(80\text{ g}\). Remaining after \(20\text{ yrs}\)?</div>
+          <div>Step 1: Half-lives = \(20 \div 10 = 2\)</div>
+          <div class="text-emerald-600 dark:text-emerald-400 font-bold">Step 2: \(80 \to 40 \to \mathbf{20\text{ g}}\)</div>
+        </div>
+      </div>
+
+      <!-- Carbon-14 & Potassium-Argon -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">Carbon-14 Technique (Organisms):</strong>
+          <p class="text-slate-600 dark:text-slate-300">Dates remains of once-living organisms (half-life = <strong>\(5,730\text{ years}\)</strong>). Not used for general ancient rocks.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/xSlBtocUXp02Wyap2QlOIr7lTbHW2EoLEwTBirj8H4mfgMrahSJ4e_QBqEV8GuUu3f6e8oNTp7DZs222geCmNDylNvT3a-D1lN9KsVACdTnY00htKHYGxCMIJufXBDKQAFsFfCpYrFjYsaMJJhznR5ZEmrXW014re-bApRXnZNNSfiKt1k-7Ylaf34f55XMe?purpose=fullsize', 'Radiocarbon Dating Decay Process')">
+            <img src="https://images.openai.com/static-rsc-4/xSlBtocUXp02Wyap2QlOIr7lTbHW2EoLEwTBirj8H4mfgMrahSJ4e_QBqEV8GuUu3f6e8oNTp7DZs222geCmNDylNvT3a-D1lN9KsVACdTnY00htKHYGxCMIJufXBDKQAFsFfCpYrFjYsaMJJhznR5ZEmrXW014re-bApRXnZNNSfiKt1k-7Ylaf34f55XMe?purpose=fullsize" alt="Carbon 14" class="w-full max-h-24 object-contain" />
+          </figure>
+          <div class="step-box font-mono">
+            <strong>Example 3:</strong> \(100\text{ g}\) C-14 after \(11,460\text{ yrs}\):<br>
+            \(11,460 \div 5,730 = 2 \implies 100 \to 50 \to \mathbf{25\text{ g}}\)
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">Potassium-Argon Technique (Rocks):</strong>
+          <p class="text-slate-600 dark:text-slate-300">Widely used for dating rocks containing Potassium-40 (<strong>Micas, Feldspars, Hornblendes</strong>).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/vMHYnmjsm9uD8G3TPLppsWpy8ha50JhpJePyOLv75AeHMUjhEXuAO7gGyshqY4WInwe5XL9Daqywro1E0weQZXb42qDUTONnoK4cmlYAzqTZ8UG7dlI7xoyfG1S_L_ut_tcBrf3w3oRgBUyMxRDzrAMYS1ETavVSZvC-67kcNaDF9VggpB23u3EnIC3aSV6Q?purpose=fullsize', 'Potassium-Argon Rock Dating Technique')">
+            <img src="https://images.openai.com/static-rsc-4/vMHYnmjsm9uD8G3TPLppsWpy8ha50JhpJePyOLv75AeHMUjhEXuAO7gGyshqY4WInwe5XL9Daqywro1E0weQZXb42qDUTONnoK4cmlYAzqTZ8UG7dlI7xoyfG1S_L_ut_tcBrf3w3oRgBUyMxRDzrAMYS1ETavVSZvC-67kcNaDF9VggpB23u3EnIC3aSV6Q?purpose=fullsize" alt="K-Ar Dating" class="w-full max-h-24 object-contain" />
+          </figure>
+          <p class="text-[11px] font-bold text-rose-600 dark:text-rose-400">Limitation: Heating above \(125^\circ\text{C}\) leaks argon gas, resetting the clock to the last heating event.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Final Revision Summary Table -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Final Revision Summary Table</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Concept</th><th class="py-2 px-3">Key Fact to Remember</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Eon / Epoch</td><td class="py-1.5 px-3">Largest unit (Eon) / Smallest listed unit (Epoch)</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Precambrian / Paleozoic</td><td class="py-1.5 px-3">Earliest history (4,500–600M) / Ancient life (600–225M)</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Mesozoic / Cenozoic</td><td class="py-1.5 px-3">Age of Reptiles (225–70M) / Age of Mammals (70M–Present)</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Relative vs. Absolute Dating</td><td class="py-1.5 px-3">Compares older/younger vs. Numerical age in years</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Carbon-14 / Potassium-Argon</td><td class="py-1.5 px-3">Organisms (half-life 5,730 yrs) / Widely used for dating rocks</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing geological time divisions, half-life, and dating methods</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Geological Time Scale and Age Dating Techniques
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. Which is the correct order of geological time units from largest to smallest?",
+        options: ["A. Epoch → Period → Era → Eon", "B. Eon → Era → Period → Epoch", "C. Era → Eon → Epoch → Period", "D. Period → Epoch → Eon → Era"],
+        correct: 1,
+        exp: "From largest to smallest, the geological time hierarchy is Eon → Era → Period → Epoch."
+      },
+      {
+        q: "Q2. Which geological era is described as the age of reptiles?",
+        options: ["A. Precambrian", "B. Paleozoic", "C. Mesozoic", "D. Cenozoic"],
+        correct: 2,
+        exp: "The Mesozoic Era (225–70 million years ago) is known as the Age of Reptiles and Dinosaurs."
+      },
+      {
+        q: "Q3. A rock layer is found beneath two other undisturbed layers. According to relative dating, it is:",
+        options: ["A. The youngest", "B. The oldest", "C. Exactly 5,730 years old", "D. Impossible to compare"],
+        correct: 1,
+        exp: "By the principle of superposition, in undisturbed sequences lower rock layers are older than upper layers."
+      },
+      {
+        q: "Q4. A radioactive sample has 80 g originally and a half-life of 5 years. How much remains after 10 years?",
+        options: ["A. 40 g", "B. 20 g", "C. 10 g", "D. 60 g"],
+        correct: 1,
+        exp: "10 years / 5 years = 2 half-lives. Mass halves twice: 80 g → 40 g → 20 g."
+      },
+      {
+        q: "Q5. Which statement about the two radiometric dating techniques is correct?",
+        options: [
+          "A. Carbon-14 is widely used to date all rocks.",
+          "B. Potassium-Argon is used for dating rocks.",
+          "C. Relative dating always gives an exact numerical age.",
+          "D. Carbon-14 has a half-life of 10,000 years."
+        ],
+        correct: 1,
+        exp: "Potassium-Argon is widely used for dating rock minerals, whereas Carbon-14 (half-life 5,730 years) dates once-living organic remains."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Geological Time Scale & Dating!" : "Great performance! You clearly understand geological eras, half-life decay, and radiometric dating.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review half-life decay calculations and the eras summary table.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the geological hierarchy, eras, and Carbon-14 vs Potassium-Argon notes above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Size and Shape of Ethiopia — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 300: '#FCD34D', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll, .step-scroll {
+      display: block; width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden;
+      padding-top: 0.25rem; padding-bottom: 0.35rem; -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin; scrollbar-color: rgba(217, 119, 6, 0.35) transparent;
+    }
+    .step-scroll::-webkit-scrollbar, .math-scroll::-webkit-scrollbar { height: 5px; }
+    .step-scroll::-webkit-scrollbar-thumb, .math-scroll::-webkit-scrollbar-thumb { background: rgba(217, 119, 6, 0.35); border-radius: 9999px; }
+    .step-scroll-line { white-space: nowrap; width: max-content; min-width: 100%; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Geography</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="maximize" class="w-3.5 h-3.5"></i> Regional Geography · Size &amp; Shape
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Size and Shape of Ethiopia</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Territorial Area, Continental Rankings, Advantages &amp; Disadvantages of Size, Country Shapes, and Compactness Indices</p>
+      </div>
+    </section>
+
+    <!-- Intro -->
+    <section class="card p-4 sm:p-6 space-y-2">
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Think of a country like a piece of land on a map. Its <strong>size</strong> tells us how much land it covers, while its <strong>shape</strong> tells us how that land is arranged.
+      </p>
+    </section>
+
+    <!-- Part 1: Size of Ethiopia -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Part 1: Size of Ethiopia — Total Area and Ranking</span>
+      </h2>
+
+      <!-- Stats Dashboard Grid -->
+      <div class="rounded-2xl bg-slate-950 text-white p-5 sm:p-6 border border-slate-800 shadow-xl space-y-5">
+        <div class="grid grid-cols-2 gap-4 pb-4 border-b border-slate-800">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">Total Area</span>
+            <span class="font-display text-2xl sm:text-3xl font-extrabold text-brand-400">1,106,000</span>
+            <span class="text-[11px] text-slate-300 block mt-0.5">square kilometres (km²)</span>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">Africa Rank</span>
+            <span class="font-display text-2xl sm:text-3xl font-extrabold text-emerald-400">8th</span>
+            <span class="text-[11px] text-slate-300 block mt-0.5">largest country</span>
+          </div>
+          <div class="pt-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">World Rank</span>
+            <span class="font-display text-2xl sm:text-3xl font-extrabold text-sky-400">25th</span>
+            <span class="text-[11px] text-slate-300 block mt-0.5">largest country</span>
+          </div>
+          <div class="pt-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">Water Coverage</span>
+            <span class="font-display text-2xl sm:text-3xl font-extrabold text-amber-400">0.7%</span>
+            <span class="text-[11px] text-slate-300 block mt-0.5">of the country</span>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <p class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Approximate geographical dimensions:</p>
+          <div class="grid sm:grid-cols-2 gap-3 text-xs font-mono">
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-slate-400 block font-sans">East–West extent</span>
+              <strong class="text-white text-sm">1,639 km</strong>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-slate-400 block font-sans">North–South extent</span>
+              <strong class="text-white text-sm">1,577 km</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Updated Readable Box -->
+      <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 space-y-1.5 shadow-sm">
+        <strong class="font-bold text-brand-700 dark:text-brand-400 block text-sm">Easy Way to Remember:</strong>
+        <ul class="list-disc pl-5 space-y-1 font-mono">
+          <li>East–West: <strong class="text-slate-900 dark:text-white">1,639 km</strong> &nbsp;|&nbsp; North–South: <strong class="text-slate-900 dark:text-white">1,577 km</strong></li>
+          <li>Ethiopia extends slightly farther from east to west than from north to south.</li>
+          <li>8th largest in Africa and 25th largest in the world.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. Advantages and Disadvantages of Large Size -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Advantages and Disadvantages of Ethiopia's Large Size</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2.5 px-3 text-emerald-700 dark:text-emerald-400">Advantages</th><th class="py-2.5 px-3 text-rose-700 dark:text-rose-400">Disadvantages</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3">Diverse agro-ecological zones</td><td class="py-2 px-3">High infrastructure costs</td></tr>
+            <tr><td class="py-2 px-3">Variety of natural resources</td><td class="py-2 px-3">Large army requirements for defense</td></tr>
+            <tr><td class="py-2 px-3">Extensive arable land</td><td class="py-2 px-3">Difficult territorial administration</td></tr>
+            <tr><td class="py-2 px-3">Larger population capacity</td><td class="py-2 px-3">Difficult socio-economic integration</td></tr>
+            <tr><td class="py-2 px-3">Home for diverse cultures</td><td class="py-2 px-3 text-slate-400">—</td></tr>
+            <tr><td class="py-2 px-3">Greater depth in defense</td><td class="py-2 px-3 text-slate-400">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200">
+        <strong>Exam Trap:</strong> Do not confuse advantages of large size (e.g., diverse natural resources) with advantages of compact shape (e.g., easier defense and integration).
+      </div>
+    </section>
+
+    <!-- Part 2: Shape of Ethiopia -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Part 2: Shape of Ethiopia — Five Major Country Shapes</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Countries have different geographical shapes, classified into five main categories based on arrangement:
+      </p>
+
+      <div class="space-y-4">
+        <!-- 1. Compact -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">1. Compact Shape:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Distance from geographical center to borders varies little (circular/square). Advantage: easier defense and integration.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/9MSRvNWL/6qunvh00a-H1f-UWyk6Ko9g-MGq-TEG-g-Qe2-s-ZTNIPg-KKrr-Twl1f-I5jlj-Rvjfvfc1e-G-8m-AG3NUh-DL14hk-Wsp-Dz.jpg', 'Compact Shape Illustration')">
+            <img src="https://i.postimg.cc/9MSRvNWL/6qunvh00a-H1f-UWyk6Ko9g-MGq-TEG-g-Qe2-s-ZTNIPg-KKrr-Twl1f-I5jlj-Rvjfvfc1e-G-8m-AG3NUh-DL14hk-Wsp-Dz.jpg" alt="Compact Shape" class="w-full max-h-40 object-contain hover:scale-105 transition duration-300" />
+            <div class="p-1 text-center text-[10px] text-slate-400">Tap to zoom compact shape diagram</div>
+          </figure>
+        </div>
+
+        <!-- 2. Fragmented -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">2. Fragmented Shape:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Territory is divided into separate parts separated by water, land, or other countries.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/44qSXzBG/L6Qb0c-Avldp-1BEw-F2o-L7vg-ODy66wdf-S1a-Cmh-FRBw2L-kk-g-KK88k-Aboa3J61JJPAs-Cni-Fg-U7XNrz-AB8cl15s-C.jpg', 'Fragmented Shape Illustration')">
+            <img src="https://i.postimg.cc/44qSXzBG/L6Qb0c-Avldp-1BEw-F2o-L7vg-ODy66wdf-S1a-Cmh-FRBw2L-kk-g-KK88k-Aboa3J61JJPAs-Cni-Fg-U7XNrz-AB8cl15s-C.jpg" alt="Fragmented Shape" class="w-full max-h-40 object-contain hover:scale-105 transition duration-300" />
+            <div class="p-1 text-center text-[10px] text-slate-400">Tap to zoom fragmented shape diagram</div>
+          </figure>
+        </div>
+
+        <!-- 3. Elongated -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">3. Elongated Shape:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Geographically long and relatively narrow (e.g., Chile).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/3xCSjz7J/m-Xh-EE-jr-L6xl-PTKe-OVNk-F2Jzb-Ae8wg-Z693b-X90ed01Su-B6eckhv-OZw-gs-O5d-Cj4zj-XR5AClqnoc-MNQBEGm-Ov.jpg', 'Elongated Shape Illustration')">
+            <img src="https://i.postimg.cc/3xCSjz7J/m-Xh-EE-jr-L6xl-PTKe-OVNk-F2Jzb-Ae8wg-Z693b-X90ed01Su-B6eckhv-OZw-gs-O5d-Cj4zj-XR5AClqnoc-MNQBEGm-Ov.jpg" alt="Elongated Shape" class="w-full max-h-40 object-contain hover:scale-105 transition duration-300" />
+            <div class="p-1 text-center text-[10px] text-slate-400">Tap to zoom elongated shape diagram</div>
+          </figure>
+        </div>
+
+        <!-- 4. Perforated -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">4. Perforated Shape:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Completely surrounds another country (e.g., South Africa surrounding Lesotho).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/wBjVXv00/PK4K4i-lqr01Dy-Vzmd3VCdug-HBn1IKw-Li7Gji-f-QZu-GRwa-Xgr-Cz0efzlo9k6nmj-Ky7Pi4IGq-Ir-CXZcx5Vf-Mtua-ZM.jpg', 'Perforated Shape Illustration')">
+            <img src="https://i.postimg.cc/wBjVXv00/PK4K4i-lqr01Dy-Vzmd3VCdug-HBn1IKw-Li7Gji-f-QZu-GRwa-Xgr-Cz0efzlo9k6nmj-Ky7Pi4IGq-Ir-CXZcx5Vf-Mtua-ZM.jpg" alt="Perforated Shape" class="w-full max-h-40 object-contain hover:scale-105 transition duration-300" />
+            <div class="p-1 text-center text-[10px] text-slate-400">Tap to zoom perforated shape diagram</div>
+          </figure>
+        </div>
+
+        <!-- 5. Protruded -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">5. Protruded Shape:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Has one portion much more elongated than the rest (e.g., Myanmar and Eritrea).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/N0KXGrdP/wu-UFu-Cwf2g3Bm-Lxd-MUXIEp9ye-Mv-HTSe3i-U-Oyy-G9-g-C6OR4S1g-M0Xgubuzgbw8c3Qh-K-7P7l-R7hr-DX3N3FRGOTQ.jpg', 'Protruded Shape Illustration')">
+            <img src="https://i.postimg.cc/N0KXGrdP/wu-UFu-Cwf2g3Bm-Lxd-MUXIEp9ye-Mv-HTSe3i-U-Oyy-G9-g-C6OR4S1g-M0Xgubuzgbw8c3Qh-K-7P7l-R7hr-DX3N3FRGOTQ.jpg" alt="Protruded Shape" class="w-full max-h-40 object-contain hover:scale-105 transition duration-300" />
+            <div class="p-1 text-center text-[10px] text-slate-400">Tap to zoom protruded shape diagram</div>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Part 3: Measuring Compactness -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Part 3: Measuring Compactness &amp; Indices</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Compactness describes how closely a country approaches a circular shape. Because no country is perfectly circular, geographers use four mathematical indices:
+      </p>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://i.postimg.cc/Vk6r4CPr/x-BSg0u-J50GRu-G3V-Z3mzsi5b-ZGwd-E5d-Lj-JAFb-IV1ur-SS0xj-QEyd3u-Hy02ry-BBJg-L7ZPb-Rv-Lum8qggj-Q0-9PH.jpg', 'Compactness and Political Geography')">
+        <img src="https://i.postimg.cc/Vk6r4CPr/x-BSg0u-J50GRu-G3V-Z3mzsi5b-ZGwd-E5d-Lj-JAFb-IV1ur-SS0xj-QEyd3u-Hy02ry-BBJg-L7ZPb-Rv-Lum8qggj-Q0-9PH.jpg" alt="Compactness Index" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="p-1 text-center text-[10px] text-slate-400">Tap to zoom compactness diagram</div>
+      </figure>
+
+      <!-- 4 Indices Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2.5 px-3">Index</th><th class="py-2.5 px-3 font-mono">Formula / Ratio</th><th class="py-2.5 px-3">Greater Compactness Rule</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr>
+              <td class="py-2 px-3 font-sans font-bold">Area–Boundary (A/B)</td>
+              <td class="py-2 px-3">\(\frac{\text{Area}}{\text{Boundary}}\)</td>
+              <td class="py-2 px-3 font-sans font-bold text-emerald-600">Higher value is better</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 font-sans font-bold">Boundary–Circumference (B/C)</td>
+              <td class="py-2 px-3">\(\frac{\text{Country Boundary}}{\text{Equal-Area Circle Circumference}}\)</td>
+              <td class="py-2 px-3 font-sans font-bold text-emerald-600">Closer to 1 is better</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 font-sans font-bold">Area–Circumference (A/C)</td>
+              <td class="py-2 px-3">\(\frac{\text{Area}}{\text{Smallest Inscribing Circle Circumference}}\)</td>
+              <td class="py-2 px-3 font-sans font-bold text-emerald-600">Higher value is better</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 font-sans font-bold">Area–Area (A/A′)</td>
+              <td class="py-2 px-3">\(\frac{\text{Actual Area}}{\text{Smallest Inscribing Circle Area}}\)</td>
+              <td class="py-2 px-3 font-sans font-bold text-emerald-600">Closer to 1 is better</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4 Compactness Calculation Worked Examples -->
+      <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Compactness Calculation Worked Examples:</strong>
+        
+        <!-- Example 1 -->
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+          <strong class="text-brand-700 dark:text-brand-400 block">Example 1 — Area-Boundary Ratio (A/B)</strong>
+          <p class="text-slate-600 dark:text-slate-300">Calculate the A/B index for a country with a total area of \(1,106,000\text{ km}^2\) and a total boundary length of \(5,260\text{ km}\).</p>
+          <div class="step-scroll font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+            <div class="step-scroll-line">\(\text{A/B} = \frac{\text{Area}}{\text{Boundary}} = \frac{1,106,000}{5,260} \approx \mathbf{210.27}\)</div>
+          </div>
+        </div>
+
+        <!-- Example 2 -->
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+          <strong class="text-brand-700 dark:text-brand-400 block">Example 2 — Boundary-Circumference Ratio (B/C)</strong>
+          <p class="text-slate-600 dark:text-slate-300">If a country's actual boundary length is \(4,800\text{ km}\) and the circumference of its equal-area circle is \(3,400\text{ km}\), compute its B/C index.</p>
+          <div class="step-scroll font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+            <div class="step-scroll-line">\(\text{B/C} = \frac{\text{Country Boundary}}{\text{Equal-Area Circle Circumference}} = \frac{4,800}{3,400} \approx \mathbf{1.41}\)</div>
+          </div>
+          <p class="text-[11px] text-slate-500">Note: Since \(1.41\) is close to \(1\), this indicates good circular compactness.</p>
+        </div>
+
+        <!-- Example 3 -->
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+          <strong class="text-brand-700 dark:text-brand-400 block">Example 3 — Area-Circumference Ratio (A/C)</strong>
+          <p class="text-slate-600 dark:text-slate-300">Find the A/C index for a country with an area of \(900,000\text{ km}^2\) and a smallest inscribing circle circumference of \(3,034\text{ km}\).</p>
+          <div class="step-scroll font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+            <div class="step-scroll-line">\(\text{A/C} = \frac{\text{Area}}{\text{Inscribing Circle Circumference}} = \frac{900,000}{3,034} \approx \mathbf{296.61}\)</div>
+          </div>
+        </div>
+
+        <!-- Example 4 -->
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+          <strong class="text-brand-700 dark:text-brand-400 block">Example 4 — Comparing Two Countries (A/B Index)</strong>
+          <p class="text-slate-600 dark:text-slate-300">Country X has Area = \(500,000\text{ km}^2\) &amp; Boundary = \(4,000\text{ km}\). Country Y has Area = \(800,000\text{ km}^2\) &amp; Boundary = \(7,000\text{ km}\). Which is more compact?</p>
+          <div class="step-scroll font-mono space-y-1">
+            <div class="step-scroll-line">\(\text{Country X: } \text{A/B} = \frac{500,000}{4,000} = \mathbf{125}\)</div>
+            <div class="step-scroll-line">\(\text{Country Y: } \text{A/B} = \frac{800,000}{7,000} \approx \mathbf{114.28}\)</div>
+            <div class="step-scroll-line text-emerald-600 dark:text-emerald-400 font-bold">Conclusion: Country X is more compact because it has a higher A/B ratio (\(125 &gt; 114.28\)).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Neighboring Comparison Table -->
+      <div class="space-y-2 pt-2">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Comparison With Neighboring Countries:</strong>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-sans font-bold text-slate-500">
+              <tr><th class="py-2 px-3">Country</th><th class="py-2 px-3">A/B</th><th class="py-2 px-3">B/C</th><th class="py-2 px-3">A/C</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2 px-3 font-sans font-bold">Ethiopia</td><td class="py-2 px-3 text-brand-600 font-bold">210.27</td><td class="py-2 px-3">1.41</td><td class="py-2 px-3 text-brand-600 font-bold">296.61</td></tr>
+              <tr><td class="py-2 px-3 font-sans">Djibouti</td><td class="py-2 px-3">26.83</td><td class="py-2 px-3">1.56</td><td class="py-2 px-3">41.83</td></tr>
+              <tr><td class="py-2 px-3 font-sans">Eritrea</td><td class="py-2 px-3">48.51</td><td class="py-2 px-3">1.99</td><td class="py-2 px-3">96.83</td></tr>
+              <tr><td class="py-2 px-3 font-sans">Kenya</td><td class="py-2 px-3">161.85</td><td class="py-2 px-3 text-emerald-600 font-bold">1.33</td><td class="py-2 px-3">215.28</td></tr>
+              <tr><td class="py-2 px-3 font-sans">Somalia</td><td class="py-2 px-3">125.03</td><td class="py-2 px-3">1.80</td><td class="py-2 px-3">225.22</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing Ethiopia's size, shape categories, and compactness indices</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Size and Shape of Ethiopia
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. According to the module, what is the approximate total area of Ethiopia?",
+        options: ["A. 1,016,000 km²", "B. 1,106,000 km²", "C. 1,160,000 km²", "D. 1,601,000 km²"],
+        correct: 1,
+        exp: "Ethiopia's total area is approximately 1,106,000 square kilometres (8th largest in Africa, 25th in the world)."
+      },
+      {
+        q: "Q2. Which of the following is an advantage of Ethiopia's large size?",
+        options: ["A. Difficult administration", "B. High infrastructure costs", "C. Variety of natural resources", "D. Difficulty of socio-economic integration"],
+        correct: 2,
+        exp: "A large territorial size provides diverse agro-ecological zones and a variety of natural resources."
+      },
+      {
+        q: "Q3. A country that completely surrounds another country is described as:",
+        options: ["A. Fragmented", "B. Elongated", "C. Protruded", "D. Perforated"],
+        correct: 3,
+        exp: "A perforated country completely surrounds another country (e.g., South Africa surrounding Lesotho)."
+      },
+      {
+        q: "Q4. Which compactness index indicates greater compactness when its value is closer to 1?",
+        options: ["A. Area–Boundary ratio (A/B)", "B. Boundary–Circumference ratio (B/C)", "C. Area–Circumference ratio (A/C)", "D. None of the above"],
+        correct: 1,
+        exp: "The Boundary–Circumference ratio (B/C) and Area-Area ratio (A/A') indicate greater compactness when their values are closer to 1."
+      },
+      {
+        q: "Q5. According to the module's comparison table, which country has the highest A/B ratio?",
+        options: ["A. Djibouti", "B. Eritrea", "C. Kenya", "D. Ethiopia"],
+        correct: 3,
+        exp: "Ethiopia has the highest A/B ratio (210.27) among the compared neighboring countries."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Size and Shape of Ethiopia!" : "Great performance! You clearly understand size rankings, shape categories, and compactness indices.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review compactness formulas (A/B vs B/C) and country shape types.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the size statistics dashboard and shape classifications above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

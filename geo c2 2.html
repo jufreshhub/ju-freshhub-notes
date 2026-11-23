@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Geological Processes — Endogenic and Exogenic Forces — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .step-box { @apply p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+    .swipe-row::-webkit-scrollbar { height: 6px; }
+    .swipe-row::-webkit-scrollbar-thumb { background: rgba(217,119,6,.35); border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Geography</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="mountain" class="w-3.5 h-3.5"></i> Regional Geography · Geomorphology
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Geological Processes — Endogenic and Exogenic Forces</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Internal Tectonic/Volcanic Building vs. External Weathering, Erosion, and Landform Modification</p>
+      </div>
+    </section>
+
+    <!-- 1. What are Geological Processes? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What are Geological Processes?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Geological processes are the natural activities that change Earth's materials, structures, and landforms over time. Think of Earth's surface as a piece of clay: some forces push, lift, fold, or break the clay (creating new shapes), while other forces wear down, move, and deposit pieces of the clay.
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-brand-700 dark:text-brand-400 block">Endogenic Processes:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Internal forces originating inside the Earth that build structural and volcanic landforms.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-emerald-700 dark:text-emerald-400 block">Exogenic Processes:</strong>
+          <p class="text-slate-600 dark:text-slate-300">External forces acting on existing landforms, modifying, roughening, and lowering them.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Endogenic Processes (Internal Forces) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Endogenic Processes (Internal Forces)</span>
+      </h2>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <strong class="font-display text-slate-900 dark:text-white block">A. Volcanic Activity:</strong>
+        <p class="text-xs text-slate-600 dark:text-slate-300">
+          Magma rises from inside the Earth and reaches or approaches the surface. When lava cools and solidifies, it forms volcanic landforms.
+        </p>
+
+        <!-- Volcanic Images Swipeable Row (7 Images) -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+            <span>Volcanic Landforms Gallery (Tap to zoom)</span>
+            <span class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400">Swipe left <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+          </div>
+
+          <div class="swipe-row flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+            <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/Em8sjy47S1IRJFf2OgfMG469-NUVSAMclV5tTkIwHEfjAZ-tAqx50qJyiU_6Oxjo6pZ7P4bdumsvT2yQtyGDmpQtv6bGPRu5uFCYpVyzPHlbxiGWo3e0QryYlF9bEIflw1w9HHPYu-VIsAH3qWBWMLmFJs58knH_-v2BJoT5Y0FVg_aSAQprWan1lqH--A70?purpose=fullsize', 'Volcano Eruption and Magma Dynamics')">
+              <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/Em8sjy47S1IRJFf2OgfMG469-NUVSAMclV5tTkIwHEfjAZ-tAqx50qJyiU_6Oxjo6pZ7P4bdumsvT2yQtyGDmpQtv6bGPRu5uFCYpVyzPHlbxiGWo3e0QryYlF9bEIflw1w9HHPYu-VIsAH3qWBWMLmFJs58knH_-v2BJoT5Y0FVg_aSAQprWan1lqH--A70?purpose=fullsize" alt="Volcano" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+              <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">1. Volcano Eruption</figcaption>
+            </figure>
+            <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/cYzBKivJysedwkHuH77e3nn7GdjlDfsMKhwEbIl3CxsBQ8Q_nmF0EfYP6O3d42vk_MAuTEfktoPsvJeIpVuiWLQmmwsnrI1DHWccXkXCx6JXsQUlHv99sXE0WO_Pfb-j6ASnezb8G3n7lMrzXzcbLENAWamhcaA0F2LVESa3pzz_HD_V7rNzQeE4HgjUBMLz?purpose=fullsize', 'Volcanic Scenery in Portugal')">
+              <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/cYzBKivJysedwkHuH77e3nn7GdjlDfsMKhwEbIl3CxsBQ8Q_nmF0EfYP6O3d42vk_MAuTEfktoPsvJeIpVuiWLQmmwsnrI1DHWccXkXCx6JXsQUlHv99sXE0WO_Pfb-j6ASnezb8G3n7lMrzXzcbLENAWamhcaA0F2LVESa3pzz_HD_V7rNzQeE4HgjUBMLz?purpose=fullsize" alt="Azores" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+              <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">2. Azores Scenery</figcaption>
+            </figure>
+            <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/2US9X66HbUFXuTBr9SFn-gvP-5IG7nQnKCENuCRoezrqNZykketXMTCEnQBFqdf9oTLR9Ez8ko-rvYI2cSPuWJ328VdxD1xOPtDRwtgnTA01paHPN_uGvgNOIJvvx62s2JMr_9Ls5F6MlyiPgFG-UyOEyoy-YAMIioc4PwGW5ooHDHV9I7govxNR6F3vXm3e?purpose=fullsize', 'Lanzarote Volcanic Aerial View')">
+              <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/2US9X66HbUFXuTBr9SFn-gvP-5IG7nQnKCENuCRoezrqNZykketXMTCEnQBFqdf9oTLR9Ez8ko-rvYI2cSPuWJ328VdxD1xOPtDRwtgnTA01paHPN_uGvgNOIJvvx62s2JMr_9Ls5F6MlyiPgFG-UyOEyoy-YAMIioc4PwGW5ooHDHV9I7govxNR6F3vXm3e?purpose=fullsize" alt="Lanzarote" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+              <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">3. Lanzarote</figcaption>
+            </figure>
+            <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/-NSEhOnS6SVNFDmSwV_-YMBz8RDhzLv13XGK9tiHd7QFc8a_HzRM39Yr5__6KnunyZP-Uc2TDY_ZjklN--QtQCWZvyYRn-kf_OKywfjMiqjmOZewbzINPC0NLQDyMq9sudY9O2TrxBNFVUMiw8bGaAC8kg5uKeFOi6Icit8PXexLEcCX2VCaPhVkEnJfdSNg?purpose=fullsize', 'Icelandic Volcanic Landscapes')">
+              <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/-NSEhOnS6SVNFDmSwV_-YMBz8RDhzLv13XGK9tiHd7QFc8a_HzRM39Yr5__6KnunyZP-Uc2TDY_ZjklN--QtQCWZvyYRn-kf_OKywfjMiqjmOZewbzINPC0NLQDyMq9sudY9O2TrxBNFVUMiw8bGaAC8kg5uKeFOi6Icit8PXexLEcCX2VCaPhVkEnJfdSNg?purpose=fullsize" alt="Iceland" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+              <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">4. Iceland Landscapes</figcaption>
+            </figure>
+            <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/rRUTRE8E6H6g8RBliX5hh5tYKKoTA1wEatP-E0eYInuIyCgf_DPKqmoD3mwZSV-UGapfPaWC_6Li1wbfpqSAIAKETULs6tOsymFHmPjEOTzWfxRGryPzLRnUNY_wuq9iv4GD7bHTSVWVMi8Hc4ctYWEY60oYfzN_F6rbz0vsAoKMF3fdd6lK2fYhTYOXX_pE?purpose=fullsize', 'SP Crater Arizona')">
+              <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/rRUTRE8E6H6g8RBliX5hh5tYKKoTA1wEatP-E0eYInuIyCgf_DPKqmoD3mwZSV-UGapfPaWC_6Li1wbfpqSAIAKETULs6tOsymFHmPjEOTzWfxRGryPzLRnUNY_wuq9iv4GD7bHTSVWVMi8Hc4ctYWEY60oYfzN_F6rbz0vsAoKMF3fdd6lK2fYhTYOXX_pE?purpose=fullsize" alt="SP Crater" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+              <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">5. SP Crater Arizona</figcaption>
+            </figure>
+            <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/CoYPGujFkCFxr2KSmNlZILieXkIdE8BHmcW5zd1zQMdh13_jFvfvTRNTtnvr_4a6NtgHC2kw062WwzcHE1Y6KiEJ8jewhEZwWwV0i1uQNLjhiVNkPNnr18sE5p0iZHzQR4b1a2UsHeYyUh0rLZnpxhkqMJ-HrhHgrXM6TIOkD0w51ZIKDb3p5qQQx47rca_L?purpose=fullsize', 'Snaefellsnes Peninsula')">
+              <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/CoYPGujFkCFxr2KSmNlZILieXkIdE8BHmcW5zd1zQMdh13_jFvfvTRNTtnvr_4a6NtgHC2kw062WwzcHE1Y6KiEJ8jewhEZwWwV0i1uQNLjhiVNkPNnr18sE5p0iZHzQR4b1a2UsHeYyUh0rLZnpxhkqMJ-HrhHgrXM6TIOkD0w51ZIKDb3p5qQQx47rca_L?purpose=fullsize" alt="Peninsula" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+              <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">6. Snaefellsnes</figcaption>
+            </figure>
+            <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/3sVYkdDCa_lQybN_H5G_jD6GHVxOh_5dBI-3gtBdd5TLpBa15XMxQa90VM6JV5EBZDJNka4L_AQXPbq31KZHKHCBTkLtOOpixKEnwcc6ucYjBEZR6iiS0OywvAQ9MEKwVZKoHggHnCw9TI3JUXELrC81FgGoDJowYfI2A6zjSzCj4Clj4AjBtTDMADdUIdg2?purpose=fullsize', 'Volcanic Craters Argentina')">
+              <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/3sVYkdDCa_lQybN_H5G_jD6GHVxOh_5dBI-3gtBdd5TLpBa15XMxQa90VM6JV5EBZDJNka4L_AQXPbq31KZHKHCBTkLtOOpixKEnwcc6ucYjBEZR6iiS0OywvAQ9MEKwVZKoHggHnCw9TI3JUXELrC81FgGoDJowYfI2A6zjSzCj4Clj4AjBtTDMADdUIdg2?purpose=fullsize" alt="Argentina" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+              <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">7. Argentina Craters</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <!-- B. Tectonic Processes -->
+        <div class="space-y-2.5 pt-2">
+          <strong class="font-display text-slate-900 dark:text-white block">B. Tectonic Processes (Crustal Movements &amp; Deformation):</strong>
+          <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+                <tr><th class="py-2.5 px-3">Process</th><th class="py-2.5 px-3">Simple Meaning</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr><td class="py-2 px-3 font-bold">Folding</td><td class="py-2 px-3">Rock layers bend due to pressure (anticlines = up, synclines = down).</td></tr>
+                <tr><td class="py-2 px-3 font-bold">Faulting</td><td class="py-2 px-3">Rocks break and move along fractures (forms block mountains and rift valleys).</td></tr>
+                <tr><td class="py-2 px-3 font-bold">Orogenesis</td><td class="py-2 px-3">Mountain building through strong tectonic deformation and elevation.</td></tr>
+                <tr><td class="py-2 px-3 font-bold">Epeirogenesis</td><td class="py-2 px-3">Slow, broad rising or sinking of a large landmass without narrow folding.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-2.5 pt-1">
+            <figure class="cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/lh40E8Q4lCmOdk9KCW9L0V4cEXGVuGvldzH21YERHm33dRfXWtKsgDLmy_-TyDecm1sYyiwsKa0nl77aeXz84hZJ91RJKyhc99DED1G0UqWvPezFtWNONpQ5ubPlDwaXGRu2fcxImShyjXc52kn2JNKOaTUrHhWqQEhmI_jbRBKMje6MBfvoixPNDeWDl2mB?purpose=fullsize', 'Structural Folding Landforms')">
+              <img src="https://images.openai.com/static-rsc-4/lh40E8Q4lCmOdk9KCW9L0V4cEXGVuGvldzH21YERHm33dRfXWtKsgDLmy_-TyDecm1sYyiwsKa0nl77aeXz84hZJ91RJKyhc99DED1G0UqWvPezFtWNONpQ5ubPlDwaXGRu2fcxImShyjXc52kn2JNKOaTUrHhWqQEhmI_jbRBKMje6MBfvoixPNDeWDl2mB?purpose=fullsize" alt="Folding" class="w-full max-h-32 object-contain" />
+            </figure>
+            <figure class="cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/fXLpnS4iHgb12HgMvWnDDaGegQJtXsjzkQTnMKidWAkU0nTYIlEVSG-DTAKRJjtnqoqgS1UUZSfNyAuAaFpOYj8Ug-q6S9rKg7ww5SJviTKSgifdHZDyejadAjh3jAYtGu_8UPzql-TQimc86xcxMyriRHIu7na1vPzG1K_aAoIzFLX-KohoYKtYUZEhBqob?purpose=fullsize', 'Normal Faulting Illustration')">
+              <img src="https://images.openai.com/static-rsc-4/fXLpnS4iHgb12HgMvWnDDaGegQJtXsjzkQTnMKidWAkU0nTYIlEVSG-DTAKRJjtnqoqgS1UUZSfNyAuAaFpOYj8Ug-q6S9rKg7ww5SJviTKSgifdHZDyejadAjh3jAYtGu_8UPzql-TQimc86xcxMyriRHIu7na1vPzG1K_aAoIzFLX-KohoYKtYUZEhBqob?purpose=fullsize" alt="Faulting" class="w-full max-h-32 object-contain" />
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Exogenic Processes (External Forces) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Exogenic Processes (External Forces)</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Exogenic processes act on existing volcanic and structural landforms, modifying, roughening, and lowering them. Four major processes include:
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <!-- Weathering -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">i. Weathering:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Breakdown of rocks in place at or near the Earth's surface.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/NcE76AR12x4mOIechORpr8XHfi-EihfKjgpOHGKqAYwlFey9O-r7ne_UoIZoymOZAcQCXVClKaqpy4fwWEXEz-vOYvsdN2ZBqQuYSOlfoLfUU3AoUHHs3Qkz2D0CvoogHaIR-vRm5ea1zP84XycIzueiUp4I4EJ7MQGewSHpcdHsVCCWpvHu6iFXqC6NU8w-?purpose=fullsize', 'Weathering and Rock Cracking')">
+            <img src="https://images.openai.com/static-rsc-4/NcE76AR12x4mOIechORpr8XHfi-EihfKjgpOHGKqAYwlFey9O-r7ne_UoIZoymOZAcQCXVClKaqpy4fwWEXEz-vOYvsdN2ZBqQuYSOlfoLfUU3AoUHHs3Qkz2D0CvoogHaIR-vRm5ea1zP84XycIzueiUp4I4EJ7MQGewSHpcdHsVCCWpvHu6iFXqC6NU8w-?purpose=fullsize" alt="Weathering" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+
+        <!-- Mass Transfer -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">ii. Mass Transfer:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Downslope movement of weathered materials under gravity (e.g., landslides).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/lKhXjI0trWpV9GKN6LafCyqU45jczAx2ZVH7-xl0E0O8zIEH47IBrbAq31FZXSGuv6niTyT_ooDiylrV6Lb74n-etEb0buGBGlaoko3PeMPlsNIoh-YjK6AktZeWPvPScq1hlOd6T2haGdL-3gqeZ-lKhEuHy48p-7lR4B1aLf38FaB8RI_uUQRWP_Ii0ER1?purpose=fullsize', 'Landslide Mass Transfer')">
+            <img src="https://images.openai.com/static-rsc-4/lKhXjI0trWpV9GKN6LafCyqU45jczAx2ZVH7-xl0E0O8zIEH47IBrbAq31FZXSGuv6niTyT_ooDiylrV6Lb74n-etEb0buGBGlaoko3PeMPlsNIoh-YjK6AktZeWPvPScq1hlOd6T2haGdL-3gqeZ-lKhEuHy48p-7lR4B1aLf38FaB8RI_uUQRWP_Ii0ER1?purpose=fullsize" alt="Mass Transfer" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+
+        <!-- Erosion -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">iii. Erosion:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Wearing away and removal of rock/soil by running water and wind.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/cCwdWRU2QDpKqqJeY2WP6n4JukvVtnDUYeRDSa026PKfQUgOJ-Hi-TVPzN7DI9DlLwkuHcOxsVM-uqTVDZlb3K5cr6zE3ubQqQTLEa0Kqb1W_wa-cIl_dt9vfoacpyktLH9-k_RTpXnhZ3ybjYqnEpb4Js0JFhTmAmkv51cSdp6m8YmOs4CFIWjPMBGl_Cdw?purpose=fullsize', 'Erosion Landscape')">
+            <img src="https://images.openai.com/static-rsc-4/cCwdWRU2QDpKqqJeY2WP6n4JukvVtnDUYeRDSa026PKfQUgOJ-Hi-TVPzN7DI9DlLwkuHcOxsVM-uqTVDZlb3K5cr6zE3ubQqQTLEa0Kqb1W_wa-cIl_dt9vfoacpyktLH9-k_RTpXnhZ3ybjYqnEpb4Js0JFhTmAmkv51cSdp6m8YmOs4CFIWjPMBGl_Cdw?purpose=fullsize" alt="Erosion" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+
+        <!-- Deposition -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">iv. Deposition:</strong>
+          <p class="text-xs text-slate-600 dark:text-slate-300">Accumulation and settling of transported materials in a new location.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/pj1Ulpd754mTT43Yi60tgTVOpw7kgqIWUbcdD8sTZxj2V8Y2NAM84iUKINAszYZY4iBen1Z3qW_zMHQRTHtTfmA0DpfTH7er-ZoG5uT5HVVHlMsyfqQkJ4OXLWU9m-x_9VfL4Q7QAnCVrLJHoahY3bAEoEGRm0yPzv23DvImxCEtWW00Ot6WQuFWTrtzVY2A?purpose=fullsize', 'Coastal Deposition Landforms')">
+            <img src="https://images.openai.com/static-rsc-4/pj1Ulpd754mTT43Yi60tgTVOpw7kgqIWUbcdD8sTZxj2V8Y2NAM84iUKINAszYZY4iBen1Z3qW_zMHQRTHtTfmA0DpfTH7er-ZoG5uT5HVVHlMsyfqQkJ4OXLWU9m-x_9VfL4Q7QAnCVrLJHoahY3bAEoEGRm0yPzv23DvImxCEtWW00Ot6WQuFWTrtzVY2A?purpose=fullsize" alt="Deposition" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. How Forces Shape Ethiopia and the Horn -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>How Do These Forces Shape Ethiopia and the Horn?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Ethiopia's landmass is the result of the combined effects of endogenic and exogenic processes. Internal movements uplift and structure landforms, while rivers, wind, and weathering sculpt and modify them.
+      </p>
+
+      <!-- Ethiopia Landscapes Swipeable Row (8 Images) -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+          <span>Ethiopian &amp; East African Landscapes Gallery (Tap to zoom)</span>
+          <span class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400">Swipe left <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+        </div>
+
+        <div class="swipe-row flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/E_lCVf5kqTQqLuiaehvOQIz5gx_sUcbgTA5F8h6Ttvtvd4sNd6B1XRPwyURLGe9Msrwq6BuLII-tL3XHWMkPD7NOwmXXDoRGCblpytZTfQC_EeWMe0SzVxAmq3y9CWWSgr8U5JHSKpIcmIpf_Hr26ZqktjYojH8vGQ5stbIq3aPob42Z5Y5Dz1Wje-wfCwjU?purpose=fullsize', 'East African Rift Valley Fissure')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/E_lCVf5kqTQqLuiaehvOQIz5gx_sUcbgTA5F8h6Ttvtvd4sNd6B1XRPwyURLGe9Msrwq6BuLII-tL3XHWMkPD7NOwmXXDoRGCblpytZTfQC_EeWMe0SzVxAmq3y9CWWSgr8U5JHSKpIcmIpf_Hr26ZqktjYojH8vGQ5stbIq3aPob42Z5Y5Dz1Wje-wfCwjU?purpose=fullsize" alt="Rift" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">1. Rift Valley Fissure</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/Lb7bUzsVnZKv2_1_mORomveg4urmwNqXynl_81YlI42nqoCxWX02gJVEpBrYHIwsBK8kWO4DvelNCnq5T4lFp9hnayG_kk2eXRn5l7BAqpO0UvShfEYV9GHvi8WeDQq9VFlYQeRscV_NzENJEwZYhhnr7IXcyN9AAdFeE3UxW-0vQw2T9p9DH486OscWyYMu?purpose=fullsize', 'Blue Nile Gorge & Jemma Valley')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/Lb7bUzsVnZKv2_1_mORomveg4urmwNqXynl_81YlI42nqoCxWX02gJVEpBrYHIwsBK8kWO4DvelNCnq5T4lFp9hnayG_kk2eXRn5l7BAqpO0UvShfEYV9GHvi8WeDQq9VFlYQeRscV_NzENJEwZYhhnr7IXcyN9AAdFeE3UxW-0vQw2T9p9DH486OscWyYMu?purpose=fullsize" alt="Gorge" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">2. Blue Nile Gorge</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/VFD5-0n5741aQbJhgjQg4RJERS-kGEj5O8PqlvqYEpshfb0NktFBxBjR0LkOApRFpF59jghLcc2N0HSCKEznanpsQ3IO1T-yWNH5wFoRd8eWW8oPgDlhd1hQfe6yGHhJn39cEwnlct-1wxLV-tvlQv5zdPDGvQdwimebdew86GdUq-Fs39ObDacAP7HJ31Yi?purpose=fullsize', 'Helicopter View of Ethiopian Highlands')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/VFD5-0n5741aQbJhgjQg4RJERS-kGEj5O8PqlvqYEpshfb0NktFBxBjR0LkOApRFpF59jghLcc2N0HSCKEznanpsQ3IO1T-yWNH5wFoRd8eWW8oPgDlhd1hQfe6yGHhJn39cEwnlct-1wxLV-tvlQv5zdPDGvQdwimebdew86GdUq-Fs39ObDacAP7HJ31Yi?purpose=fullsize" alt="Highlands" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">3. Ethiopian Highlands</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/Gyjuvx4Uh15x88cgnZmqXcTkoP2k_NSTFgGqRzPxZclhn9TGITyDts0Ty7aL9dQ5ql0BhF-ucLn_FAjjspCAEn5hpka4x_PpniLeIgTEOquEBbDRw8qQSJoEEX2vpDhhoYgJF4Unx1IULZLdAxuokN67ki17D1N7l3av0_LfIBmRDYNFRAp9S5U1DExUbw19?purpose=fullsize', 'Blue Nile Basin Development')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/Gyjuvx4Uh15x88cgnZmqXcTkoP2k_NSTFgGqRzPxZclhn9TGITyDts0Ty7aL9dQ5ql0BhF-ucLn_FAjjspCAEn5hpka4x_PpniLeIgTEOquEBbDRw8qQSJoEEX2vpDhhoYgJF4Unx1IULZLdAxuokN67ki17D1N7l3av0_LfIBmRDYNFRAp9S5U1DExUbw19?purpose=fullsize" alt="Basin" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">4. Blue Nile Basin</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/k9lNWNMQLlGp-sgL2oKfUwoTtEr8VfE3MLOx00urTYOzVlypxOkqKHwvw8Zcbp9AfuuuTg2eriYrlrpWk_fzMHaypB7-4kHQJJoOVrEKs6L9nT-34_anveBuiwEMs_Hg-kNFGXACdTS5YEt-skT3HrnsIakmvewGVdNMYbUXKM5bmcdmByaQ3Q8N8Y9CPXTh?purpose=fullsize', 'Ethiopian Terrain')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/k9lNWNMQLlGp-sgL2oKfUwoTtEr8VfE3MLOx00urTYOzVlypxOkqKHwvw8Zcbp9AfuuuTg2eriYrlrpWk_fzMHaypB7-4kHQJJoOVrEKs6L9nT-34_anveBuiwEMs_Hg-kNFGXACdTS5YEt-skT3HrnsIakmvewGVdNMYbUXKM5bmcdmByaQ3Q8N8Y9CPXTh?purpose=fullsize" alt="Terrain" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">5. Ethiopian Terrain</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/ohKdGdlpER20BImt_w_kiV5RyEX7zaPwuplcfxfYhUSgjfO_up-cyVj9R-2PSQp2Qxlv6Nue9GG3ONL3FgJ37_FvrfFTg0pEsG7wWjCPHuTIcA4I-k1fSUgmHiAF_e9yTemtDIKzaMLyZII_IJmRRCnxZR52LYu_WqYuFKHEqjgkXssPIDVaXGqci2bn6YLj?purpose=fullsize', 'Africa Tectonic Rifting')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/ohKdGdlpER20BImt_w_kiV5RyEX7zaPwuplcfxfYhUSgjfO_up-cyVj9R-2PSQp2Qxlv6Nue9GG3ONL3FgJ37_FvrfFTg0pEsG7wWjCPHuTIcA4I-k1fSUgmHiAF_e9yTemtDIKzaMLyZII_IJmRRCnxZR52LYu_WqYuFKHEqjgkXssPIDVaXGqci2bn6YLj?purpose=fullsize" alt="Rifting" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">6. African Rifting</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/bGfJGn_Yj_Ai9G0FBEqvSF4bkiiOZsEaQriox9LUdfANgjSgEhR-iYs-15TZSN_D-VLmJYsCr_kC-3AuKXlwgCAE0ny3bs5cqGUat3C_SOgMtjMeRKpzErU9iwA8G7eNSnQuI1VBHybGb6dUtotyd6dC3vw2O3oY9CBtFSTDch-9oh27P6CN05447udoc-4_?purpose=fullsize', 'Addis Ababa & Awash Landscape')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/bGfJGn_Yj_Ai9G0FBEqvSF4bkiiOZsEaQriox9LUdfANgjSgEhR-iYs-15TZSN_D-VLmJYsCr_kC-3AuKXlwgCAE0ny3bs5cqGUat3C_SOgMtjMeRKpzErU9iwA8G7eNSnQuI1VBHybGb6dUtotyd6dC3vw2O3oY9CBtFSTDch-9oh27P6CN05447udoc-4_?purpose=fullsize" alt="Awash" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">7. Awash &amp; Harar</figcaption>
+          </figure>
+          <figure class="shrink-0 w-[46%] sm:w-[32%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/ZxtpX3YBaD-KJLzfT4nTHR208zvigGzhxhYDeDAxFcK5GkTycc9GemuBp6PmLajOb72igmms_z8T7CWCxCcEM1e4T7e8sLI7T_XkJZ1x8LGsAsjryZDCiSjGbmkbpDd9ADaGeVDQI_rZbimBVwAZwItNk4ppiMIpuHwugf3AJSMN_WIKBuaJLiIAGefxEWtO?purpose=fullsize', 'Blue Nile Falls (Tis Isat)')">
+            <div class="h-28 overflow-hidden"><img src="https://images.openai.com/static-rsc-4/ZxtpX3YBaD-KJLzfT4nTHR208zvigGzhxhYDeDAxFcK5GkTycc9GemuBp6PmLajOb72igmms_z8T7CWCxCcEM1e4T7e8sLI7T_XkJZ1x8LGsAsjryZDCiSjGbmkbpDd9ADaGeVDQI_rZbimBVwAZwItNk4ppiMIpuHwugf3AJSMN_WIKBuaJLiIAGefxEWtO?purpose=fullsize" alt="Falls" class="w-full h-full object-contain group-hover:scale-105 transition" /></div>
+            <figcaption class="px-2 py-1 text-[11px] font-semibold text-center truncate">8. Blue Nile Falls</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Comparison: Endogenic vs Exogenic -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Comparison: Endogenic vs. Exogenic &amp; Exam Traps</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Feature</th><th class="py-2 px-3">Endogenic</th><th class="py-2 px-3">Exogenic</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono text-xs">
+            <tr><td class="py-2 px-3 font-sans font-bold">Origin</td><td class="py-2 px-3">Inside Earth</td><td class="py-2 px-3">External / Surface processes</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Main Role</td><td class="py-2 px-3">Builds structural and volcanic features</td><td class="py-2 px-3">Modifies existing landforms</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Examples</td><td class="py-2 px-3">Volcanism, folding, faulting</td><td class="py-2 px-3">Weathering, erosion, deposition</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Other Examples</td><td class="py-2 px-3">Orogenesis, epeirogenesis</td><td class="py-2 px-3">Mass transfer</td></tr>
+            <tr><td class="py-2 px-3 font-sans font-bold">Result</td><td class="py-2 px-3">Plateaus, rift valleys, block mountains</td><td class="py-2 px-3">Worn-down and modified landforms</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">Tricky Exam Distinctions:</strong>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5">
+          <li><strong>Weathering vs. Erosion:</strong> Weathering breaks rocks down; erosion removes and transports materials.</li>
+          <li><strong>Erosion vs. Deposition:</strong> Erosion removes materials; deposition lays them down.</li>
+          <li><strong>Orogenesis vs. Epeirogenesis:</strong> Orogenesis builds mountains; epeirogenesis slowly raises or lowers large landmasses.</li>
+          <li><strong>Endogenic vs. Exogenic:</strong> Endogenic originates internally; exogenic operates externally.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing endogenic and exogenic geological processes</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Geological Processes — Endogenic and Exogenic Forces
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. Which of the following is an endogenic process?",
+        options: ["A. Weathering", "B. Deposition", "C. Faulting", "D. Erosion"],
+        correct: 2,
+        exp: "Faulting is an internal (endogenic) tectonic process where rocks break and move along fractures, unlike weathering, deposition, and erosion which are external (exogenic)."
+      },
+      {
+        q: "Q2. The slow rising and sinking of a large landmass is called:",
+        options: ["A. Orogenesis", "B. Epeirogenesis", "C. Weathering", "D. Mass transfer"],
+        correct: 1,
+        exp: "Epeirogenesis refers to the broad, slow vertical uplift or sinking of large landmasses without narrow mountain folding."
+      },
+      {
+        q: "Q3. Which process involves the breakdown of rocks at or near the Earth's surface in place?",
+        options: ["A. Deposition", "B. Orogenesis", "C. Weathering", "D. Faulting"],
+        correct: 2,
+        exp: "Weathering specifically refers to breaking down rocks in place at or near the surface, prior to erosion and transport."
+      },
+      {
+        q: "Q4. A river carries sand and mud, then drops them when its speed decreases. This process is called:",
+        options: ["A. Erosion", "B. Deposition", "C. Folding", "D. Faulting"],
+        correct: 1,
+        exp: "Deposition occurs when transported materials settle and accumulate in a new location."
+      },
+      {
+        q: "Q5. Which statement best describes the formation of Ethiopia's landmass?",
+        options: [
+          "A. It is formed only by internal forces.",
+          "B. It is formed only by external forces.",
+          "C. It is formed by the combined effects of endogenic and exogenic processes.",
+          "D. It is formed only by volcanic activity."
+        ],
+        correct: 2,
+        exp: "Ethiopia's landmass and landforms are the result of the combined, simultaneous effects of internal endogenic and external exogenic processes."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Geological Processes!" : "Great performance! You clearly understand endogenic vs. exogenic forces and landform shaping.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the differences between orogenesis, epeirogenesis, and weathering.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the definitions and comparison table above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>
