@@ -148,7 +148,19 @@
   </style>
 </head>
 <body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased pb-24">
-
+<!-- Anti-Cheating Blackout Shield -->
+  <div id="exam-shield" class="hidden fixed inset-0 z-[99999] bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white select-none">
+    <div class="w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-500 border border-rose-500/40 grid place-items-center mb-4 animate-bounce">
+      <i data-lucide="shield-alert" class="w-8 h-8"></i>
+    </div>
+    <h2 class="font-display font-extrabold text-2xl tracking-tight text-white mb-2">Exam Locked</h2>
+    <p class="text-sm text-slate-300 max-w-sm mb-4 leading-relaxed">
+      Switching apps, tabs, or taking screenshots is strictly prohibited during live examinations.
+    </p>
+    <div class="px-4 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold">
+      Penalty Applied: -2 minutes per violation.
+    </div>
+  </div>
   <!-- Reading progress, effects, toasts, modal -->
   <div id="scroll-bar" class="fixed top-0 left-0 h-[3px] w-0 z-[60] bg-gradient-to-r from-brand-500 to-brand-gold"></div>
   <canvas id="fx" class="fixed inset-0 w-full h-full pointer-events-none z-[300]" aria-hidden="true"></canvas>
@@ -368,7 +380,7 @@
   </div>
 
   <!-- ======================== APP ======================== -->
-  <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, collection, doc, getDoc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -403,7 +415,7 @@
       "Read a note, then explain it out loud in your own words.",
       "Mark notes as read to grow your study streak.",
       "Live mock exams auto-submit at 00:00, so pace yourself.",
-      "Flag hard questions in an exam and come back to them."
+      "Leaving the exam window triggers an automatic time penalty."
     ];
 
     /* ------------------------------------------------------------------
@@ -641,11 +653,105 @@
     let lastResult = null;
     let resultFilter = "all";
     let justAdded = null;
+    let isAwayFromExam = false;
 
     const mount = $("#app-mount");
     const navBar = $("#nav-bar");
     const searchBox = $("#search-container");
     const searchInput = $("#search-input");
+
+    /* ------------------------------------------------------------------
+       Anti-Cheating Engine & Dynamic Blackout Shield
+    ------------------------------------------------------------------ */
+    function ensureExamShield() {
+      let shield = $("#exam-shield");
+      if (!shield) {
+        shield = document.createElement("div");
+        shield.id = "exam-shield";
+        shield.className = "hidden fixed inset-0 z-[99999] bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white select-none";
+        shield.innerHTML = `
+          <div class="w-16 h-16 rounded-2xl bg-rose-500/20 text-rose-500 border border-rose-500/40 grid place-items-center mb-4 animate-bounce">
+            <i data-lucide="shield-alert" class="w-8 h-8"></i>
+          </div>
+          <h2 class="font-display font-extrabold text-2xl tracking-tight text-white mb-2">Exam Locked</h2>
+          <p class="text-sm text-slate-300 max-w-sm mb-4 leading-relaxed">
+            Switching apps, leaving tabs, or taking screenshots is strictly prohibited during live examinations.
+          </p>
+          <div class="px-4 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold">
+            Penalty: 2 minutes deducted per violation.
+          </div>
+        `;
+        document.body.appendChild(shield);
+        icons();
+      }
+      return shield;
+    }
+
+    function applyExamLockdown(active) {
+      document.body.classList.toggle("select-none", active);
+      document.body.classList.toggle("exam-protected", active);
+      const shield = $("#exam-shield");
+      if (!active && shield) {
+        shield.classList.add("hidden");
+        isAwayFromExam = false;
+      }
+    }
+
+    function triggerExamViolation() {
+      if (!session || session.done) return;
+
+      session.penaltyCount = (session.penaltyCount || 0) + 1;
+      // Deduct 2 minutes (120,000 ms)
+      session.endAt = Math.max(Date.now(), session.endAt - (120 * 1000));
+      persistExam();
+
+      toast(`⚠️ Violation #${session.penaltyCount} Detected!\nYou left the exam. 2 minutes deducted as penalty.`, "error", 5000);
+      beep();
+      tickExam();
+    }
+
+    function handleVisibilityChange() {
+      if (!session || session.done) return;
+      const shield = ensureExamShield();
+      if (document.hidden) {
+        isAwayFromExam = true;
+        shield.classList.remove("hidden");
+      } else {
+        shield.classList.add("hidden");
+        if (isAwayFromExam) {
+          isAwayFromExam = false;
+          triggerExamViolation();
+        }
+      }
+    }
+
+    function handleWindowBlur() {
+      if (!session || session.done) return;
+      isAwayFromExam = true;
+      const shield = ensureExamShield();
+      shield.classList.remove("hidden");
+    }
+
+    function handleWindowFocus() {
+      if (!session || session.done) return;
+      const shield = ensureExamShield();
+      shield.classList.add("hidden");
+      if (isAwayFromExam) {
+        isAwayFromExam = false;
+        triggerExamViolation();
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+    window.addEventListener("focus", handleWindowFocus);
+
+    document.addEventListener("contextmenu", (e) => {
+      if (session) {
+        e.preventDefault();
+        toast("Right-click is disabled during examinations.", "warn", 2000);
+      }
+    });
 
     /* ------------------------------------------------------------------
        UI primitives
@@ -732,7 +838,6 @@
       r?.(value);
     }
 
-    // Confetti
     const fx = $("#fx"), fctx = fx.getContext("2d");
     let parts = [], fxRaf = 0;
     function sizeFx() {
@@ -1121,7 +1226,7 @@
         <div class="space-y-4">
           <div class="reveal space-y-1">
             <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg flex items-center gap-2">${ic("clipboard-check", "w-5 h-5 text-brand-600 dark:text-brand-400")}<span>Live mock exams</span></h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Timed mock exams posted by your tutors. Your attempt submits itself when the clock reaches 00:00.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Timed mock exams posted by your tutors. Leaving the exam window incurs a 2-minute penalty.</p>
           </div>
 
           ${resumable ? `
@@ -1173,7 +1278,14 @@
     const examRemaining = () => Math.max(0, Math.ceil((session.endAt - Date.now()) / 1000));
     function persistExam() {
       if (!session) return;
-      store.set(K.session, { examId: session.data.id, endAt: session.endAt, answers: session.answers, flags: [...session.flags], idx: session.idx });
+      store.set(K.session, {
+        examId: session.data.id,
+        endAt: session.endAt,
+        answers: session.answers,
+        flags: [...session.flags],
+        idx: session.idx,
+        penaltyCount: session.penaltyCount || 0
+      });
     }
 
     async function startExam(id, resume = false) {
@@ -1184,16 +1296,23 @@
       if (!resume) {
         const ok = await ask({
           title: `Start "${data.title}"?`,
-          message: `The ${data.duration}-minute timer starts immediately. When it reaches 00:00 your answers are submitted automatically.`,
+          message: `The ${data.duration}-minute timer starts immediately. Leaving the tab, switching apps, or capturing screenshots will lock the exam and deduct 2 minutes per occurrence.`,
           confirmText: "Start exam", cancelText: "Not yet"
         });
         if (!ok) return;
       }
       session = {
-        data, idx: saved?.idx || 0, answers: saved?.answers || {}, flags: new Set(saved?.flags || []),
-        endAt: saved?.endAt || Date.now() + data.duration * 60000, dir: null, done: false
+        data,
+        idx: saved?.idx || 0,
+        answers: saved?.answers || {},
+        flags: new Set(saved?.flags || []),
+        penaltyCount: saved?.penaltyCount || 0,
+        endAt: saved?.endAt || Date.now() + data.duration * 60000,
+        dir: null,
+        done: false
       };
       persistExam();
+      applyExamLockdown(true);
       session.timer = setInterval(tickExam, 250);
       render({ anim: false });
       scrollTo({ top: 0 });
@@ -1202,6 +1321,7 @@
     function cancelExam() {
       if (!session) return;
       clearInterval(session.timer);
+      applyExamLockdown(false);
       session = null;
       store.remove(K.session);
     }
@@ -1237,7 +1357,10 @@
           <div class="flex items-center justify-between gap-3">
             <div class="min-w-0">
               <h4 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">${esc(d.title)}</h4>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400">${answered} of ${n} answered</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <span>${answered} of ${n} answered</span>
+                ${session.penaltyCount ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">Penalties: ${session.penaltyCount}</span>` : ""}
+              </p>
             </div>
             <div class="text-right shrink-0">
               <div class="text-[11px] font-semibold text-slate-400">Time left</div>
@@ -1308,12 +1431,14 @@
       if (!session || session.done) return;
       session.done = true;
       clearInterval(session.timer);
+      applyExamLockdown(false);
       closeModal(false);
 
       const { data } = session, qs = data.questions, answers = { ...session.answers };
       let score = 0;
       qs.forEach((q, i) => { if (answers[i] === q.correct) score++; });
       const total = qs.length, pct = pctOf(score, total);
+      const totalPenalties = session.penaltyCount || 0;
 
       store.remove(K.session);
       const hist = store.get(K.exams, []);
@@ -1323,14 +1448,23 @@
 
       if (user) {
         try {
-          await addDoc(collection(db, "live_exam_results"), {
-            examId: data.id, examTitle: data.title, userId: user.uid, userEmail: user.email, userName: studentName,
-            score, total, percentage: pct, submittedAt: serverTimestamp()
+          // Saving to collection: "live_exam_submissions" with field "penaltyCount"
+          await addDoc(collection(db, "live_exam_submissions"), {
+            examId: data.id,
+            examTitle: data.title,
+            userId: user.uid,
+            userEmail: user.email,
+            userName: studentName,
+            score,
+            total,
+            percentage: pct,
+            "penaltyCount": totalPenalties,
+            submittedAt: serverTimestamp()
           });
         } catch (e) { console.warn("Saving exam result failed:", e); }
       }
 
-      lastResult = { exam: data, qs, answers, score, total, pct };
+      lastResult = { exam: data, qs, answers, score, total, pct, penalties: totalPenalties };
       resultFilter = "all";
       session = null;
       if (timeout) await ask({ title: "Time is up", message: "Your exam was submitted automatically.", confirmText: "See results", single: true });
@@ -1352,6 +1486,7 @@
             <div>
               <p class="text-xs text-slate-500 dark:text-slate-400">${esc(r.exam.title)}</p>
               <h3 class="font-display text-2xl font-extrabold text-slate-900 dark:text-white mt-1">${r.score} of ${r.total} correct</h3>
+              ${r.penalties ? `<p class="mt-1 text-xs font-bold text-rose-600 dark:text-rose-400">Total Penalties Incurred: ${r.penalties} (${r.penalties * 2} minutes deducted)</p>` : ""}
             </div>
             <p class="text-sm font-medium ${pass ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}">${msg}</p>
             <div class="flex flex-wrap justify-center gap-2">
@@ -1634,7 +1769,7 @@
             <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div class="text-xs">
                 <span class="text-slate-400 block text-[10px]">Portal Engineering</span>
-                <strong class="text-slate-800 dark:text-slate-200 font-bold">AlphaFront Tech Solutions™</strong>
+                <strong class="text-slate-800 dark:text-slate-200 font-bold">Alpha Tech Solutions™</strong>
               </div>
               <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">Verified Vendor</span>
             </div>
@@ -1645,7 +1780,7 @@
     }
 
     /* ------------------------------------------------------------------
-       Actions (Optimized for instant, snappy DOM feedback)
+       Actions
     ------------------------------------------------------------------ */
     function toggleDone(file, btn) {
       const isDone = completed.has(file);
@@ -1653,7 +1788,6 @@
       else completed.add(file);
       store.set(K.done, [...completed]);
 
-      // Instant local DOM update without full page re-render!
       const card = btn?.closest("[data-topic-card]");
       if (btn && card) {
         const nowDone = completed.has(file);
@@ -1671,7 +1805,6 @@
         card.classList.toggle("!border-l-4", nowDone);
         card.classList.toggle("!border-l-emerald-500", nowDone);
 
-        // Update chapter counter smoothly
         const x = getChapter();
         if (x) {
           const r = x.topics.filter(tp => tp.file), d = doneIn(r);
@@ -1830,6 +1963,16 @@
       if (typing || e.metaKey || e.ctrlKey || e.altKey || modalResolve) return;
 
       if (session && state.nav === "exams") {
+        // Prevent PrintScreen or developer tool / copy shortcuts during exam
+        if (e.key === "PrintScreen" || (e.ctrlKey && ["c", "p", "u", "s"].includes(e.key.toLowerCase()))) {
+          e.preventDefault();
+          const shield = ensureExamShield();
+          shield.classList.remove("hidden");
+          setTimeout(() => shield.classList.add("hidden"), 1000);
+          triggerExamViolation();
+          return;
+        }
+
         const q = session.data.questions[session.idx], k = e.key.toLowerCase();
         if (/^[1-9]$/.test(k) && Number(k) <= q.options.length) { session.answers[session.idx] = Number(k) - 1; persistExam(); render({ anim: false }); }
         else if (/^[a-d]$/.test(k) && k.charCodeAt(0) - 97 < q.options.length) { session.answers[session.idx] = k.charCodeAt(0) - 97; persistExam(); render({ anim: false }); }
@@ -2064,6 +2207,6 @@
     history.replaceState(snap(), "");
     runSplash();
     icons();
-  </script>
+</script>
 </body>
 </html>
