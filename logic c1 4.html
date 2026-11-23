@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Axiology and Logic — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Logic and Critical Thinking</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="scale" class="w-3.5 h-3.5"></i> Core Fields of Philosophy · Value &amp; Reasoning
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Axiology and Logic</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Ethics (Normative, Meta, Applied), Aesthetics, Social/Political Philosophy, Arguments, Validity &amp; Soundness</p>
+      </div>
+    </section>
+
+    <!-- 1. Axiology & Three Main Areas -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Axiology: The Study of Value (Axios + Logos)</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        From Greek <em>axios</em> (value/worth) + <em>logos</em> (theory/study), <strong>axiology</strong> investigates what people and societies consider good, valuable, or preferable (e.g., choosing between telling the truth and losing a friendship vs. lying to protect it). It divides into three major areas:
+      </p>
+
+      <div class="grid sm:grid-cols-3 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-brand-700 dark:text-brand-400 block">1. Ethics</strong>
+          <p class="text-slate-600 dark:text-slate-300">Studies moral principles, codes, and rules—determining good/bad, right/wrong, stealing, truth, and whether morality is universal or relative.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/Wp5NV0MMppa9Mdclx7UssqqqQGVWi6FPkIODKAaO7D9gGjoLBV6xkf7azMn3ruoeva7N9wFD7qKYXT-Lr6nn1EFIY_2FwfNrG9ozGMpjDDQHcXswLfXj2tymM60yx-jjFfXYgZRbOjE4t2HpI8t3bvTGxVk3TCZ65ZsDl8RPOphw0kJi6lJoPsjykEDhOQHK?purpose=fullsize', 'Ethics: Moral Principles and Right vs. Wrong Conduct')">
+            <img src="https://images.openai.com/static-rsc-4/Wp5NV0MMppa9Mdclx7UssqqqQGVWi6FPkIODKAaO7D9gGjoLBV6xkf7azMn3ruoeva7N9wFD7qKYXT-Lr6nn1EFIY_2FwfNrG9ozGMpjDDQHcXswLfXj2tymM60yx-jjFfXYgZRbOjE4t2HpI8t3bvTGxVk3TCZ65ZsDl8RPOphw0kJi6lJoPsjykEDhOQHK?purpose=fullsize" alt="Ethics" class="w-full h-24 object-cover" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-brand-700 dark:text-brand-400 block">2. Aesthetics</strong>
+          <p class="text-slate-600 dark:text-slate-300">Theory of beauty—examining art, enjoyment, perception, taste/sentiment, and whether beauty is objective or subjective.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/cHHkGalnBGCDrZkRg52xsRPYGQDPExOh0kWyaYETUd33T5vXskAhYE5bJPTe59K2x5F86vS8yaJH6LYjw_ojwMTH2SNx2CSOmKquFRAUJ7G-yV7zcVgOsksYNXehaY-gJITwoiAzoP4mwj6i6klNN8l0fxuqw4oo11MMf97lqpJIMJS6d6sN2qzzqi2siuzL?purpose=fullsize', 'Aesthetics: Study of Beauty, Art, and Taste')">
+            <img src="https://images.openai.com/static-rsc-4/cHHkGalnBGCDrZkRg52xsRPYGQDPExOh0kWyaYETUd33T5vXskAhYE5bJPTe59K2x5F86vS8yaJH6LYjw_ojwMTH2SNx2CSOmKquFRAUJ7G-yV7zcVgOsksYNXehaY-gJITwoiAzoP4mwj6i6klNN8l0fxuqw4oo11MMf97lqpJIMJS6d6sN2qzzqi2siuzL?purpose=fullsize" alt="Aesthetics" class="w-full h-24 object-cover" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-brand-700 dark:text-brand-400 block">3. Social/Political Philosophy</strong>
+          <p class="text-slate-600 dark:text-slate-300">Studies civic values—best government &amp; economic systems, justice vs. injustice, state purpose, and obeying laws.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/G7kgkhI8S-fr9l7UdrZheliozjzgFtyz8Jd8k8dJ5YpaNEMd0UPd9UyEsHmIJvi09_eWkiUMRavsbpI2VYQVM0pnVYtljrKjWCbtl1WAatWHgGuS_21uFeY91-8shrTUKEkuPHE5LYk0Ep7MdZ45ni-AZ_fcDxgrpwB3OX0mcrpIebJ2od00FKh47e3LbdYQ?purpose=fullsize', 'Social and Political Philosophy: Justice and Civic Order')">
+            <img src="https://images.openai.com/static-rsc-4/G7kgkhI8S-fr9l7UdrZheliozjzgFtyz8Jd8k8dJ5YpaNEMd0UPd9UyEsHmIJvi09_eWkiUMRavsbpI2VYQVM0pnVYtljrKjWCbtl1WAatWHgGuS_21uFeY91-8shrTUKEkuPHE5LYk0Ep7MdZ45ni-AZ_fcDxgrpwB3OX0mcrpIebJ2od00FKh47e3LbdYQ?purpose=fullsize" alt="Social Political Philosophy" class="w-full h-24 object-cover" />
+          </figure>
+        </div>
+      </div>
+
+      <!-- Three Branches of Ethics -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Branch of Ethics</th><th class="py-2 px-3">Core Question (Memory Clue)</th><th class="py-2 px-3">Major Examples / Theories</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">A. Normative Ethics</td><td class="py-1.5 px-3">What should we do? (Rules)</td><td class="py-1.5 px-3">Consequentialism (Teleological), Deontological, Virtue Ethics</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">B. Meta-Ethics</td><td class="py-1.5 px-3">What do moral terms mean? (Meanings)</td><td class="py-1.5 px-3">Intuitionism, Emotivism, Prescriptivism, Nihilism, Relativism</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">C. Applied Ethics</td><td class="py-1.5 px-3">How to solve real moral dilemmas?</td><td class="py-1.5 px-3">Capital punishment, euthanasia, abortion, adultery, animal rights</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 2. Logic: Correct Reasoning, Validity & Soundness -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Logic: Arguments, Validity, Soundness &amp; Fallacies</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        <strong>Logic</strong> studies the principles of right reasoning—like choosing the right highway from Jimma to Addis Ababa so your steps actually reach the right destination. An <strong>argument</strong> consists of <strong>premises</strong> (statements providing supporting evidence) and a <strong>conclusion</strong> (the statement following from them).
+      </p>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 font-mono text-xs text-center space-y-1">
+        <div><strong>Premise 1:</strong> All humans are mortal.</div>
+        <div><strong>Premise 2:</strong> Socrates is a human.</div>
+        <div class="text-emerald-700 dark:text-emerald-400 font-bold"><strong>Conclusion:</strong> Therefore, Socrates is mortal.</div>
+      </div>
+
+      <!-- Validity vs Soundness -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-slate-900 dark:text-white block">A. Valid Argument (Structure Only)</strong>
+          <p class="text-slate-600 dark:text-slate-300">Conclusion follows logically from premises (<em>All birds have wings; a pigeon is a bird &rarr; a pigeon has wings</em>). Even false premises can be valid: <em>All fish can fly; tilapia is a fish &rarr; tilapia can fly</em> (<strong>valid, yet unsound!</strong>).</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1">
+          <strong class="font-display text-emerald-900 dark:text-emerald-300 block">B. Sound Argument (Valid + True Premises)</strong>
+          <p class="text-slate-700 dark:text-slate-300">Requires <strong>both</strong> valid logical structure AND actually true premises. A valid argument is NOT automatically sound.</p>
+          <p class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 pt-1"><strong>Fallacy:</strong> A defective reasoning error (e.g., <em>&ldquo;Everyone in my class believes this, so it must be true&rdquo;</em>).</p>
+        </div>
+      </div>
+
+      <!-- Axiology vs Logic Matrix -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Axiology</th><th class="py-2 px-3">Logic</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3">Studies value (What is valuable?)</td><td class="py-1.5 px-3">Studies correct reasoning (Is the reasoning correct?)</td></tr>
+            <tr><td class="py-1.5 px-3">Covers ethics, aesthetics, social/political values</td><td class="py-1.5 px-3">Evaluates arguments, validity, soundness &amp; fallacies</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing axiology, ethics branches, validity, and soundness</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Axiology and Logic
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. Which branch of philosophy studies values and worth?",
+        options: ["A. Metaphysics", "B. Epistemology", "C. Axiology", "D. Logic"],
+        correct: 2,
+        exp: "Axiology (from axios = value/worth) investigates what is good, valuable, or preferable across ethics, aesthetics, and social/political life."
+      },
+      {
+        q: "Q2. A philosopher investigates whether a painting is beautiful and whether beauty is subjective or objective. Which area of axiology is involved?",
+        options: ["A. Ethics", "B. Aesthetics", "C. Social/Political Philosophy", "D. Logic"],
+        correct: 1,
+        exp: "Aesthetics is the philosophical theory of beauty, art, artistic perception, and matters of taste."
+      },
+      {
+        q: "Q3. Which branch of ethics investigates the meaning of moral terms such as good, bad, right, and wrong?",
+        options: ["A. Applied ethics", "B. Normative ethics", "C. Meta-ethics", "D. Political philosophy"],
+        correct: 2,
+        exp: "Meta-ethics analyzes the meaning and verification of ethical language (e.g., what 'good' means in 'honesty is good')."
+      },
+      {
+        q: "Q4. A student applies general moral principles to evaluate whether animal testing is ethically acceptable. This illustrates:",
+        options: ["A. Applied ethics", "B. Aesthetics", "C. Meta-ethics", "D. Cosmology"],
+        correct: 0,
+        exp: "Applied ethics uses general moral rules and theories to address concrete real-world issues like animal rights, euthanasia, or capital punishment."
+      },
+      {
+        q: "Q5. An argument is classified as 'sound' when:",
+        options: [
+          "A. Its conclusion is popular",
+          "B. Its premises are long",
+          "C. It is valid and has true premises",
+          "D. It has only one premise"
+        ],
+        correct: 2,
+        exp: "Soundness requires two conditions: valid logical structure (conclusion follows from premises) AND all premises must actually be true."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Axiology and Logic!" : "Great performance! You clearly understand axiology, ethical branches, and valid vs. sound arguments.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the differences among Normative, Meta, and Applied ethics above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the axiology areas and validity vs. soundness distinctions above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>
