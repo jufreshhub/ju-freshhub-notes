@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Present Perfect Tense — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 300: '#FCD34D', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .grammar-pill { @apply inline-flex items-center px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-brand-200 dark:border-slate-700 font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100 shadow-sm; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Communicative English Skills I</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Grammar &amp; Usage · Tense Systems
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Present Perfect Tense</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Sentence Structure, Core Functions, Negatives &amp; Questions, Time Markers, and Present Perfect vs. Simple Past</p>
+      </div>
+    </section>
+
+    <!-- 1. Meaning & Structure -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Meaning &amp; Structure of the Present Perfect</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The <strong>present perfect tense</strong> connects a past action directly to the present moment. For example, if you lost your phone yesterday (past action), you still cannot use it today (present result).
+      </p>
+
+      <!-- Grammar Formula Visual Block -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-3">
+        <div class="text-center">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-brand-700 dark:text-brand-300 block mb-2">Affirmative Formula</span>
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <span class="grammar-pill">Subject</span>
+            <span class="font-bold text-brand-700 dark:text-brand-400">+</span>
+            <span class="grammar-pill text-brand-700 dark:text-brand-300">have / has</span>
+            <span class="font-bold text-brand-700 dark:text-brand-400">+</span>
+            <span class="grammar-pill">Past Participle (V<sub>3</sub>)</span>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-brand-200/70 dark:border-brand-500/20 flex flex-wrap items-center justify-center gap-1.5 text-xs">
+          <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-brand-200 dark:border-slate-700 font-semibold">She</span>
+          <span class="font-bold">+</span>
+          <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-brand-200 dark:border-slate-700 font-semibold text-brand-700 dark:text-brand-300">has</span>
+          <span class="font-bold">+</span>
+          <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-brand-200 dark:border-slate-700 font-semibold">eaten</span>
+          <span class="font-bold">&rarr;</span>
+          <span class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-bold">She has eaten.</span>
+        </div>
+      </div>
+
+      <!-- Helping Verb Agreement & Past Participles -->
+      <div class="grid sm:grid-cols-2 gap-3.5 text-xs">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div class="bg-slate-50 dark:bg-slate-800/80 px-3.5 py-2 font-bold uppercase text-[11px] text-slate-500 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+            Subject &amp; Helping Verb Agreement
+          </div>
+          <div class="divide-y divide-slate-100 dark:divide-slate-800">
+            <div class="p-3 space-y-1">
+              <div class="font-bold text-slate-900 dark:text-white">I / You / We / They + <span class="text-brand-600 dark:text-brand-400">have</span></div>
+              <ul class="list-disc pl-4 text-slate-600 dark:text-slate-300 space-y-0.5 italic">
+                <li>I <strong>have</strong> finished my work.</li>
+                <li>They <strong>have</strong> eaten lunch.</li>
+              </ul>
+            </div>
+            <div class="p-3 space-y-1">
+              <div class="font-bold text-slate-900 dark:text-white">He / She / It + <span class="text-brand-600 dark:text-brand-400">has</span></div>
+              <ul class="list-disc pl-4 text-slate-600 dark:text-slate-300 space-y-0.5 italic">
+                <li>He <strong>has</strong> finished his homework.</li>
+                <li>It <strong>has</strong> stopped raining.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div class="bg-slate-50 dark:bg-slate-800/80 px-3.5 py-2 font-bold uppercase text-[11px] text-slate-500 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+            Past Participle Forms (V<sub>3</sub>)
+          </div>
+          <div class="p-3 grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <strong class="text-emerald-700 dark:text-emerald-400 block">Regular (-ed)</strong>
+              <ul class="space-y-1 text-slate-600 dark:text-slate-300">
+                <li>work &rarr; <strong>worked</strong></li>
+                <li>play &rarr; <strong>played</strong></li>
+                <li>finish &rarr; <strong>finished</strong></li>
+              </ul>
+            </div>
+            <div class="space-y-1.5">
+              <strong class="text-amber-700 dark:text-amber-400 block">Irregular</strong>
+              <ul class="space-y-1 text-slate-600 dark:text-slate-300">
+                <li>eat &rarr; <strong>eaten</strong></li>
+                <li>write &rarr; <strong>written</strong></li>
+                <li>go &rarr; <strong>gone</strong></li>
+                <li>see &rarr; <strong>seen</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Four Major Uses + Negatives & Questions -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Four Main Uses, Negatives &amp; Questions</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">A. Unspecified Time Before Now</strong>
+          <p class="text-slate-500 dark:text-slate-400">The action happened at some unstated time in the past:</p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-700 dark:text-slate-200 italic">
+            <li>I <strong>have visited</strong> Addis Ababa.</li>
+            <li>She <strong>has read</strong> that book.</li>
+            <li>They <strong>have studied</strong> English.</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">B. Past Action With Present Effect</strong>
+          <p class="text-slate-500 dark:text-slate-400">A past event has a clear result right now:</p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-700 dark:text-slate-200 italic">
+            <li>I <strong>have lost</strong> my keys (I cannot open the door).</li>
+            <li>He <strong>has broken</strong> his leg (he cannot walk).</li>
+            <li>They <strong>have built</strong> a road (it is usable now).</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">C. Recently Completed Action</strong>
+          <p class="text-slate-500 dark:text-slate-400">Finished only a short time ago:</p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-700 dark:text-slate-200 italic">
+            <li>Ujulu <strong>has cooked</strong> dinner.</li>
+            <li>I <strong>have just finished</strong> my assignment.</li>
+            <li>The teacher <strong>has arrived</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">D. Life Experiences Up to Now</strong>
+          <p class="text-slate-500 dark:text-slate-400">Experiences you have or have not had in your life:</p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-700 dark:text-slate-200 italic">
+            <li>I <strong>have never been</strong> to Moyale.</li>
+            <li><strong>Have</strong> you <strong>ever visited</strong> Hawassa?</li>
+            <li>She <strong>has visited</strong> Kenya twice.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Negative & Question Forms -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-4 rounded-xl bg-rose-50/70 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 space-y-2">
+          <strong class="text-rose-900 dark:text-rose-300 font-display text-sm block">Negative Form</strong>
+          <div class="px-2.5 py-1.5 rounded-lg bg-white/80 dark:bg-slate-900/60 font-semibold text-slate-800 dark:text-slate-200">
+            Subject + have / has + not + V<sub>3</sub>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Contractions: <strong>haven't</strong> / <strong>hasn't</strong></p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-700 dark:text-slate-200 italic">
+            <li>I <strong>have not finished</strong> my homework.</li>
+            <li>She <strong>has not written</strong> the letter yet.</li>
+            <li>They <strong>haven't arrived</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-2">
+          <strong class="text-emerald-900 dark:text-emerald-300 font-display text-sm block">Question Form &amp; Short Answers</strong>
+          <div class="px-2.5 py-1.5 rounded-lg bg-white/80 dark:bg-slate-900/60 font-semibold text-slate-800 dark:text-slate-200">
+            Have / Has + Subject + V<sub>3</sub>?
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Short answers: <em>Yes, I have. / No, she hasn't.</em></p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-700 dark:text-slate-200 italic">
+            <li><strong>Have</strong> you <strong>eaten</strong>?</li>
+            <li><strong>Has</strong> she <strong>arrived</strong>?</li>
+            <li><strong>Have</strong> they <strong>finished</strong> their work?</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Present Perfect vs Simple Past & Time Expressions -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Present Perfect vs. Simple Past &amp; Time Markers</span>
+      </h2>
+
+      <!-- Visual Timeline -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1">
+          <strong class="text-emerald-900 dark:text-emerald-300 font-display block">Present Perfect (Past &rarr; NOW)</strong>
+          <p class="text-slate-700 dark:text-slate-300">Focuses on the present result or life experience; exact finished past time is <strong>not</strong> stated.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-900 dark:text-white font-display block">Simple Past (Finished Past Time)</strong>
+          <p class="text-slate-600 dark:text-slate-300">Happened at a definite, completed time in the past (e.g., <em>yesterday, last year, in 2015</em>).</p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2.5 px-3.5">Present Perfect (Experience / Result)</th><th class="py-2.5 px-3.5">Simple Past (Definite Past Time)</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3.5">I <strong>have read</strong> this novel before.</td><td class="py-2 px-3.5">I <strong>read</strong> this novel <strong>yesterday</strong>.</td></tr>
+            <tr><td class="py-2 px-3.5">She <strong>has visited</strong> Jimma.</td><td class="py-2 px-3.5">She <strong>visited</strong> Jimma <strong>last year</strong>.</td></tr>
+            <tr><td class="py-2 px-3.5">They <strong>have finished</strong> their work.</td><td class="py-2 px-3.5">They <strong>finished</strong> their work <strong>two hours ago</strong>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 6 Time Expressions (Stacked vertically, NO pipes) -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2.5">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Common Present Perfect Time Expressions:</strong>
+        <ul class="space-y-2 text-slate-700 dark:text-slate-200">
+          <li class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+            <strong class="text-brand-700 dark:text-brand-400">1. Already</strong> <span class="text-slate-500 dark:text-slate-400">(sooner than expected):</span><br>
+            <span class="italic">Classes have <strong>already</strong> started.</span>
+          </li>
+          <li class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+            <strong class="text-brand-700 dark:text-brand-400">2. Just</strong> <span class="text-slate-500 dark:text-slate-400">(a very short time ago):</span><br>
+            <span class="italic">I have <strong>just</strong> eaten breakfast.</span>
+          </li>
+          <li class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+            <strong class="text-brand-700 dark:text-brand-400">3. Never</strong> <span class="text-slate-500 dark:text-slate-400">(at no time in life so far):</span><br>
+            <span class="italic">I have <strong>never</strong> visited Moyale.</span>
+          </li>
+          <li class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+            <strong class="text-brand-700 dark:text-brand-400">4. Ever</strong> <span class="text-slate-500 dark:text-slate-400">(at any time — mainly in questions):</span><br>
+            <span class="italic">Have you <strong>ever</strong> travelled by plane?</span>
+          </li>
+          <li class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+            <strong class="text-brand-700 dark:text-brand-400">5. Yet</strong> <span class="text-slate-500 dark:text-slate-400">(until now — at the end of negatives &amp; questions):</span><br>
+            <span class="italic">She has not written the letter <strong>yet</strong>.</span>
+          </li>
+          <li class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700">
+            <strong class="text-brand-700 dark:text-brand-400">6. So far / Up to now</strong> <span class="text-slate-500 dark:text-slate-400">(total progress until the present):</span><br>
+            <span class="italic">We have completed three units <strong>so far</strong>.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Exam Trap (Stacked vertically) -->
+      <div class="p-4 rounded-xl bg-rose-50/80 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs space-y-2 text-rose-950 dark:text-rose-200">
+        <strong class="font-bold block text-sm">Exam Trap — Never Mix Present Perfect With Finished Past Time!</strong>
+        <p>Do not pair the present perfect with definite finished past-time expressions (<em>yesterday, last year, two days ago, in 2010</em>):</p>
+        <div class="space-y-1.5 pt-1">
+          <div class="text-rose-700 dark:text-rose-300">❌ <em>I have read this book last year.</em></div>
+          <div class="text-emerald-700 dark:text-emerald-300 font-semibold">✅ I read this book last year.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Graded Practice: Easy -> Tricky (Well-spaced vertical list) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Graded Practice (Easy &rarr; Tricky)</span>
+      </h2>
+
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        Try filling in each blank first, then tap <strong>Show Answer</strong> to check the correct verb form and grammar rule.
+      </p>
+
+      <div class="space-y-3.5 text-xs sm:text-sm">
+        <!-- Item 1 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            1. She _________ finished her assignment. <span class="text-xs font-normal text-slate-500">(have / has)</span>
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ She <strong>has</strong> finished her assignment. <span class="text-slate-500 dark:text-slate-400">(Singular third-person subject "She" takes <em>has</em>.)</span>
+            </div>
+          </details>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            2. They _________ eaten lunch. <span class="text-xs font-normal text-slate-500">(have / has)</span>
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ They <strong>have</strong> eaten lunch. <span class="text-slate-500 dark:text-slate-400">(Plural subject "They" takes <em>have</em>.)</span>
+            </div>
+          </details>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            3. I have _________ (do) my homework.
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ I have <strong>done</strong> my homework. <span class="text-slate-500 dark:text-slate-400">(Irregular past participle of <em>do</em>: do &rarr; did &rarr; <strong>done</strong>.)</span>
+            </div>
+          </details>
+        </div>
+
+        <!-- Item 4 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            4. He has never _________ (travel) outside the country.
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ He has never <strong>travelled</strong> (or <strong>traveled</strong>) outside the country. <span class="text-slate-500 dark:text-slate-400">(<em>Never</em> sits between <em>has</em> and V<sub>3</sub>.)</span>
+            </div>
+          </details>
+        </div>
+
+        <!-- Item 5 (Tricky!) -->
+        <div class="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            5. <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200/80 dark:bg-amber-500/30 text-amber-900 dark:text-amber-200 font-bold mr-1">Tricky</span>
+            We _________ (play) football <em>yesterday</em>.
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-300 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ We <strong>played</strong> football yesterday. <span class="text-rose-600 dark:text-rose-400 font-semibold">(Watch out! "Yesterday" is a definite finished past time &rarr; use Simple Past, NOT "have played"!)</span>
+            </div>
+          </details>
+        </div>
+
+        <!-- Item 6 (Tricky!) -->
+        <div class="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            6. <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200/80 dark:bg-amber-500/30 text-amber-900 dark:text-amber-200 font-bold mr-1">Tricky</span>
+            She _________ (just / finish) her assignment, so she can submit it now.
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-300 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ She <strong>has just finished</strong> her assignment, so she can submit it now. <span class="text-slate-500 dark:text-slate-400">(Recently completed action with a present result &rarr; Present Perfect; <em>just</em> goes between <em>has</em> and <em>finished</em>.)</span>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (10 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">10 exam-style questions testing present perfect structure, past participles, and simple past contrasts</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 10</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 10 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Present Perfect Tense
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. Which sentence is correctly written in the present perfect tense?",
+        options: [
+          "A. She eats breakfast.",
+          "B. She has eaten breakfast.",
+          "C. She ate breakfast yesterday.",
+          "D. She is eating breakfast."
+        ],
+        correct: 1,
+        exp: "'She has eaten breakfast' follows the Present Perfect formula: Subject + has + past participle (eaten)."
+      },
+      {
+        q: "Q2. Choose the grammatically correct sentence.",
+        options: [
+          "A. He have finished.",
+          "B. He has finish.",
+          "C. He has finished.",
+          "D. He having finished."
+        ],
+        correct: 2,
+        exp: "Third-person singular subject 'He' requires 'has' followed by the past participle 'finished'."
+      },
+      {
+        q: "Q3. What is the correct past participle of the verb 'write'?",
+        options: ["A. Wrote", "B. Written", "C. Writing", "D. Writes"],
+        correct: 1,
+        exp: "'Write' (base) → 'wrote' (simple past) → 'written' (past participle used after have/has)."
+      },
+      {
+        q: "Q4. Complete the sentence: They ___ already arrived.",
+        options: ["A. has", "B. have", "C. had", "D. are"],
+        correct: 1,
+        exp: "The plural subject 'They' takes the helping verb 'have' in the present perfect tense."
+      },
+      {
+        q: "Q5. Which sentence describes a past action with a clear present result?",
+        options: [
+          "A. I lost my keys yesterday.",
+          "B. I have lost my keys, so I cannot open the door.",
+          "C. I lose my keys every week.",
+          "D. I will lose my keys."
+        ],
+        correct: 1,
+        exp: "'I have lost my keys, so I cannot open the door' connects the past loss to its ongoing present consequence."
+      },
+      {
+        q: "Q6. Choose the grammatically correct negative sentence.",
+        options: [
+          "A. She has not written the letter.",
+          "B. She have not wrote the letter.",
+          "C. She has not write the letter.",
+          "D. She not has written the letter."
+        ],
+        correct: 0,
+        exp: "Negative form: Subject (She) + has + not + past participle (written)."
+      },
+      {
+        q: "Q7. Which sentence is grammatically correct with the definite past-time marker 'last year'?",
+        options: [
+          "A. I have visited Jimma last year.",
+          "B. I visited Jimma last year.",
+          "C. I have visit Jimma last year.",
+          "D. I has visited Jimma last year."
+        ],
+        correct: 1,
+        exp: "Because 'last year' specifies a definite finished past time, standard English requires the Simple Past ('visited'), not the Present Perfect."
+      },
+      {
+        q: "Q8. Complete the question: Have you ever ___ a famous person?",
+        options: ["A. meet", "B. met", "C. meeting", "D. meets"],
+        correct: 1,
+        exp: "After 'Have + subject', use the past participle of 'meet', which is 'met'."
+      },
+      {
+        q: "Q9. Which time expression commonly appears with the present perfect tense?",
+        options: ["A. Yesterday", "B. Last month", "C. Just", "D. In 2010"],
+        correct: 2,
+        exp: "'Just' (along with already, ever, never, yet, and so far) commonly accompanies the present perfect, whereas yesterday, last month, and in 2010 take simple past."
+      },
+      {
+        q: "Q10. Choose the correct option: 'We ___ the task, so we can rest now.'",
+        options: ["A. have completed", "B. completed yesterday", "C. has complete", "D. are complete"],
+        correct: 0,
+        exp: "Plural 'We' + 'have completed' connects the completed task to the present ability to rest now."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on the Present Perfect Tense!" : "Great performance! You clearly understand have/has + past participle and simple past distinctions.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review irregular past participles and the 'last year / yesterday' Simple Past rule.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the Present Perfect vs. Simple Past table and time expressions above, then try again.";
+      }
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

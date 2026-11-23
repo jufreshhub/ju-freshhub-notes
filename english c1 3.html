@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Vocabulary Development &amp; Guessing Meaning from Context — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 300: '#FCD34D', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Communicative English Skills I</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="search" class="w-3.5 h-3.5"></i> Study Skills &amp; Reading · Vocabulary
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Vocabulary Development &amp; Guessing Meaning from Context</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Context Clues, Scanning vs. Skimming, Academic Reading Vocabulary, and Sentence Analysis</p>
+      </div>
+    </section>
+
+    <!-- Intro Card -->
+    <section class="card p-4 sm:p-6 space-y-2.5">
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Have you ever read an English sentence and found one word you didn't understand? You don't always need a dictionary. Often, the words around the difficult word give you clues about its meaning.
+      </p>
+      <p class="text-xs sm:text-sm font-semibold text-brand-700 dark:text-brand-400">
+        This essential reading skill is called <strong>guessing meaning from context</strong>.
+      </p>
+    </section>
+
+    <!-- 1. What is context? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Context?</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        <strong>Context</strong> means the surrounding words, sentences, or situation that help us understand an unfamiliar word.
+      </p>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1.5">
+        <strong class="text-brand-900 dark:text-white font-bold block">Example Sentence:</strong>
+        <p class="italic text-slate-700 dark:text-slate-200">"Although the road was <strong>narrow</strong>, the driver managed to pass through it."</p>
+        <p class="text-slate-600 dark:text-slate-300">
+          Even if you don't know the word <em>narrow</em>, the sentence gives a clue: it was difficult to pass through because it was not wide. Therefore, <strong>narrow = not wide</strong>.
+        </p>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/yr3Ueerw1DIwMCfxVRQXzkmmJ3DCx71WpOeFxQZ85S5AQzTKuScg14p4RqF5G5hmlM8ONPH3uSNQseP6vz4lx7qs6xWfXYwVpI08gSYgD8ZBI6RbC5svY0VWPVwmUehXZJCsyOGZFDBkPmFY5pxRqasyDmJAtIxP5bjxiyyHOPjZmHaDNlerG_mhGktKGoan?purpose=fullsize', 'Decoding Meaning from Context Clues')">
+        <img src="https://images.openai.com/static-rsc-4/yr3Ueerw1DIwMCfxVRQXzkmmJ3DCx71WpOeFxQZ85S5AQzTKuScg14p4RqF5G5hmlM8ONPH3uSNQseP6vz4lx7qs6xWfXYwVpI08gSYgD8ZBI6RbC5svY0VWPVwmUehXZJCsyOGZFDBkPmFY5pxRqasyDmJAtIxP5bjxiyyHOPjZmHaDNlerG_mhGktKGoan?purpose=fullsize" alt="Decoding Hidden Meaning" class="w-full max-h-52 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">Think of Context Like a Detective:</strong>
+        <ul class="list-disc pl-5 space-y-1 text-slate-600 dark:text-slate-300">
+          <li>The <strong>unknown word</strong> is the mystery.</li>
+          <li>The <strong>surrounding sentence</strong> gives you clues.</li>
+          <li>You combine the clues to discover the meaning.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. Ways to guess meaning from context -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Four Ways to Guess Meaning from Context</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">A. Look for Examples</strong>
+          <p class="text-slate-600 dark:text-slate-300">Signal words like <em>such as, for example, including</em> introduce helpful examples.</p>
+          <p class="italic text-slate-700 dark:text-slate-200">"Fruits such as mangoes, oranges, and bananas are <strong>nutritious</strong>."</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">B. Look for Contrast</strong>
+          <p class="text-slate-600 dark:text-slate-300">Words like <em>but, however, although, unlike</em> show opposite meanings.</p>
+          <p class="italic text-slate-700 dark:text-slate-200">"Unlike his <strong>talkative</strong> brother, Dawit is quiet." &rarr; (<em>talkative = talks a lot</em>)</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">C. Look for Explanation / Definition</strong>
+          <p class="text-slate-600 dark:text-slate-300">Sometimes the sentence directly defines the difficult word.</p>
+          <p class="italic text-slate-700 dark:text-slate-200">"An <strong>herbivore</strong> is an animal that feeds mainly on plants."</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">D. Look at the Whole Situation</strong>
+          <p class="text-slate-600 dark:text-slate-300">Use cause-and-effect or common sense from the whole scenario.</p>
+          <p class="italic text-slate-700 dark:text-slate-200">"After walking for five hours without water, the hikers were <strong>exhausted</strong>." &rarr; (<em>extremely tired</em>)</p>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200">
+        <strong>Exam Tip:</strong> Never guess from only one isolated word. Always read the whole sentence—and sometimes the sentence before or after it.
+      </div>
+    </section>
+
+    <!-- 3. Important Academic Study Vocabulary + Scan vs Skim -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Essential Study Skills Vocabulary</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2.5 px-3.5">Word</th><th class="py-2.5 px-3.5">Simple Meaning</th><th class="py-2.5 px-3.5">Example Sentence</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3.5 font-bold text-brand-700 dark:text-brand-400">Invaluable</td><td class="py-2 px-3.5">Extremely useful or valuable</td><td class="py-2 px-3.5 italic">Reading is an invaluable skill.</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold text-brand-700 dark:text-brand-400">Scan</td><td class="py-2 px-3.5">Read quickly to find specific information</td><td class="py-2 px-3.5 italic">Scan a page for a date.</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold text-brand-700 dark:text-brand-400">Skim</td><td class="py-2 px-3.5">Read quickly to get the general idea</td><td class="py-2 px-3.5 italic">Skim a chapter before studying it.</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold text-brand-700 dark:text-brand-400">Assimilate</td><td class="py-2 px-3.5">Understand and absorb information</td><td class="py-2 px-3.5 italic">Students assimilate new ideas.</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold text-brand-700 dark:text-brand-400">Repertoire</td><td class="py-2 px-3.5">A collection or range of skills</td><td class="py-2 px-3.5 italic">She has a repertoire of study skills.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Scan vs Skim Visual Comparison -->
+      <div class="pt-2 space-y-3">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Scan vs. Skim — Don't Confuse Them!</h3>
+        <div class="grid sm:grid-cols-2 gap-3 text-xs">
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+            <strong class="font-display text-sm text-emerald-700 dark:text-emerald-400 block">SCAN (Specific Detail)</strong>
+            <p class="text-slate-600 dark:text-slate-300">Search quickly for one specific detail, such as a name, date, keyword, or number.</p>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/aJS9Jd8AU_ENcwZ_sGQ-cbBcz06x8vfn4YIWiFxaanJgVgQ6fQZ51FmdU9ouLHRKq6MoLgBlwpGaxwfjZUVXXVAH58FiQqz1pFvWlYLapujtSdK78tV0qBKWtARyVFKs3vGfPwO-CtZGjbQPh1GXVaYrA_cOwcJDPaemltTmwhJB9JDaQ9zAM0Ri7FhYWWcd?purpose=fullsize', 'Scanning for Specific Details')">
+              <img src="https://images.openai.com/static-rsc-4/aJS9Jd8AU_ENcwZ_sGQ-cbBcz06x8vfn4YIWiFxaanJgVgQ6fQZ51FmdU9ouLHRKq6MoLgBlwpGaxwfjZUVXXVAH58FiQqz1pFvWlYLapujtSdK78tV0qBKWtARyVFKs3vGfPwO-CtZGjbQPh1GXVaYrA_cOwcJDPaemltTmwhJB9JDaQ9zAM0Ri7FhYWWcd?purpose=fullsize" alt="Scanning" class="w-full max-h-32 object-contain" />
+            </figure>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+            <strong class="font-display text-sm text-sky-700 dark:text-sky-400 block">SKIM (General Idea)</strong>
+            <p class="text-slate-600 dark:text-slate-300">Read quickly across headings and topic sentences to understand the overall gist or general idea.</p>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/6BKQtBE6a6rvN8JY33qU81bgLptQdfq0si1WYJAsEDypO8eq7n3uXBJlIkWrCZPk_LVKYizMX51v6i56Z-895P-mazMl_S0yQBjsm4WN4aHEYzLUQxu55TDRu9oZ0mn5RlSHeUPxfR5MkiVLsX0qDRHkfzolpX-CVHFr5EaVgGysJELlmFaBkQ-OkUa7fEGp?purpose=fullsize', 'Skimming for the General Idea')">
+              <img src="https://images.openai.com/static-rsc-4/6BKQtBE6a6rvN8JY33qU81bgLptQdfq0si1WYJAsEDypO8eq7n3uXBJlIkWrCZPk_LVKYizMX51v6i56Z-895P-mazMl_S0yQBjsm4WN4aHEYzLUQxu55TDRu9oZ0mn5RlSHeUPxfR5MkiVLsX0qDRHkfzolpX-CVHFr5EaVgGysJELlmFaBkQ-OkUa7fEGp?purpose=fullsize" alt="Skimming" class="w-full max-h-32 object-contain" />
+            </figure>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-xs space-y-1 text-emerald-950 dark:text-emerald-200">
+          <strong>Easy Memory Trick:</strong>
+          <ul class="list-disc pl-5 space-y-0.5">
+            <li><strong>S</strong>can = <strong>S</strong>earch for something specific (dates, names, numbers).</li>
+            <li><strong>S</strong>kim = <strong>S</strong>ee the general idea (main point of a passage).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. More Essential Vocabulary in Sentences -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>More Academic Reading Vocabulary</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2.5 px-3.5">Word or Phrase</th><th class="py-2.5 px-3.5">Meaning in Simple English</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3.5 font-bold">Keys</td><td class="py-2 px-3.5">Things that help you achieve or understand something (figurative use)</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">Access</td><td class="py-2 px-3.5">The ability or opportunity to reach or use something</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">Perceptions</td><td class="py-2 px-3.5">Ways of thinking about or understanding something</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">Interpreted</td><td class="py-2 px-3.5">Explained or understood in a particular way</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">Glancing through</td><td class="py-2 px-3.5">Looking over something quickly</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">Extract</td><td class="py-2 px-3.5">Take out or obtain useful information</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">Vary</td><td class="py-2 px-3.5">Change or be different</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">Themes</td><td class="py-2 px-3.5">Main ideas or subjects</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">At their disposal</td><td class="py-2 px-3.5">Available for someone to use</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold">Recognizing</td><td class="py-2 px-3.5">Identifying or knowing something</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Understand the words in sentences -->
+      <div class="space-y-2.5 pt-2">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Understanding the Words in Real Sentences:</strong>
+        <div class="grid sm:grid-cols-2 gap-2.5 text-xs">
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="text-brand-700 dark:text-brand-400 block">1. Keys (Figurative)</strong>
+            <p class="italic text-slate-700 dark:text-slate-200">"Reading is one of the <strong>keys</strong> that unlock the door to a career."</p>
+            <p class="text-slate-600 dark:text-slate-300">Here, <em>keys</em> means something that helps you achieve success—not a metal key.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="text-brand-700 dark:text-brand-400 block">2. At their disposal</strong>
+            <p class="italic text-slate-700 dark:text-slate-200">"Students have many reading skills <strong>at their disposal</strong>."</p>
+            <p class="text-slate-600 dark:text-slate-300">Means students have many reading skills <strong>available to use</strong>.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="text-brand-700 dark:text-brand-400 block">3. Extract</strong>
+            <p class="italic text-slate-700 dark:text-slate-200">"Students read to <strong>extract</strong> essential knowledge from textbooks."</p>
+            <p class="text-slate-600 dark:text-slate-300">Means to <strong>obtain or take out</strong> useful information.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+            <strong class="text-brand-700 dark:text-brand-400 block">4. Glancing through</strong>
+            <p class="italic text-slate-700 dark:text-slate-200">"She was <strong>glancing through</strong> a magazine."</p>
+            <p class="text-slate-600 dark:text-slate-300">Means she was <strong>looking through it quickly</strong>, not reading every word carefully.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Easy -> Tricky Practice (Spaced interactive cards) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Practice: Easy &rarr; Tricky</span>
+      </h2>
+
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        Test your understanding before taking the quiz. Try answering each question first, then tap <strong>Show Answer</strong>.
+      </p>
+
+      <div class="space-y-3.5 text-xs sm:text-sm">
+        <!-- Practice 1 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold mr-1.5">Easy</span>
+            You read a newspaper quickly to find a particular football score. Which reading skill are you using?
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ <strong>Scanning</strong> — because you are searching quickly for one specific detail (a score).
+            </div>
+          </details>
+        </div>
+
+        <!-- Practice 2 -->
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 font-bold mr-1.5">Medium</span>
+            You read the first sentences of paragraphs to understand what a chapter is generally about. Which skill is this?
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ <strong>Skimming</strong> — because you are reading quickly to get the general idea.
+            </div>
+          </details>
+        </div>
+
+        <!-- Practice 3 -->
+        <div class="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200/80 dark:bg-amber-500/30 text-amber-900 dark:text-amber-200 font-bold mr-1.5">Tricky</span>
+            "The medicine was <strong>invaluable</strong> because it helped save the patient's life." Does <em>invaluable</em> mean cheap or extremely useful?
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-300 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ <strong>Extremely useful / priceless</strong> — Watch out! The prefix <em>in-</em> here means "beyond price / too valuable to measure," NOT "not valuable."
+            </div>
+          </details>
+        </div>
+
+        <!-- Practice 4 -->
+        <div class="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200/80 dark:bg-amber-500/30 text-amber-900 dark:text-amber-200 font-bold mr-1.5">Tricky</span>
+            "Unlike his previous <strong>perception</strong>, he now believes reading is enjoyable." What does <em>perception</em> mean?
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-300 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+              ✅ <strong>A way of thinking about or understanding something</strong> — The contrast clue <em>"Unlike his previous..., he now believes..."</em> shows it refers to his prior belief or viewpoint.
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Three Core Takeaways -->
+      <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-xs space-y-1 text-emerald-950 dark:text-emerald-200">
+        <strong class="font-bold block">Three Key Ideas to Remember:</strong>
+        <ul class="list-disc pl-5 space-y-0.5">
+          <li>Context clues help you discover the meaning of unknown words without stopping for a dictionary.</li>
+          <li><strong>Scan</strong> for specific information; <strong>skim</strong> for the general idea.</li>
+          <li>Learn vocabulary by understanding how words work inside real sentences, not only by memorizing isolated definitions.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6. Interactive Self-Assessment Quiz (10 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Exam Practice Quiz</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">10 questions testing context clues, reading strategies, and academic vocabulary</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 10</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 10 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Vocabulary Development &amp; Context Clues
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "1. What does 'context' mean when guessing vocabulary?",
+        options: [
+          "A. The dictionary alphabet",
+          "B. Surrounding words and situation",
+          "C. The spelling of a word",
+          "D. The number of letters"
+        ],
+        correct: 1,
+        exp: "Context refers to the surrounding words, sentences, and situation that provide clues to an unfamiliar word's meaning."
+      },
+      {
+        q: "2. Which reading skill helps you find a specific date in a textbook?",
+        options: ["A. Skimming", "B. Scanning", "C. Assimilating", "D. Interpreting"],
+        correct: 1,
+        exp: "Scanning means reading quickly to locate one specific piece of information such as a date, name, or number."
+      },
+      {
+        q: "3. Which reading skill helps you understand the general idea quickly?",
+        options: ["A. Scanning", "B. Copying", "C. Skimming", "D. Memorizing"],
+        correct: 2,
+        exp: "Skimming means reading rapidly through headings and key sentences to get the general idea or gist."
+      },
+      {
+        q: "4. 'Reading is an invaluable skill.' What does 'invaluable' mean?",
+        options: ["A. Useless", "B. Extremely valuable", "C. Very expensive", "D. Difficult to read"],
+        correct: 1,
+        exp: "'Invaluable' means extremely useful or valuable (so valuable it cannot be priced). It does NOT mean useless."
+      },
+      {
+        q: "5. 'Students assimilate new information.' What does 'assimilate' mean?",
+        options: [
+          "A. Forget information",
+          "B. Absorb and understand information",
+          "C. Copy information without understanding",
+          "D. Avoid information"
+        ],
+        correct: 1,
+        exp: "To assimilate information means to fully understand and absorb new ideas into what you know."
+      },
+      {
+        q: "6. 'She has a repertoire of study skills.' What does 'repertoire' mean?",
+        options: [
+          "A. A collection or range of skills",
+          "B. A single mistake",
+          "C. A difficult examination",
+          "D. A reading room"
+        ],
+        correct: 0,
+        exp: "A repertoire is a collection or range of skills, methods, or abilities that a person possesses."
+      },
+      {
+        q: "7. 'Unlike his talkative friend, he is quiet.' What does 'talkative' mean?",
+        options: ["A. Very silent", "B. Talking a lot", "C. Very angry", "D. Very tired"],
+        correct: 1,
+        exp: "The contrast word 'Unlike' sets up an opposite to 'quiet', showing that 'talkative' means talking a lot."
+      },
+      {
+        q: "8. 'The students have many resources at their disposal.' What does the phrase mean?",
+        options: [
+          "A. They have lost their resources",
+          "B. Their resources are available to use",
+          "C. They must sell their resources",
+          "D. They cannot use their resources"
+        ],
+        correct: 1,
+        exp: "Having something 'at your disposal' means it is ready and available for you to use whenever needed."
+      },
+      {
+        q: "9. 'The main themes of the lecture were education and health.' What does 'themes' mean?",
+        options: [
+          "A. Main ideas or subjects",
+          "B. Small mistakes",
+          "C. Difficult words only",
+          "D. Personal names"
+        ],
+        correct: 0,
+        exp: "Themes are the central topics, main ideas, or subjects discussed in a lecture or text."
+      },
+      {
+        q: "10. A student reads a paragraph and uses the next sentence, which explains the unknown word, to guess its meaning. What is the student using?",
+        options: [
+          "A. Guessing from context",
+          "B. Scanning for numbers",
+          "C. Memorizing spelling",
+          "D. Translating every word"
+        ],
+        correct: 0,
+        exp: "Using surrounding sentences or explanations to figure out an unfamiliar word is guessing meaning from context."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Vocabulary & Context Clues!" : "Great performance! You clearly understand context clues, scanning vs. skimming, and key vocabulary.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the difference between Scan vs. Skim and the vocabulary sentence examples above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the 4 context clue strategies and vocabulary tables above, then try again.";
+      }
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

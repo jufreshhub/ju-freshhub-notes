@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Passive Voice — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 300: '#FCD34D', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .grammar-pill { @apply inline-flex items-center px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-brand-200 dark:border-slate-700 font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100 shadow-sm; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Communicative English Skills I</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="repeat" class="w-3.5 h-3.5"></i> Grammar &amp; Usage · Voice Systems
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Passive Voice</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Subject Receiving the Action, BE + Past Participle (V<sub>3</sub>), Active-to-Passive Conversion, and Key Examination Rules</p>
+      </div>
+    </section>
+
+    <!-- 1. What is Passive Voice? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is Passive Voice?</span>
+      </h2>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1">
+        <strong class="text-brand-900 dark:text-white font-bold block">Definition:</strong>
+        <p class="text-slate-700 dark:text-slate-200"><strong>Passive voice</strong> is a sentence construction in which the <strong>subject receives the action</strong> instead of performing it.</p>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+        <p class="text-slate-600 dark:text-slate-300">Imagine a student cleaning a classroom:</p>
+        <div>&bull; <strong>Active:</strong> <em>The student cleans the classroom.</em> <span class="text-slate-500 dark:text-slate-400">(The student performs the action.)</span></div>
+        <div>&bull; <strong>Passive:</strong> <em>The classroom is cleaned by the student.</em> <span class="text-slate-500 dark:text-slate-400">(The classroom receives the action.)</span></div>
+      </div>
+
+      <!-- Compare Two Voices -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Active Voice</span>
+          <strong class="text-sm block text-slate-900 dark:text-white italic">"The farmer grows crops."</strong>
+          <p class="text-slate-600 dark:text-slate-300">The farmer performs the action.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-sky-50/70 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/30 space-y-1">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-sky-700 dark:text-sky-300">Passive Voice</span>
+          <strong class="text-sm block text-slate-900 dark:text-white italic">"Crops are grown by the farmer."</strong>
+          <p class="text-slate-600 dark:text-slate-300">Crops receive the action.</p>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/lRfg7KgpAgvD6bwR2y5WSPNAsgv-j7uG82oZEMqTJNuzH6d33ytOv_R2tSVedLnRGVlH-jk6vF1y2IukELQ88If8m7fp-DhB4lToK3ImD5kjip9UeNciQVkhlImzWusimLfqhSmD9TrL2UyXcZqldo7cEFqkOt0r9v9MaPhfifBJRy3kWSEZ4_j7er8eBREv?purpose=fullsize', 'Farming Crops: Active vs. Passive Voice')">
+        <img src="https://images.openai.com/static-rsc-4/lRfg7KgpAgvD6bwR2y5WSPNAsgv-j7uG82oZEMqTJNuzH6d33ytOv_R2tSVedLnRGVlH-jk6vF1y2IukELQ88If8m7fp-DhB4lToK3ImD5kjip9UeNciQVkhlImzWusimLfqhSmD9TrL2UyXcZqldo7cEFqkOt0r9v9MaPhfifBJRy3kWSEZ4_j7er8eBREv?purpose=fullsize" alt="Farmer growing crops" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect image</div>
+      </figure>
+    </section>
+
+    <!-- 2. The Structure of Passive Voice -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>The Structure of Passive Voice</span>
+      </h2>
+
+      <!-- Formula Visual -->
+      <div class="p-4 rounded-2xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-center space-y-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-brand-700 dark:text-brand-300 block">Main Passive Formula</span>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <span class="grammar-pill">Subject (Receiver)</span>
+          <span class="font-bold text-brand-700 dark:text-brand-400">+</span>
+          <span class="grammar-pill text-brand-700 dark:text-brand-300">BE (am/is/are/was/were)</span>
+          <span class="font-bold text-brand-700 dark:text-brand-400">+</span>
+          <span class="grammar-pill">Past Participle (V<sub>3</sub>)</span>
+        </div>
+        <p class="text-xs italic text-slate-700 dark:text-slate-200 pt-1">
+          Examples: <em>The room <strong>is cleaned</strong>. &nbsp;|&nbsp; The letter <strong>was written</strong>. &nbsp;|&nbsp; The crops <strong>are grown</strong>.</em>
+        </p>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-3">Tense</th><th class="py-2 px-3">Passive Structure</th><th class="py-2 px-3">Example</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3 font-bold">Present Simple</td><td class="py-2 px-3 font-semibold text-brand-700 dark:text-brand-400">am / is / are + V<sub>3</sub></td><td class="py-2 px-3 italic">The office <strong>is cleaned</strong> every day.</td></tr>
+            <tr><td class="py-2 px-3 font-bold">Past Simple</td><td class="py-2 px-3 font-semibold text-brand-700 dark:text-brand-400">was / were + V<sub>3</sub></td><td class="py-2 px-3 italic">The office <strong>was cleaned</strong> yesterday.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- V1, V2, V3 Table -->
+      <div class="space-y-2 pt-1">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">What is a Past Participle (V<sub>3</sub>)?</strong>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-2 px-3">Base Form (V<sub>1</sub>)</th><th class="py-2 px-3">Past (V<sub>2</sub>)</th><th class="py-2 px-3">Past Participle (V<sub>3</sub>)</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1.5 px-3">Clean</td><td class="py-1.5 px-3">Cleaned</td><td class="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">Cleaned</td></tr>
+              <tr><td class="py-1.5 px-3">Write</td><td class="py-1.5 px-3">Wrote</td><td class="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">Written</td></tr>
+              <tr><td class="py-1.5 px-3">Build</td><td class="py-1.5 px-3">Built</td><td class="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">Built</td></tr>
+              <tr><td class="py-1.5 px-3">Take</td><td class="py-1.5 px-3">Took</td><td class="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">Taken</td></tr>
+              <tr><td class="py-1.5 px-3">Make</td><td class="py-1.5 px-3">Made</td><td class="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">Made</td></tr>
+              <tr><td class="py-1.5 px-3">Eat</td><td class="py-1.5 px-3">Ate</td><td class="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">Eaten</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200 space-y-1">
+        <strong>Exam Warning:</strong> Do not confuse V<sub>2</sub> (active past) with BE + V<sub>3</sub> (passive past)!
+        <div>&bull; Active past: <em>The builder <strong>built</strong> the house.</em></div>
+        <div>&bull; Passive past: <em>The house <strong>was built</strong>.</em></div>
+      </div>
+    </section>
+
+    <!-- 3. How to Change Active into Passive & 4. Passive into Active -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Converting Between Active and Passive Voice</span>
+      </h2>
+
+      <!-- Active -> Passive -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2.5">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">A. How to Change Active &rarr; Passive (4 Steps)</strong>
+        <ol class="list-decimal pl-5 space-y-1 text-slate-600 dark:text-slate-300">
+          <li>Find the <strong>object</strong> in the active sentence.</li>
+          <li>Move that object to the <strong>beginning</strong> (as the new subject).</li>
+          <li>Add the correct form of <strong>BE + V<sub>3</sub></strong> (keeping the original tense).</li>
+          <li>Add <strong>by + original subject</strong> if necessary.</li>
+        </ol>
+        <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div><strong>Active:</strong> <em>The teacher teaches English.</em></div>
+          <div class="text-slate-500 dark:text-slate-400">Object: <em>English</em> &rarr; Move to start &rarr; Present simple passive: <em>is taught</em> &rarr; Add doer: <em>by the teacher</em></div>
+          <div class="text-emerald-700 dark:text-emerald-400 font-bold"><strong>Passive:</strong> <em>English is taught by the teacher.</em></div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-3">Active Voice</th><th class="py-2 px-3">Passive Voice</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 italic">Ali cleans the room.</td><td class="py-1.5 px-3 italic font-semibold">The room is cleaned by Ali.</td></tr>
+            <tr><td class="py-1.5 px-3 italic">Hana wrote a letter.</td><td class="py-1.5 px-3 italic font-semibold">A letter was written by Hana.</td></tr>
+            <tr><td class="py-1.5 px-3 italic">Farmers grow coffee.</td><td class="py-1.5 px-3 italic font-semibold">Coffee is grown by farmers.</td></tr>
+            <tr><td class="py-1.5 px-3 italic">The government built the road.</td><td class="py-1.5 px-3 italic font-semibold">The road was built by the government.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Passive -> Active -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2.5">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">B. How to Change Passive &rarr; Active (Reverse Steps)</strong>
+        <ol class="list-decimal pl-5 space-y-1 text-slate-600 dark:text-slate-300">
+          <li>Identify the subject receiving the action.</li>
+          <li>Find the person or thing after <strong>by</strong> (the doer).</li>
+          <li>Make that doer the new subject at the front.</li>
+          <li>Change the verb back to the matching active tense.</li>
+        </ol>
+        <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 space-y-1">
+          <div>&bull; <strong>Passive:</strong> <em>The room was cleaned by Ali.</em> &rarr; <strong>Active:</strong> <span class="text-emerald-700 dark:text-emerald-400 font-bold"><em>Ali cleaned the room.</em></span></div>
+          <div>&bull; <strong>Passive:</strong> <em>The crops are grown by farmers.</em> &rarr; <strong>Active:</strong> <span class="text-emerald-700 dark:text-emerald-400 font-bold"><em>Farmers grow the crops.</em></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Identifying Active and Passive + 5. Exam Tricks -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Quick Identification Test &amp; Key Exam Tricks</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-3">Question</th><th class="py-2 px-3">Active</th><th class="py-2 px-3">Passive</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3">Does the subject perform the action?</td><td class="py-1.5 px-3 font-bold text-emerald-600">Yes</td><td class="py-1.5 px-3 font-bold text-rose-600">No</td></tr>
+            <tr><td class="py-1.5 px-3">Does the subject receive the action?</td><td class="py-1.5 px-3 font-bold text-rose-600">No</td><td class="py-1.5 px-3 font-bold text-emerald-600">Yes</td></tr>
+            <tr><td class="py-1.5 px-3">Common verb pattern</td><td class="py-1.5 px-3 font-semibold">Main verb</td><td class="py-1.5 px-3 font-semibold">BE + V<sub>3</sub></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Academic Classification Examples -->
+      <div class="space-y-2">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Classifying Academic Sentences:</strong>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-2 px-3">Sentence</th><th class="py-2 px-3">Voice</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1.5 px-3 italic">People have developed a special graph.</td><td class="py-1.5 px-3"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300">Active</span></td></tr>
+              <tr><td class="py-1.5 px-3 italic">This graph is called a population pyramid.</td><td class="py-1.5 px-3"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300">Passive</span></td></tr>
+              <tr><td class="py-1.5 px-3 italic">The shape represents a decrease in birthrates.</td><td class="py-1.5 px-3"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300">Active</span></td></tr>
+              <tr><td class="py-1.5 px-3 italic">The shape is determined by a country's age structure.</td><td class="py-1.5 px-3"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300">Passive</span></td></tr>
+              <tr><td class="py-1.5 px-3 italic">It may be influenced by migration.</td><td class="py-1.5 px-3"><span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300">Passive</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Three Important Exam Tricks -->
+      <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Three Important Exam Tricks:</strong>
+
+        <div class="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-500/10 border-l-4 border-amber-500 space-y-1">
+          <strong class="text-amber-900 dark:text-amber-200 block">Trick 1: Passive does not always need "by".</strong>
+          <div>&bull; Active: <em>Someone stole my phone.</em> &rarr; Passive: <strong>My phone was stolen.</strong> (We don't know who stole it, so we omit the doer.)</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-amber-50/80 dark:bg-amber-500/10 border-l-4 border-amber-500 space-y-1">
+          <strong class="text-amber-900 dark:text-amber-200 block">Trick 2: Always keep the original tense.</strong>
+          <div>&bull; Present: <em>She writes a letter.</em> &rarr; <em>A letter <strong>is</strong> written by her.</em></div>
+          <div>&bull; Past: <em>She wrote a letter.</em> &rarr; <em>A letter <strong>was</strong> written by her.</em></div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-rose-50/80 dark:bg-rose-500/10 border-l-4 border-rose-500 space-y-1">
+          <strong class="text-rose-900 dark:text-rose-200 block">Trick 3: Not every verb can become passive.</strong>
+          <div>&bull; <em>"The baby sleeps."</em> — Has <strong>no object</strong>, so it cannot normally be changed into passive voice.</div>
+          <div>&bull; <em>"The mother feeds the baby."</em> — Has an object (<em>the baby</em>), so it becomes: <strong>"The baby is fed by the mother."</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Exam Practice Quiz (10 MCQs) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Exam Practice — Passive Voice Quiz</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">10 questions testing passive structure, active-passive conversions, and exam rules</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 10</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 10 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Passive Voice
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "1. Which sentence is written in passive voice?",
+        options: [
+          "A. The students clean the classroom.",
+          "B. The teacher explains the lesson.",
+          "C. Farmers grow coffee.",
+          "D. The classroom is cleaned every day."
+        ],
+        correct: 3,
+        exp: "'The classroom is cleaned every day' uses BE (is) + V3 (cleaned), with the receiver (the classroom) as the subject."
+      },
+      {
+        q: "2. Choose the correct passive form of: 'Hana wrote a letter.'",
+        options: [
+          "A. A letter was written by Hana.",
+          "B. A letter wrote by Hana.",
+          "C. Hana was written a letter.",
+          "D. A letter is written by Hana."
+        ],
+        correct: 0,
+        exp: "'Wrote' is Past Simple, so keep the past tense in passive voice: 'was written' → 'A letter was written by Hana.'"
+      },
+      {
+        q: "3. What is the correct general formula for passive voice?",
+        options: [
+          "A. Subject + past tense + object",
+          "B. Subject + will + base verb",
+          "C. Object + base verb + subject",
+          "D. Subject + BE + past participle"
+        ],
+        correct: 3,
+        exp: "All passive sentences follow the core formula: Subject + BE + past participle (V3)."
+      },
+      {
+        q: "4. Which past participle completes this passive sentence? 'The house was ____.'",
+        options: ["A. Building", "B. Build", "C. Builded", "D. Built"],
+        correct: 3,
+        exp: "The past participle (V3) of 'build' is 'built' (build → built → built)."
+      },
+      {
+        q: "5. Change this passive sentence into active voice: 'The office is cleaned by the workers.'",
+        options: [
+          "A. The workers cleaned the office.",
+          "B. The workers clean the office.",
+          "C. The office cleans the workers.",
+          "D. The workers are cleaned by the office."
+        ],
+        correct: 1,
+        exp: "'is cleaned' is Present Simple passive; moving the doer ('the workers') to the front in Present Simple gives 'The workers clean the office.'"
+      },
+      {
+        q: "6. Which sentence is passive in the past simple tense?",
+        options: [
+          "A. The road is built every year.",
+          "B. The workers were building the road.",
+          "C. The workers build the road.",
+          "D. The road was built last year."
+        ],
+        correct: 3,
+        exp: "'was built' (was + V3) is the Past Simple passive form."
+      },
+      {
+        q: "7. Which active sentence cannot normally be changed into passive voice because it has no object?",
+        options: [
+          "A. The child sleeps.",
+          "B. The child kicks the ball.",
+          "C. The mother feeds the baby.",
+          "D. The teacher marks the tests."
+        ],
+        correct: 0,
+        exp: "'Sleeps' is an intransitive verb with no object to become the passive subject."
+      },
+      {
+        q: "8. Identify the passive sentence.",
+        options: [
+          "A. Population size is influenced by migration.",
+          "B. Scientists study population growth.",
+          "C. The population increases rapidly.",
+          "D. Migration influences population size."
+        ],
+        correct: 0,
+        exp: "'is influenced' (BE + V3) shows that 'Population size' receives the action → Passive voice."
+      },
+      {
+        q: "9. Choose the correct passive form of: 'Farmers grow coffee.'",
+        options: [
+          "A. Farmers are grown coffee.",
+          "B. Coffee grows farmers.",
+          "C. Coffee is grown by farmers.",
+          "D. Coffee was grown by farmers."
+        ],
+        correct: 2,
+        exp: "'grow' is Present Simple active; move 'coffee' to the subject position and use Present Simple passive ('is grown')."
+      },
+      {
+        q: "10. In the sentence 'The population pyramid is determined by age structure,' what is the role of 'the population pyramid'?",
+        options: [
+          "A. It receives the action expressed by the verb.",
+          "B. It is the verb of the sentence.",
+          "C. It performs the action of determining.",
+          "D. It is the person doing the action."
+        ],
+        correct: 0,
+        exp: "Because the sentence is passive ('is determined by...'), the subject ('the population pyramid') receives the action."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Passive Voice!" : "Great performance! You can confidently convert between active and passive sentences.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review BE + V3 past participles and keeping the original tense above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the 4-step conversion guide and exam tricks above, then try again.";
+      }
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

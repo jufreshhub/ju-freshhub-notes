@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Conditional Sentences — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 300: '#FCD34D', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .grammar-pill { @apply inline-flex items-center px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-brand-200 dark:border-slate-700 font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100 shadow-sm; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">Communicative English Skills I</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5"></i> Grammar &amp; Usage · Conditional Patterns
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Conditional Sentences</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">First, Second &amp; Third Conditionals, Alternative Conditional Expressions, Mixed Conditionals, and Exam Mistakes</p>
+      </div>
+    </section>
+
+    <!-- Intro & 1. Two Parts -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What is a Conditional Sentence?</span>
+      </h2>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+        <p><strong>Question:</strong> <em>"What will happen if you study hard?"</em></p>
+        <p><strong>Answer:</strong> <em>"If I study hard, I will pass my examination."</em></p>
+        <p class="text-slate-600 dark:text-slate-300 pt-1">A conditional sentence expresses a <strong>condition</strong> and what happens as a <strong>result</strong> of that condition.</p>
+      </div>
+
+      <div class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1.5">
+        <p>Conditionals describe three key situations:</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>What <strong>will</strong> you do if you meet someone? <em>(Real future)</em></li>
+          <li>What <strong>would</strong> you do if you met someone? <em>(Imaginary present/future)</em></li>
+          <li>What <strong>would</strong> you <strong>have done</strong> if you had met someone in the past? <em>(Imaginary past)</em></li>
+        </ul>
+      </div>
+
+      <!-- Two Parts Visual -->
+      <div class="p-4 rounded-2xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-3">
+        <strong class="font-display text-xs sm:text-sm text-brand-900 dark:text-white block text-center">The Two Parts of a Conditional Sentence</strong>
+        <div class="grid sm:grid-cols-2 gap-2.5 text-xs text-center">
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-brand-200 dark:border-slate-700">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400 block">If-Clause (Condition)</span>
+            <strong class="text-sm text-slate-900 dark:text-white">If I study hard,</strong>
+          </div>
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-700/50">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">Main Clause (Result)</span>
+            <strong class="text-sm text-slate-900 dark:text-white">I will pass.</strong>
+          </div>
+        </div>
+        <div class="text-xs text-slate-700 dark:text-slate-200 space-y-1 pt-1">
+          <p><strong>Changing Clause Order:</strong> Both orders are grammatically correct:</p>
+          <ul class="list-disc pl-5 space-y-0.5 italic">
+            <li><strong>If</strong> I study hard<strong>,</strong> I will pass. <span class="not-italic text-slate-500 dark:text-slate-400">(Use a comma when the if-clause comes first.)</span></li>
+            <li>I will pass <strong>if</strong> I study hard. <span class="not-italic text-slate-500 dark:text-slate-400">(No comma needed when the main clause comes first.)</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. First Conditional -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>First Conditional — Real Possibility (Possible Future)</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        We use the <strong>first conditional</strong> to talk about something that is genuinely possible in the future and its likely result.
+      </p>
+
+      <div class="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-center space-y-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 block">Formula</span>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <span class="grammar-pill">If + Present Simple</span>
+          <span class="font-bold text-emerald-700 dark:text-emerald-400">,</span>
+          <span class="grammar-pill text-emerald-700 dark:text-emerald-300">will + Base Verb</span>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+        <p class="italic text-sm font-semibold text-slate-900 dark:text-white">"If I <strong>study</strong> hard, I <strong>will pass</strong> the examination."</p>
+        <ul class="list-disc pl-5 space-y-0.5 text-slate-600 dark:text-slate-300">
+          <li><strong>Condition:</strong> I study hard.</li>
+          <li><strong>Likely Result:</strong> I will pass.</li>
+        </ul>
+        <div class="pt-1 border-t border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-800 dark:text-slate-200 block">More Examples:</strong>
+          <ul class="list-disc pl-5 space-y-1 italic text-slate-700 dark:text-slate-300">
+            <li>If it <strong>rains</strong>, I <strong>will stay</strong> at home.</li>
+            <li>If you <strong>exercise</strong> regularly, you <strong>will improve</strong> your fitness.</li>
+            <li>If I <strong>meet</strong> Derartu Tulu, I <strong>will ask</strong> her a question.</li>
+          </ul>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/cN_CT61OVHuMq6a4XB3Sfzwonctt5lmqYdsI_6xD5HBOnspVnIO3dc1_8JjM006HRGpCUC4WnDjFpSelKQPkfIpYgAbUUV2hfM8a7cMspTginnuFG2MYjplG5pCpqHc_2p5L9r-Bvh8JQkTIvpL42eedyqau-2ehtwv0gF3Pu6oseEqPY0lt7ie8tQHH-69u?purpose=fullsize', 'First Conditional: Real Future Possibility')">
+        <img src="https://images.openai.com/static-rsc-4/cN_CT61OVHuMq6a4XB3Sfzwonctt5lmqYdsI_6xD5HBOnspVnIO3dc1_8JjM006HRGpCUC4WnDjFpSelKQPkfIpYgAbUUV2hfM8a7cMspTginnuFG2MYjplG5pCpqHc_2p5L9r-Bvh8JQkTIvpL42eedyqau-2ehtwv0gF3Pu6oseEqPY0lt7ie8tQHH-69u?purpose=fullsize" alt="Study Mastery" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect image</div>
+      </figure>
+
+      <div class="p-3.5 rounded-xl bg-rose-50/80 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs space-y-1.5 text-rose-950 dark:text-rose-200">
+        <strong class="font-bold block">Important Exam Rule:</strong>
+        <p>After <em>if</em>, always use the <strong>Present Simple</strong> in this pattern—never <em>will</em>.</p>
+        <div class="text-emerald-700 dark:text-emerald-300 font-semibold">✅ Correct: If I <strong>study</strong>, I will pass.</div>
+        <div class="text-rose-700 dark:text-rose-300">❌ Incorrect: <em>If I will study, I will pass.</em></div>
+      </div>
+    </section>
+
+    <!-- 3. Second Conditional -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Second Conditional — Imaginary or Unlikely Situation</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        We use the <strong>second conditional</strong> to imagine a situation that is unreal, unlikely, or not true in the present.
+      </p>
+
+      <div class="p-4 rounded-xl bg-sky-50/70 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/30 text-center space-y-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300 block">Formula</span>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <span class="grammar-pill">If + Past Simple</span>
+          <span class="font-bold text-sky-700 dark:text-sky-400">,</span>
+          <span class="grammar-pill text-sky-700 dark:text-sky-300">would + Base Verb</span>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+        <p class="italic text-sm font-semibold text-slate-900 dark:text-white">"If I <strong>were</strong> rich, I <strong>would build</strong> a hospital."</p>
+        <p class="text-slate-600 dark:text-slate-300">Are you rich right now? No—you are imagining a hypothetical situation.</p>
+        <div class="pt-1 border-t border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-800 dark:text-slate-200 block">More Examples:</strong>
+          <ul class="list-disc pl-5 space-y-1 italic text-slate-700 dark:text-slate-300">
+            <li>If I <strong>met</strong> Zinedine Zidane, I <strong>would ask</strong> for his autograph.</li>
+            <li>If I <strong>had</strong> more time, I <strong>would read</strong> more books.</li>
+            <li>If I <strong>were</strong> the teacher, I <strong>would help</strong> every student.</li>
+          </ul>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/T0GmonGB-EHsqbI9BXmKfmhDtCgLG9Xx8LjxjB8N0sEoFLh1jMvnWbke48089S9vLT2LCsb7LKXikT1OQ4fzquFWiy9WAu17Izym27_8aRMWCjY7QuwF8wyJ6j4zU9R4WTrXEf-OfhE_DxFqWFDA1wc0Wp8JBJ42kud_W8ouhj-F4vvIDeDMpQCa-l1da_EN?purpose=fullsize', 'Second Conditional: Hypothetical Situation')">
+        <img src="https://images.openai.com/static-rsc-4/T0GmonGB-EHsqbI9BXmKfmhDtCgLG9Xx8LjxjB8N0sEoFLh1jMvnWbke48089S9vLT2LCsb7LKXikT1OQ4fzquFWiy9WAu17Izym27_8aRMWCjY7QuwF8wyJ6j4zU9R4WTrXEf-OfhE_DxFqWFDA1wc0Wp8JBJ42kud_W8ouhj-F4vvIDeDMpQCa-l1da_EN?purpose=fullsize" alt="Hypothetical Situation" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect image</div>
+      </figure>
+
+      <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs space-y-1.5 text-amber-950 dark:text-amber-200">
+        <strong class="font-bold block">Special Expression: "If I were you" (Giving Advice)</strong>
+        <p>In formal grammar, we use <strong>were</strong> (not <em>was</em>) for all subjects in imaginary situations:</p>
+        <ul class="list-disc pl-5 space-y-0.5 italic">
+          <li>If I <strong>were</strong> you, I <strong>would study</strong> every day.</li>
+          <li>If I <strong>were</strong> you, I <strong>would not waste</strong> time.</li>
+        </ul>
+        <p class="pt-1 font-semibold">Remember: Use <em>would + base verb</em> (e.g., <em>would help</em>), never <em>would to + verb</em>.</p>
+      </div>
+    </section>
+
+    <!-- 4. Third Conditional -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Third Conditional — Imaginary Past (Unchangeable Past)</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        We use the <strong>third conditional</strong> to imagine a different result for something that already happened in the past and cannot now be changed.
+      </p>
+
+      <div class="p-4 rounded-xl bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 text-center space-y-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-800 dark:text-indigo-300 block">Formula</span>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <span class="grammar-pill">If + had + Past Participle (V<sub>3</sub>)</span>
+          <span class="font-bold text-indigo-700 dark:text-indigo-400">,</span>
+          <span class="grammar-pill text-indigo-700 dark:text-indigo-300">would have + Past Participle (V<sub>3</sub>)</span>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+        <p class="italic text-sm font-semibold text-slate-900 dark:text-white">"If I <strong>had studied</strong> hard, I <strong>would have passed</strong> the examination."</p>
+        <ul class="list-disc pl-5 space-y-0.5 text-slate-600 dark:text-slate-300">
+          <li><strong>Reality:</strong> I did not study hard, and I did not pass.</li>
+          <li><strong>Imaginary Past:</strong> If I had studied, I would have passed.</li>
+        </ul>
+        <div class="pt-1 border-t border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-slate-800 dark:text-slate-200 block">More Examples:</strong>
+          <ul class="list-disc pl-5 space-y-1 italic text-slate-700 dark:text-slate-300">
+            <li>If I <strong>had woken up</strong> early, I <strong>would have caught</strong> the bus.</li>
+            <li>If she <strong>had practiced</strong>, she <strong>would have won</strong> the competition.</li>
+            <li>If I <strong>had met</strong> Derartu Tulu after her victory in 1992, I <strong>would have congratulated</strong> her.</li>
+          </ul>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/OyrEMSRxq9K0V6QlZ9r2UFO44TzpfJTvRqNuUKYkVFDhNE_cJzbeP4ALXEHr-gPu-F0MnIsE-TsYsHwj1Lcy0KgYsuE7gO1LBTALelcPFJk2HL_FbycemoEkvSwH3W8BTZW-3oTnkIkNUnZFPCDHZwaq4LaZKH1rQKtdSUtQBMnFkoK5byI6qTLcYWbKhOvs?purpose=fullsize', 'Third Conditional: Imaginary Past')">
+        <img src="https://images.openai.com/static-rsc-4/OyrEMSRxq9K0V6QlZ9r2UFO44TzpfJTvRqNuUKYkVFDhNE_cJzbeP4ALXEHr-gPu-F0MnIsE-TsYsHwj1Lcy0KgYsuE7gO1LBTALelcPFJk2HL_FbycemoEkvSwH3W8BTZW-3oTnkIkNUnZFPCDHZwaq4LaZKH1rQKtdSUtQBMnFkoK5byI6qTLcYWbKhOvs?purpose=fullsize" alt="Third Conditional" class="w-full max-h-48 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect image</div>
+      </figure>
+    </section>
+
+    <!-- 5. Comparison Table & Same Situation -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Comparing the Three Conditional Types</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2.5 px-3">Type</th><th class="py-2.5 px-3">If-Clause</th><th class="py-2.5 px-3">Main Clause</th><th class="py-2.5 px-3">Meaning</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3 font-bold text-emerald-700 dark:text-emerald-400">First</td><td class="py-2 px-3">Present simple</td><td class="py-2 px-3">will + base verb</td><td class="py-2 px-3">Possible future</td></tr>
+            <tr><td class="py-2 px-3 font-bold text-sky-700 dark:text-sky-400">Second</td><td class="py-2 px-3">Past simple</td><td class="py-2 px-3">would + base verb</td><td class="py-2 px-3">Imaginary / unlikely</td></tr>
+            <tr><td class="py-2 px-3 font-bold text-indigo-700 dark:text-indigo-400">Third</td><td class="py-2 px-3">had + past participle</td><td class="py-2 px-3">would have + past participle</td><td class="py-2 px-3">Imaginary past</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="space-y-2.5 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Comparing One Situation Across All Three Types:</strong>
+        <div class="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-0.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">First Conditional</span>
+          <p class="italic font-semibold">"If I <strong>meet</strong> a famous footballer, I <strong>will take</strong> a photo."</p>
+          <p class="text-slate-600 dark:text-slate-300">It is genuinely possible that I will meet one.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-sky-50/70 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/30 space-y-0.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300">Second Conditional</span>
+          <p class="italic font-semibold">"If I <strong>met</strong> a famous footballer, I <strong>would take</strong> a photo."</p>
+          <p class="text-slate-600 dark:text-slate-300">I am imagining meeting one right now / in an unlikely scenario.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 space-y-0.5">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">Third Conditional</span>
+          <p class="italic font-semibold">"If I <strong>had met</strong> a famous footballer, I <strong>would have taken</strong> a photo."</p>
+          <p class="text-slate-600 dark:text-slate-300">I did not meet one in the past, and I am imagining what I would have done.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Other Conditional Expressions & 7. Common Mistakes -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Alternative Expressions &amp; Common Exam Mistakes</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+            <tr><th class="py-2 px-3.5">Expression</th><th class="py-2 px-3.5">Example Sentence</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-2 px-3.5 font-bold text-brand-700 dark:text-brand-400">Provided (that)</td><td class="py-2 px-3.5 italic">You can go <strong>provided that</strong> you finish your homework.</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold text-brand-700 dark:text-brand-400">As long as</td><td class="py-2 px-3.5 italic">You can succeed <strong>as long as</strong> you work hard.</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold text-brand-700 dark:text-brand-400">On condition that</td><td class="py-2 px-3.5 italic">You can go out <strong>on condition that</strong> you finish your work.</td></tr>
+            <tr><td class="py-2 px-3.5 font-bold text-rose-600 dark:text-rose-400">Even if</td><td class="py-2 px-3.5 italic">I would fail <strong>even if</strong> I studied.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">Key Difference in Meaning:</strong>
+        <ul class="list-disc pl-5 space-y-1 text-slate-600 dark:text-slate-300">
+          <li><strong>Provided that / As long as / On condition that:</strong> Introduce a strict requirement or condition (similar to <em>only if</em>).</li>
+          <li><strong>Even if:</strong> Shows that the result stays the same regardless of the condition.</li>
+        </ul>
+      </div>
+
+      <!-- Common Exam Mistakes -->
+      <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">Common Examination Mistakes:</strong>
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500 dark:text-slate-300">
+              <tr><th class="py-2 px-3 text-rose-700 dark:text-rose-400">❌ Incorrect</th><th class="py-2 px-3 text-emerald-700 dark:text-emerald-400">✅ Correct</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-2 px-3 text-rose-600 dark:text-rose-300">If I <em>will study</em>, I will pass.</td><td class="py-2 px-3 font-semibold">If I <strong>study</strong>, I will pass.</td></tr>
+              <tr><td class="py-2 px-3 text-rose-600 dark:text-rose-300">If I <em>was</em> rich, I would travel.</td><td class="py-2 px-3 font-semibold">If I <strong>were</strong> rich, I would travel.</td></tr>
+              <tr><td class="py-2 px-3 text-rose-600 dark:text-rose-300">If I had studied, I <em>would pass</em>.</td><td class="py-2 px-3 font-semibold">If I had studied, I <strong>would have passed</strong>.</td></tr>
+              <tr><td class="py-2 px-3 text-rose-600 dark:text-rose-300">If she had <em>went</em>, she would have seen him.</td><td class="py-2 px-3 font-semibold">If she had <strong>gone</strong>, she would have seen him.</td></tr>
+              <tr><td class="py-2 px-3 text-rose-600 dark:text-rose-300">If I met him, I <em>will</em> greet him.</td><td class="py-2 px-3 font-semibold">If I met him, I <strong>would</strong> greet him.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-xs space-y-1">
+          <strong class="text-brand-900 dark:text-white block">Three Formulas to Memorize:</strong>
+          <ul class="list-disc pl-5 space-y-0.5 text-slate-700 dark:text-slate-200">
+            <li><strong>First:</strong> Present Simple + will + V<sub>1</sub></li>
+            <li><strong>Second:</strong> Past Simple + would + V<sub>1</sub></li>
+            <li><strong>Third:</strong> had + V<sub>3</sub> + would have + V<sub>3</sub></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Quick Practice: Identify the Type -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">7</span>
+        <span>Quick Practice — Identify the Conditional Type</span>
+      </h2>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">1. "If I exercise, I will become healthier."</div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              ✅ <strong>First Conditional</strong> (Present simple <em>exercise</em> + <em>will become</em> &rarr; real future possibility).
+            </div>
+          </details>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">2. "If I were a doctor, I would help poor people."</div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              ✅ <strong>Second Conditional</strong> (Past simple <em>were</em> + <em>would help</em> &rarr; imaginary present situation).
+            </div>
+          </details>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">3. "If I had studied, I would have passed."</div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-400 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              ✅ <strong>Third Conditional</strong> (<em>had studied</em> + <em>would have passed</em> &rarr; imaginary unchangeable past).
+            </div>
+          </details>
+        </div>
+
+        <div class="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 space-y-2">
+          <div class="font-semibold text-slate-900 dark:text-white">
+            <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200/80 dark:bg-amber-500/30 text-amber-900 dark:text-amber-200 font-bold mr-1">Tricky</span>
+            4. "If you had done your homework, you would be allowed to go out now."
+          </div>
+          <details class="text-xs">
+            <summary class="cursor-pointer font-bold text-brand-700 dark:text-brand-300 hover:underline">Show Answer</summary>
+            <div class="mt-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              ✅ <strong>Mixed Conditional</strong> — Connects a <em>past condition</em> (<em>had done</em> &rarr; 3rd conditional) with a <em>present result</em> (<em>would be allowed... now</em> &rarr; 2nd conditional).
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Exam Practice Quiz (10 MCQs) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Exam Practice — Conditionals Quiz</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">10 questions testing First, Second &amp; Third Conditionals and alternative expressions</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 10</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 10 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Conditional Sentences
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "1. What is a conditional sentence?",
+        options: [
+          "A. A sentence that only asks a question",
+          "B. A sentence expressing a condition and its result",
+          "C. A sentence describing only the past",
+          "D. A sentence giving a command"
+        ],
+        correct: 1,
+        exp: "A conditional sentence has two parts: an if-clause (the condition) and a main clause (the result)."
+      },
+      {
+        q: "2. Which formula is correct for the first conditional?",
+        options: [
+          "A. If + past simple, would + verb",
+          "B. If + present simple, will + base verb",
+          "C. If + had + participle, would + participle",
+          "D. If + present simple, would have + participle"
+        ],
+        correct: 1,
+        exp: "First conditional uses 'If + present simple, will + base verb' to express real future possibilities."
+      },
+      {
+        q: "3. Complete: If it rains tomorrow, we ___ at home.",
+        options: ["A. stayed", "B. would stay", "C. will stay", "D. would have stayed"],
+        correct: 2,
+        exp: "Because 'If it rains tomorrow' is in the present simple for a real future possibility, the main clause takes 'will stay'."
+      },
+      {
+        q: "4. Which sentence is a second conditional?",
+        options: [
+          "A. If I study, I will pass.",
+          "B. If I had studied, I would have passed.",
+          "C. If I were rich, I would travel.",
+          "D. If she arrives, I will call."
+        ],
+        correct: 2,
+        exp: "'If I were rich, I would travel' uses Past Simple ('were') + 'would + base verb' for an imaginary present situation."
+      },
+      {
+        q: "5. Complete: If I ___ you, I would apologize.",
+        options: ["A. am", "B. were", "C. will be", "D. had been"],
+        correct: 1,
+        exp: "In the second conditional advice expression 'If I were you', formal grammar always uses 'were'."
+      },
+      {
+        q: "6. Which formula is correct for the third conditional?",
+        options: [
+          "A. If + present, will + verb",
+          "B. If + past, would + verb",
+          "C. If + had + past participle, would have + past participle",
+          "D. If + present, would have + verb"
+        ],
+        correct: 2,
+        exp: "The third conditional imagines an unchangeable past using: If + had + past participle, would have + past participle."
+      },
+      {
+        q: "7. Complete: If she had practiced more, she ___ the competition.",
+        options: ["A. will win", "B. would win", "C. would have won", "D. wins"],
+        correct: 2,
+        exp: "'had practiced' signals the third conditional, so the main clause must be 'would have won'."
+      },
+      {
+        q: "8. Choose the grammatically correct sentence.",
+        options: [
+          "A. If I will meet him, I will greet him.",
+          "B. If I meet him, I will greet him.",
+          "C. If I met him, I will greet him.",
+          "D. If I had meet him, I would greet him."
+        ],
+        correct: 1,
+        exp: "First conditional never puts 'will' inside the if-clause; 'If I meet him, I will greet him' is correct."
+      },
+      {
+        q: "9. What does 'as long as' express in a conditional sentence?",
+        options: ["A. A contrast", "B. A condition or requirement", "C. A past habit", "D. A question"],
+        correct: 1,
+        exp: "'As long as', 'provided (that)', and 'on condition that' introduce a requirement or condition."
+      },
+      {
+        q: "10. 'If I had woken up early, I would have caught the bus.' What does this suggest?",
+        options: [
+          "A. I woke up early and caught the bus.",
+          "B. I wake up early every day.",
+          "C. I did not wake up early and missed the bus.",
+          "D. I will catch the bus tomorrow."
+        ],
+        correct: 2,
+        exp: "Third conditional expresses the opposite of what actually happened in the past: I did NOT wake up early, so I missed the bus."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Conditional Sentences!" : "Great performance! You clearly understand First, Second, and Third Conditionals.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the comparison table and common exam mistakes above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-rose-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the 3 conditional formulas and practice cards above, then try again.";
+      }
+      resultEl.classList.remove("hidden");
+      lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>
