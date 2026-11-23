@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Definition of Psychology and Related Concepts — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Psychology</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="brain" class="w-3.5 h-3.5"></i> Foundations of Psychology · Core Concepts
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Definition of Psychology and Related Concepts</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Etymology (\(\Psi\)), Scientific Inquiry, Overt vs. Covert Behavior, and Internal Mental Processes</p>
+      </div>
+    </section>
+
+    <!-- 1. What is Psychology? -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>What Is Psychology?</span>
+      </h2>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm space-y-1.5">
+        <strong class="font-display text-slate-900 dark:text-white block">Classroom Scenario:</strong>
+        <p class="text-slate-600 dark:text-slate-300">Imagine sitting in class when a lecturer asks a difficult question:</p>
+        <ul class="list-disc pl-5 text-slate-600 dark:text-slate-300 space-y-0.5 text-xs">
+          <li>One student smiles.</li>
+          <li>Another looks worried.</li>
+          <li>A third starts sweating.</li>
+          <li>Another remains quiet while thinking deeply about the answer.</li>
+        </ul>
+        <p class="text-xs font-semibold text-brand-700 dark:text-brand-400 pt-1">Why do people behave, feel, think, and react differently to the exact same situation?</p>
+      </div>
+
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs sm:text-sm space-y-1">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold block">Core Scientific Definition:</strong>
+        <p class="text-slate-700 dark:text-slate-200 leading-relaxed">
+          <strong>Psychology</strong> is the scientific study of human behavior and the underlying mental processes. It helps us understand why people behave differently, experience varied emotions, think, remember, and react differently to similar situations.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. Origin and Meaning of the Word Psychology -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Origin and Meaning of the Word Psychology</span>
+      </h2>
+
+      <div class="grid grid-cols-3 gap-2 text-center text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-display text-brand-700 dark:text-brand-400 block text-sm">Psyche</strong>
+          <span class="text-slate-600 dark:text-slate-300">Mind, soul, or spirit</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="font-display text-brand-700 dark:text-brand-400 block text-sm">Logos</strong>
+          <span class="text-slate-600 dark:text-slate-300">Study, knowledge, or discourse</span>
+        </div>
+        <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30">
+          <strong class="font-display text-brand-900 dark:text-brand-300 block text-sm">Psychology (\(\Psi\))</strong>
+          <span class="text-slate-700 dark:text-slate-200">Study of the mind, soul, or spirit</span>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/Zcp884-9TD8z35N4MuuJxN7I6yP4NpLXXxZFQYzbnZOQVhKl3eR3NSTBCQ4qSiFbp3VdS-RId5GhqveZ_D4IFu58IOKd6tX5mJesKmrzUuXoLiiR8lPiZmumPuw29nkkJfzFBlcC9w73RvEllDjTPyNYDEoETE5q0VIFQtTMkPlMKsQ3ezyqiT8WkQAQxvnE?purpose=fullsize', 'The Greek Letter Psi (Ψ): Universal Symbol of Psychology')">
+        <img src="https://images.openai.com/static-rsc-4/Zcp884-9TD8z35N4MuuJxN7I6yP4NpLXXxZFQYzbnZOQVhKl3eR3NSTBCQ4qSiFbp3VdS-RId5GhqveZ_D4IFu58IOKd6tX5mJesKmrzUuXoLiiR8lPiZmumPuw29nkkJfzFBlcC9w73RvEllDjTPyNYDEoETE5q0VIFQtTMkPlMKsQ3ezyqiT8WkQAQxvnE?purpose=fullsize" alt="Psi Symbol" class="w-full max-h-44 object-contain group-hover:scale-105 transition duration-300" />
+        <div class="absolute inset-0 bg-slate-900/35 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 backdrop-blur-[2px]"><i data-lucide="zoom-in" class="w-4 h-4"></i> Tap to inspect diagram</div>
+      </figure>
+
+      <div class="p-3 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200">
+        <strong>Exam Distinction:</strong> The <em>historical</em> meaning of psychology is the study of the mind, soul, or spirit (represented by the Greek letter \(\Psi\), Psi). Its <em>modern scientific definition</em> is broader: studying observable behavior and underlying mental processes.
+      </div>
+    </section>
+
+    <!-- 3. Three Essential Components of the Definition -->
+    <section class="card p-4 sm:p-6 space-y-5">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>The Three Pillars: Science, Behavior &amp; Mental Processes</span>
+      </h2>
+
+      <!-- A. Science -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs">
+        <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">A. Science (Empirical Investigation vs. Common-Sense Guessing)</strong>
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+          If a classmate is quiet, casual guessing labels them &ldquo;lazy,&rdquo; &ldquo;unfriendly,&rdquo; or &ldquo;sad.&rdquo; In contrast, <strong>science</strong> in psychology means using systematic scientific methods and <strong>empirical data</strong> (information obtained through observation, experience, or measurement) to study behavior and mental processes in humans and animals—acting like a detective gathering evidence before concluding.
+        </p>
+      </div>
+
+      <!-- B. Behavior (Overt vs Covert) -->
+      <div class="space-y-3 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">B. Behavior (Actions and Reactions)</strong>
+        <p class="text-slate-600 dark:text-slate-300">Behavior covers actions and reactions such as walking, talking, laughing, crying, smiling, hand gestures, and facial expressions—divided into two key categories:</p>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-2">
+            <strong class="text-emerald-900 dark:text-emerald-300 block">1. Overt Behavior (Outward &amp; Observable)</strong>
+            <p class="text-slate-700 dark:text-slate-300">Actions others can directly see or observe (raising a hand, running, laughing).</p>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/HHC9O3CgbgU2t30k-80ZEdhCN_ElGkyQoPQy2kZlwkA0Kg8440Cek-cmpgR7c72gkaXw1RQy2djMtGDecDKK1Mzm34aZ14pAL_2TJoWFYS4zcKupx0b2x3w8XoISLo5mkF668vq6zHotd6jeAN01N944NW2VRFJQdiOKYzdxbIORxM5qBllEhi2n28tfVvqc?purpose=fullsize', 'Overt Behavior: Observable Actions in Class')">
+              <img src="https://images.openai.com/static-rsc-4/HHC9O3CgbgU2t30k-80ZEdhCN_ElGkyQoPQy2kZlwkA0Kg8440Cek-cmpgR7c72gkaXw1RQy2djMtGDecDKK1Mzm34aZ14pAL_2TJoWFYS4zcKupx0b2x3w8XoISLo5mkF668vq6zHotd6jeAN01N944NW2VRFJQdiOKYzdxbIORxM5qBllEhi2n28tfVvqc?purpose=fullsize" alt="Overt Behavior" class="w-full max-h-28 object-contain" />
+            </figure>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 space-y-2">
+            <strong class="text-indigo-900 dark:text-indigo-300 block">2. Covert Behavior (Hidden &amp; Internal)</strong>
+            <p class="text-slate-700 dark:text-slate-300">Non-observable internal activities—generally classified as mental processes (thinking about an exam, remembering childhood, feeling nervous inside).</p>
+            <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/nkgL8SF67gaQEP-c4pME9qkao-goStcw2TwbXYjccf4N7OnJL0NOrWZgZ-i5XwThukeUOhQhHDDuCo3NXVkr9x4exWJaKoFE6C9iJbdHfPNijb4vU_zl4sNuqR0Np6WrIM_MfS2SiH-t2dcu8mXcy_Q6m8EYT2dkgYKeQVGB3VGogJAiekBVrbjMQ_Yo4EUe?purpose=fullsize', 'Covert Internal Mental Activity')">
+              <img src="https://images.openai.com/static-rsc-4/nkgL8SF67gaQEP-c4pME9qkao-goStcw2TwbXYjccf4N7OnJL0NOrWZgZ-i5XwThukeUOhQhHDDuCo3NXVkr9x4exWJaKoFE6C9iJbdHfPNijb4vU_zl4sNuqR0Np6WrIM_MfS2SiH-t2dcu8mXcy_Q6m8EYT2dkgYKeQVGB3VGogJAiekBVrbjMQ_Yo4EUe?purpose=fullsize" alt="Covert Behavior" class="w-full max-h-28 object-contain" />
+            </figure>
+          </div>
+        </div>
+
+        <!-- Overt vs Covert Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+              <tr><th class="py-2 px-3">Overt Behavior</th><th class="py-2 px-3">Covert Behavior</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1.5 px-3">Outward &amp; directly observable</td><td class="py-1.5 px-3">Hidden &amp; not directly observable</td></tr>
+              <tr><td class="py-1.5 px-3">Talking, running, laughing</td><td class="py-1.5 px-3">Thinking, remembering, internal feelings</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+          Tricky Example: A student sits completely quietly while furious inside—sitting quietly is observable behavior, whereas feeling angry is an internal mental process.
+        </p>
+      </div>
+
+      <!-- C. Mental Processes & Computer Analogy -->
+      <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+        <strong class="font-display text-sm text-slate-900 dark:text-white block">C. Mental Processes (Internal Activities of the Mind)</strong>
+        <p class="text-slate-600 dark:text-slate-300">
+          Include <strong>Thinking</strong> (solving math mentally), <strong>Feeling</strong> (happiness, sadness, fear), <strong>Remembering</strong> (recalling notes), and <strong>Perceiving</strong> (interpreting sensory input).
+        </p>
+
+        <figure class="cursor-pointer group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/Ieu7pOFdkcuMnAmH0UEZ5G_O1uS75HLC2KA53F-lC9dlQE4pSpXLBXv_SQwGkwxyzaM6OQWsErCjbi57Ib1VEkUr6IMbU_ZNMeBK93KTnTAyRRQFF-z5r798T3yakqNdfh-Hn2396slDd1E-y6EkorhHZ3kX9mYw5XfbM-ch7adrs5ZSdlaVKiROKuQcAS7i?purpose=fullsize', 'Mental Processes: Thinking, Feeling, Remembering, Perceiving')">
+          <img src="https://images.openai.com/static-rsc-4/Ieu7pOFdkcuMnAmH0UEZ5G_O1uS75HLC2KA53F-lC9dlQE4pSpXLBXv_SQwGkwxyzaM6OQWsErCjbi57Ib1VEkUr6IMbU_ZNMeBK93KTnTAyRRQFF-z5r798T3yakqNdfh-Hn2396slDd1E-y6EkorhHZ3kX9mYw5XfbM-ch7adrs5ZSdlaVKiROKuQcAS7i?purpose=fullsize" alt="Mental Processes" class="w-full max-h-40 object-contain group-hover:scale-105 transition duration-300" />
+        </figure>
+
+        <!-- Computer Analogy Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+              <tr><th class="py-2 px-3">Computer</th><th class="py-2 px-3">Human Mind (Unseen Internals &rarr; Observable Output)</th></tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr><td class="py-1.5 px-3 font-bold">Processing information</td><td class="py-1.5 px-3">Thinking</td></tr>
+              <tr><td class="py-1.5 px-3 font-bold">Saving information</td><td class="py-1.5 px-3">Remembering</td></tr>
+              <tr><td class="py-1.5 px-3 font-bold">Processing input</td><td class="py-1.5 px-3">Perception</td></tr>
+              <tr><td class="py-1.5 px-3 font-bold">Internal operations</td><td class="py-1.5 px-3">Mental processes</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Real-Life Synthesis & Exam Distinctions -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Real-Life Classification &amp; Key Exam Distinctions</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+        <strong>Unexpected Examination Scenario:</strong> When a lecturer announces a surprise exam, a student reacts both externally and internally:
+      </p>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Reaction in Scenario</th><th class="py-2 px-3">Psychological Classification</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3">Sweating, looking worried, shaking legs</td><td class="py-1.5 px-3 font-bold text-emerald-600 dark:text-emerald-400">Observable (Overt) Behavior</td></tr>
+            <tr><td class="py-1.5 px-3">Thinking &ldquo;I didn't prepare&rdquo;, remembering past failure</td><td class="py-1.5 px-3 font-bold text-indigo-600 dark:text-indigo-400">Internal Mental Process</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Full Revision Table -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 pt-1">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Concept</th><th class="py-2 px-3">Core Definition</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Psychology</td><td class="py-1.5 px-3">Scientific study of behavior and mental processes</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Psyche / Logos</td><td class="py-1.5 px-3">Mind, soul, or spirit / Study, knowledge, or discourse</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Science</td><td class="py-1.5 px-3">Systematic scientific methods and empirical data</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Overt vs. Covert Behavior</td><td class="py-1.5 px-3">Observable outward action vs. Hidden non-observable activity</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs font-medium text-brand-950 dark:text-brand-200">
+        <strong>Core Lesson:</strong> Psychology is not fortune-telling, palm-reading, or magically reading minds—it is a rigorous scientific discipline investigating behavior and the mental processes underlying it.
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Freshly Crafted Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing psychology definitions, science, and overt vs. covert processes</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Definition of Psychology and Related Concepts
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. The Greek root word 'psyche', symbolized by the letter Ψ (Psi), originally refers to which of the following?",
+        options: [
+          "A. Mind, soul, or spirit",
+          "B. Observable physical behavior",
+          "C. Scientific investigation",
+          "D. Study or knowledge"
+        ],
+        correct: 0,
+        exp: "Psyche means mind, soul, or spirit, whereas logos means study, knowledge, or discourse."
+      },
+      {
+        q: "Q2. Which statement best captures the modern scientific definition of psychology?",
+        options: [
+          "A. Guessing personality traits using common sense alone",
+          "B. The philosophical study of the spirit without empirical observation",
+          "C. The scientific study of human behavior and the underlying mental processes",
+          "D. The exclusive study of physical reflexes without examining thoughts or emotions"
+        ],
+        correct: 2,
+        exp: "Modern psychology goes beyond its historical root by scientifically investigating both observable behaviors and internal mental processes."
+      },
+      {
+        q: "Q3. What primarily distinguishes psychology as a science rather than everyday common-sense guessing?",
+        options: [
+          "A. Relying on quick labels like calling a quiet student lazy",
+          "B. Using scientific methods and empirical data collected via observation and measurement",
+          "C. Practicing fortune-telling and mind reading",
+          "D. Focusing solely on overt physical movement while ignoring perception"
+        ],
+        correct: 1,
+        exp: "Like a detective gathering clues before concluding, psychology relies on systematic scientific methods and empirical evidence rather than assumptions."
+      },
+      {
+        q: "Q4. During a surprise exam announcement, a student sits quietly at their desk while sweating, shaking their legs, and thinking 'I didn't prepare enough.' Which reaction is an internal mental process?",
+        options: [
+          "A. Sweating",
+          "B. Shaking their legs",
+          "C. Sitting quietly at the desk",
+          "D. Thinking 'I didn't prepare enough'"
+        ],
+        correct: 3,
+        exp: "Sweating, shaking legs, and sitting quietly are outward observable (overt) behaviors, whereas thinking about preparation is an internal mental process (covert)."
+      },
+      {
+        q: "Q5. In the computer analogy of the human mind, internal operations such as saving information and processing sensory input correspond directly to:",
+        options: [
+          "A. Overt outward facial expressions",
+          "B. Mental processes like remembering and perceiving",
+          "C. Unscientific assumptions about other people",
+          "D. Raising a hand in class"
+        ],
+        correct: 1,
+        exp: "Just as a computer internally saves data and processes input before showing output, mental processes cover internal thinking, remembering, feeling, and perceiving."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Psychology Definitions & Concepts!" : "Great performance! You clearly understand science, overt vs. covert behavior, and mental processes.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the difference between overt behaviors and internal mental processes.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the etymology, scientific basis, and classification tables above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

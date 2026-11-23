@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Form Perception and Organization — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+    .swipe-row::-webkit-scrollbar { height: 5px; }
+    .swipe-row::-webkit-scrollbar-thumb { background: rgba(217,119,6,.35); border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Psychology</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="shapes" class="w-3.5 h-3.5"></i> Sensation &amp; Perception · Gestalt Psychology
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Form Perception and Organization</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Figure-Ground Distinction, Contours, Camouflage, and the Five Gestalt Grouping Laws</p>
+      </div>
+    </section>
+
+    <!-- 1. Meaning of Form Perception -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Meaning of Form Perception</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        When looking at a photograph, you do not see thousands of isolated color dots—you immediately recognize a person, tree, house, or car. <strong>Form perception</strong> is the process of organizing visual sensations into meaningful patterns, shapes, forms, concepts, or ideas.
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-center">
+          <span class="font-mono text-lg font-extrabold tracking-widest text-brand-800 dark:text-brand-300 block">BOOK</span>
+          <p class="text-slate-700 dark:text-slate-300 mt-1">Four separate letters organized by your brain into one meaningful word.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center">
+          <span class="font-display font-bold text-slate-900 dark:text-white block text-sm">Human Face Recognition</span>
+          <p class="text-slate-600 dark:text-slate-300 mt-1">Rather than seeing isolated eyes, a nose, and a mouth, the brain integrates them into one familiar face.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Figure-Ground Perception -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Figure-Ground Perception</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        <strong>Figure-ground perception</strong> is the ability to perceive objects and forms (the <strong>figure</strong> that stands out) as separate from what surrounds them (the <strong>ground</strong> or background).
+      </p>
+
+      <!-- Swipeable 4 Figure-Ground Examples -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+          <span>Everyday Figure-Ground Pairs (Tap to zoom)</span>
+          <span class="inline-flex items-center gap-1 text-brand-600 dark:text-brand-400">Swipe left <i data-lucide="arrow-right" class="w-3 h-3"></i></span>
+        </div>
+
+        <div class="swipe-row flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/OPPnwDBaQJz8t250CDCIIavxwBewdiMrWREuNbjiGqHEmRkOr8SnDuv_9s_w3Dn9gmkkJU-nAWoA_FtXwDDP5m-wMv8lWNtMnD7rLJQJZ0PfS3J-uPFGUfFQQnww5rFRrKGXRSIjAiJcovPbwdx1A4frYyYR5lN3HM4wdWDh6RmDIc2M3am4zxtRH74cEItq?purpose=fullsize', 'Figure: Red Apple | Ground: White Background')">
+            <div class="h-28 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/OPPnwDBaQJz8t250CDCIIavxwBewdiMrWREuNbjiGqHEmRkOr8SnDuv_9s_w3Dn9gmkkJU-nAWoA_FtXwDDP5m-wMv8lWNtMnD7rLJQJZ0PfS3J-uPFGUfFQQnww5rFRrKGXRSIjAiJcovPbwdx1A4frYyYR5lN3HM4wdWDh6RmDIc2M3am4zxtRH74cEItq?purpose=fullsize" alt="Apple Figure" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">Fig: Apple | Gnd: White</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/diXUvLZiOwQDTDxy8qWmhxpdh0RvvoOh4SGLuY_wHUx20od_uLsFnM9oj28N_NC5MYFLb1LJ0Rrsb15n8xXsaUFLFBvpSQnd26yJZc2NjYdGdsuXy5CxhUPaLh4uEv5jffTCgylUsHgXTaPZc2ifHG1acdm6-XoU_qCamomxyHjs-qDBLwxkA8wRo1GFpXF_?purpose=fullsize', 'Figure: Printed Words | Ground: Paper')">
+            <div class="h-28 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/diXUvLZiOwQDTDxy8qWmhxpdh0RvvoOh4SGLuY_wHUx20od_uLsFnM9oj28N_NC5MYFLb1LJ0Rrsb15n8xXsaUFLFBvpSQnd26yJZc2NjYdGdsuXy5CxhUPaLh4uEv5jffTCgylUsHgXTaPZc2ifHG1acdm6-XoU_qCamomxyHjs-qDBLwxkA8wRo1GFpXF_?purpose=fullsize" alt="Words Figure" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">Fig: Words | Gnd: Paper</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/A0HUdl5iSo2azLcnY8Uug8Ch7MWxoDGt4wZfYQXHLXjLsMxbyEqs2Qq7jqq_9-6JQ4d7rC-00aUS2_K5SlYNRFOhZbJxIkjD7gGinqJr9k37K4EkWQBy7z0TXTRq3yls4fsSB4BGm7suPiyn9DOvlyawMRDmewvEuyBUmZmOSXvalGgwEOPJCfK50_Ex2rgO?purpose=fullsize', 'Figure: Bird | Ground: Sky')">
+            <div class="h-28 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/A0HUdl5iSo2azLcnY8Uug8Ch7MWxoDGt4wZfYQXHLXjLsMxbyEqs2Qq7jqq_9-6JQ4d7rC-00aUS2_K5SlYNRFOhZbJxIkjD7gGinqJr9k37K4EkWQBy7z0TXTRq3yls4fsSB4BGm7suPiyn9DOvlyawMRDmewvEuyBUmZmOSXvalGgwEOPJCfK50_Ex2rgO?purpose=fullsize" alt="Bird Figure" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">Fig: Bird | Gnd: Sky</figcaption>
+          </figure>
+
+          <figure class="shrink-0 w-[46%] sm:w-[44%] snap-start cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" onclick="openLightbox('https://images.openai.com/static-rsc-4/OE_DwwuEKecQbxxJaQ8lhIvaHIsl4q__AGEVoL9IPA7aPLV9s8dg-nPm2D_VqMur47JEmj8QE7N6rJD2ukDyx7VK6fS5F2R34SLZ6NzZ-kdAradYWqvvCzgZNadi_p8A_u8fJshnmOfgFGfL-TfnO3Hm5Ndgbj5dGe0hlOk0_yjpVEx83fBRYR0VD8DT4ixD?purpose=fullsize', 'Figure: Melody | Ground: Repetitive Musical Background')">
+            <div class="h-28 overflow-hidden bg-white dark:bg-slate-900">
+              <img src="https://images.openai.com/static-rsc-4/OE_DwwuEKecQbxxJaQ8lhIvaHIsl4q__AGEVoL9IPA7aPLV9s8dg-nPm2D_VqMur47JEmj8QE7N6rJD2ukDyx7VK6fS5F2R34SLZ6NzZ-kdAradYWqvvCzgZNadi_p8A_u8fJshnmOfgFGfL-TfnO3Hm5Ndgbj5dGe0hlOk0_yjpVEx83fBRYR0VD8DT4ixD?purpose=fullsize" alt="Melody Figure" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" />
+            </div>
+            <figcaption class="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 dark:text-slate-300 truncate">Fig: Melody | Gnd: Chords</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- Rubin's Vase (Reversible Figure-Ground) -->
+      <div class="p-3.5 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 space-y-2.5 text-xs">
+        <strong class="font-display text-amber-950 dark:text-amber-200 block">Active Switching (Rubin's Vase Illusion):</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          Figure and ground are not permanently fixed. Focus on the dark center and you see a <strong>black vase</strong> (figure) against white (ground); shift perception to the white sides and you see <strong>two faces looking toward each other</strong> (figure) against black (ground).
+        </p>
+        <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/44NwOpEnlv6EfwbRH6yAF54B-40V2KS6NSvdT7xmFrn4TR2_jTx_rSTYjw9GeT_KC1evvolQ0TwfeG7oubvOXUDNPAtzm0-iIVhn1xPmRLidkgAoPhK6kYqcIgYZjunEzatXtr1aTJXC2aJuuCkJbURs-sMNvgwMF2C3NRG9l5bWiXE8t48gmzGS-7-VNL3D?purpose=fullsize', 'Rubins Vase: Reversible Figure-Ground Perception')">
+          <img src="https://images.openai.com/static-rsc-4/44NwOpEnlv6EfwbRH6yAF54B-40V2KS6NSvdT7xmFrn4TR2_jTx_rSTYjw9GeT_KC1evvolQ0TwfeG7oubvOXUDNPAtzm0-iIVhn1xPmRLidkgAoPhK6kYqcIgYZjunEzatXtr1aTJXC2aJuuCkJbURs-sMNvgwMF2C3NRG9l5bWiXE8t48gmzGS-7-VNL3D?purpose=fullsize" alt="Rubins Vase" class="w-full max-h-40 object-contain" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 3. Contours & Camouflage -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Contours &amp; Camouflage</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        <strong>Contours</strong> are visible boundaries separating objects from their backgrounds, formed by marked differences in brightness or color (such as sharp black silhouettes against a white background).
+      </p>
+
+      <figure class="cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/VNdqg1KSmFMAJhYKLIJHJPLHAmsFIPAaeAY1Rf7SKVPQBW8Je9EmdR9tM3mJ2jgbjsTlX8WTQ5lLSKjMA5yyed0CA64_aRI2ShYyjE5VdfmXZe1Xzr6x5AJRMF5HdKutRvpy3RU1ag3n8vBdALgJ3yRkAtUW9RZHu3F6Nn5723OKPRZmGpfTwrifWr8VCGmy?purpose=fullsize', 'High-Contrast Contours Separating Shapes From Background')">
+        <img src="https://images.openai.com/static-rsc-4/VNdqg1KSmFMAJhYKLIJHJPLHAmsFIPAaeAY1Rf7SKVPQBW8Je9EmdR9tM3mJ2jgbjsTlX8WTQ5lLSKjMA5yyed0CA64_aRI2ShYyjE5VdfmXZe1Xzr6x5AJRMF5HdKutRvpy3RU1ag3n8vBdALgJ3yRkAtUW9RZHu3F6Nn5723OKPRZmGpfTwrifWr8VCGmy?purpose=fullsize" alt="Black White Shapes" class="w-full max-h-36 object-contain" />
+      </figure>
+
+      <!-- Gradual vs Abrupt Brightness -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">A. Gradual Change in Brightness</strong>
+          <p class="text-slate-600 dark:text-slate-300">No sharp boundary forms—it is difficult to pinpoint where white ends and black begins.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/llBNzerz1NoROKnIsapWAleaLxfZPGuq9K0o6HqWAxLXlAH_OQFWOzFhU0P1-CrrA0u4CQ4pB49Bzp57ubrfI_IoMX0f91XqB8k_Yh-V0y3Wtn5Q5UMaV9jb9cYxpzmCB32ayLoIzgCqXxoeiUJ35wb5ECXRybW68TSz8kMXIjeZdmgu9cf597R-12LiFByQ?purpose=fullsize', 'Gradual Change in Brightness (No Sharp Contour)')">
+            <img src="https://images.openai.com/static-rsc-4/llBNzerz1NoROKnIsapWAleaLxfZPGuq9K0o6HqWAxLXlAH_OQFWOzFhU0P1-CrrA0u4CQ4pB49Bzp57ubrfI_IoMX0f91XqB8k_Yh-V0y3Wtn5Q5UMaV9jb9cYxpzmCB32ayLoIzgCqXxoeiUJ35wb5ECXRybW68TSz8kMXIjeZdmgu9cf597R-12LiFByQ?purpose=fullsize" alt="Gradual Gradient" class="w-full max-h-24 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">B. Abrupt Change in Brightness</strong>
+          <p class="text-slate-600 dark:text-slate-300">A sudden shift from white to black creates a crisp, unmistakable contour giving clear shape.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/bTpr5GIK8TnUdIwyY96bWCn1YJBUCSZuX-iCIm--uQG3EjBJ-TjbEH73G_uarxzWh0gW0ueh3nk5Zz6tt3hPO-5KnklDZ6WUsqBNxMpG367F3LrjvzgT0G7XZ9pkqXfmUN2e_BI8slAlWexRCKSuLYD89SpWxguKlDU3MzRcxrnZDdk4m95gEvxrFCxqHZGd?purpose=fullsize', 'Abrupt Change in Brightness Creating a Clear Contour')">
+            <img src="https://images.openai.com/static-rsc-4/bTpr5GIK8TnUdIwyY96bWCn1YJBUCSZuX-iCIm--uQG3EjBJ-TjbEH73G_uarxzWh0gW0ueh3nk5Zz6tt3hPO-5KnklDZ6WUsqBNxMpG367F3LrjvzgT0G7XZ9pkqXfmUN2e_BI8slAlWexRCKSuLYD89SpWxguKlDU3MzRcxrnZDdk4m95gEvxrFCxqHZGd?purpose=fullsize" alt="Abrupt Contrast" class="w-full max-h-24 object-contain" />
+          </figure>
+        </div>
+      </div>
+
+      <!-- Camouflage -->
+      <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-2 text-xs">
+        <strong class="font-display text-emerald-900 dark:text-emerald-300 block">Camouflage &amp; Disrupted Contours:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          When a chameleon matches foliage colors—or soldiers wear camouflage uniforms—the brightness/color differences disappear, disrupting visible contours and making the object nearly impossible to distinguish from its background.
+        </p>
+        <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/VrgYhHQDqGsjjKWn60tFpdwdysDzoDGR2oo0BlKqNmecIeXUe3qPc33BeR1jM09go_NBexbM7DpAR3Nz_zvNXcTKCYuAkozfyuA6jDND6TwtvmCfgUf1CvMyr2UaP0YiW5bCGICS4MsLwIzalgn1iS-mJUmdJF_KVSSP7pQrp1wQI8fLYMQKuZm10xdTrMY8?purpose=fullsize', 'Chameleon Camouflage: Blending Contours Into Foliage')">
+          <img src="https://images.openai.com/static-rsc-4/VrgYhHQDqGsjjKWn60tFpdwdysDzoDGR2oo0BlKqNmecIeXUe3qPc33BeR1jM09go_NBexbM7DpAR3Nz_zvNXcTKCYuAkozfyuA6jDND6TwtvmCfgUf1CvMyr2UaP0YiW5bCGICS4MsLwIzalgn1iS-mJUmdJF_KVSSP7pQrp1wQI8fLYMQKuZm10xdTrMY8?purpose=fullsize" alt="Chameleon" class="w-full max-h-36 object-contain" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- 4. Five Gestalt Laws of Perceptual Organization -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Gestalt Laws of Perceptual Organization</span>
+      </h2>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-1">
+        <strong class="text-brand-900 dark:text-brand-300 font-display text-sm block">&ldquo;The whole is more than the sum of its parts.&rdquo;</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          Just as isolated musical notes arranged together produce a melody with properties no single note possesses, our brain organizes scattered visual dots into unified lines and patterns using five Gestalt laws:
+        </p>
+      </div>
+
+      <!-- 5 Laws Cards -->
+      <div class="space-y-3 text-xs">
+        <!-- A. Proximity -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="font-display text-sm text-brand-700 dark:text-brand-400">A. Law of Proximity (Nearness)</strong>
+            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Clue: Nearness</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300">Items close together in space or time are perceived as belonging together (dot pairs, students sitting close, words forming lines, houses forming neighborhoods).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/fvT5uVL7E8Kv9W1JxKz0CK4z8dNK6XchE-Gv0Udr6-SMQgzn_a--QBPj5KZqmayCOvNy1d84vXGeXKE2S-pNDAGlKw9EV3qAXQM15NP2ar5cTMt0o4I7oIvHyXmtbS43ciPXxmz73q9wDL6A7yDskr513J1xgivKkNAATFSvyk7UylG_SfnuamIAsF-0py_0?purpose=fullsize', 'Law of Proximity: Items Near Each Other Are Grouped')">
+            <img src="https://images.openai.com/static-rsc-4/fvT5uVL7E8Kv9W1JxKz0CK4z8dNK6XchE-Gv0Udr6-SMQgzn_a--QBPj5KZqmayCOvNy1d84vXGeXKE2S-pNDAGlKw9EV3qAXQM15NP2ar5cTMt0o4I7oIvHyXmtbS43ciPXxmz73q9wDL6A7yDskr513J1xgivKkNAATFSvyk7UylG_SfnuamIAsF-0py_0?purpose=fullsize" alt="Proximity" class="w-full max-h-32 object-contain" />
+          </figure>
+        </div>
+
+        <!-- B. Similarity -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="font-display text-sm text-brand-700 dark:text-brand-400">B. Law of Similarity</strong>
+            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Clue: Alike</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300">Similar items are grouped together (circles vs. squares, students in matching uniforms, identical road signs, athletes in team jerseys).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/RhLCxDX4NGPcdy0sBR2R33yfXpT699hmcpKUX1QRrngxDX_9uUtCMEpvwx3WYLgUOEWcZsmfuNHYRYCVu0d6FUhTuK2RNyvb_jA1zc0NAiM1SB6HV3EgkSeIVxgvoPmo-DDoK0ClKn_3Z2-MuzYRxYxjoeCTf8YOtKjwoE-eDjDkl5dkFALNIC8jNFO7EdJM?purpose=fullsize', 'Law of Similarity: Alike Items Grouped Together')">
+            <img src="https://images.openai.com/static-rsc-4/RhLCxDX4NGPcdy0sBR2R33yfXpT699hmcpKUX1QRrngxDX_9uUtCMEpvwx3WYLgUOEWcZsmfuNHYRYCVu0d6FUhTuK2RNyvb_jA1zc0NAiM1SB6HV3EgkSeIVxgvoPmo-DDoK0ClKn_3Z2-MuzYRxYxjoeCTf8YOtKjwoE-eDjDkl5dkFALNIC8jNFO7EdJM?purpose=fullsize" alt="Similarity" class="w-full max-h-32 object-contain" />
+          </figure>
+        </div>
+
+        <!-- C. Good Figure -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="font-display text-sm text-brand-700 dark:text-brand-400">C. Law of Good Figure (Symmetry)</strong>
+            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Clue: Balance</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300">Tendency to organize visual elements into balanced, simple, symmetrical shapes—sometimes overriding similarity (e.g., seeing a balanced six-pointed star rather than separate dots and rings).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/9Ed0lHe2zr5LodScrpp_pXRaKzrLSBCaDoaKN9AWxBpyqFbJsqcG1zjIHwpHJMNOXdVdvkx580zeNA7NFPYm9pe4GIBDs0F1_fPegw29SI162Y-Tx3e75MdI8xIRrffPAS41xNWPN4qvn_fgANujiJxFZnrNV-hxtSWL4jzIX_QLC7mB5VC3WsjAQFFZdKa7?purpose=fullsize', 'Law of Good Figure: Balanced Symmetrical Organization')">
+            <img src="https://images.openai.com/static-rsc-4/9Ed0lHe2zr5LodScrpp_pXRaKzrLSBCaDoaKN9AWxBpyqFbJsqcG1zjIHwpHJMNOXdVdvkx580zeNA7NFPYm9pe4GIBDs0F1_fPegw29SI162Y-Tx3e75MdI8xIRrffPAS41xNWPN4qvn_fgANujiJxFZnrNV-hxtSWL4jzIX_QLC7mB5VC3WsjAQFFZdKa7?purpose=fullsize" alt="Good Figure" class="w-full max-h-32 object-contain" />
+          </figure>
+        </div>
+
+        <!-- D. Continuation -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="font-display text-sm text-brand-700 dark:text-brand-400">D. Law of Continuation</strong>
+            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Clue: Smooth Path</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300">Tendency to perceive lines as following smooth, continuous paths rather than abrupt breaks (crossing curved lines, a road disappearing behind a hill, or a line behind an object).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/sE8GqdO7QVnUza2HCjO-HKndmK-uWTxxasZZR8id2UMEt9uwf8lnMn6gvxZaVwRGZx319EA4f_cRwrpsU4i62jifJSU7w6XsTK00ZSymxZ6vf3Tnc67KWVe0FVw8Q1yDd7dyxtkBEL08VO0OyaBtnX-s398hCe4bcSMXhEiQXC7tVkR5JWyNRurEZ0xyByRK?purpose=fullsize', 'Law of Continuation: Smooth Unbroken Paths')">
+            <img src="https://images.openai.com/static-rsc-4/sE8GqdO7QVnUza2HCjO-HKndmK-uWTxxasZZR8id2UMEt9uwf8lnMn6gvxZaVwRGZx319EA4f_cRwrpsU4i62jifJSU7w6XsTK00ZSymxZ6vf3Tnc67KWVe0FVw8Q1yDd7dyxtkBEL08VO0OyaBtnX-s398hCe4bcSMXhEiQXC7tVkR5JWyNRurEZ0xyByRK?purpose=fullsize" alt="Continuation" class="w-full max-h-32 object-contain" />
+          </figure>
+        </div>
+
+        <!-- E. Closure -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <strong class="font-display text-sm text-brand-700 dark:text-brand-400">E. Law of Closure</strong>
+            <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-500/20 text-brand-800 dark:text-brand-300 font-bold">Clue: Complete It</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300">Tendency to mentally fill in missing gaps to perceive complete shapes (recognizing broken circles/triangles/squares, partially covered letters, incomplete outlines, or familiar logos).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/dOVUTTC1DTnCn5nLxUte8VriTDOVV5DdDfslNR1swIKiC44iYqsHObccrR2VY-kwiLoKsZGJgGu-RI_q87Tt6HYIA4Vy6QePy127dkeWkj_BLhXzsCASd9bLZfICuTXcgsFpZjrX9bbWu2H-7-Z8QA2-C0cJc4BrxB-Z-80Q8vpMg30LYEu9Vm6Nh7pFhQKk?purpose=fullsize', 'Law of Closure: Mentally Filling Missing Gaps')">
+            <img src="https://images.openai.com/static-rsc-4/dOVUTTC1DTnCn5nLxUte8VriTDOVV5DdDfslNR1swIKiC44iYqsHObccrR2VY-kwiLoKsZGJgGu-RI_q87Tt6HYIA4Vy6QePy127dkeWkj_BLhXzsCASd9bLZfICuTXcgsFpZjrX9bbWu2H-7-Z8QA2-C0cJc4BrxB-Z-80Q8vpMg30LYEu9Vm6Nh7pFhQKk?purpose=fullsize" alt="Closure" class="w-full max-h-32 object-contain" />
+          </figure>
+        </div>
+      </div>
+
+      <!-- Comparison Table & Tricky Examples -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 pt-1">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Gestalt Law</th><th class="py-2 px-3">Main Principle</th><th class="py-2 px-3">Tricky Exam Example</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Proximity</td><td class="py-1.5 px-3">Near objects grouped</td><td class="py-1.5 px-3">Students sitting close together seen as one group</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Similarity</td><td class="py-1.5 px-3">Alike objects grouped</td><td class="py-1.5 px-3">Red circles grouped apart from blue circles</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Good Figure</td><td class="py-1.5 px-3">Balanced, symmetrical forms</td><td class="py-1.5 px-3">Scattered elements seen as a symmetrical star</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Continuation</td><td class="py-1.5 px-3">Smooth unbroken paths</td><td class="py-1.5 px-3">Curved line continuing smoothly behind an object</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Closure</td><td class="py-1.5 px-3">Gaps mentally filled</td><td class="py-1.5 px-3">Recognizing a triangle with broken outlines</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing figure-ground perception, contours, and Gestalt laws</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Form Perception and Organization
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. The ability to perceive objects as standing out clearly from their surrounding background is called:",
+        options: ["A. Sensory adaptation", "B. Figure-ground perception", "C. Depth perception", "D. Attention shifting"],
+        correct: 1,
+        exp: "Figure-ground perception enables us to distinguish a focal object (the figure) from its surrounding environment (the ground)."
+      },
+      {
+        q: "Q2. A soldier wears a camouflage uniform that blends into surrounding vegetation, making the soldier difficult to spot primarily because:",
+        options: [
+          "A. The figure becomes brighter.",
+          "B. The contours between the soldier and background become less noticeable.",
+          "C. The background disappears.",
+          "D. The soldier's sensory threshold increases."
+        ],
+        correct: 1,
+        exp: "Camouflage works by matching surrounding colors and brightness, visually disrupting the contours that separate an object from its background."
+      },
+      {
+        q: "Q3. A student perceives several dots arranged close together as forming one distinct group. Which Gestalt law explains this?",
+        options: ["A. Similarity", "B. Closure", "C. Proximity", "D. Continuation"],
+        correct: 2,
+        exp: "The Law of Proximity states that items located close to one another in space or time tend to be grouped together."
+      },
+      {
+        q: "Q4. You recognize a familiar triangle or logo even though several parts of its outline are missing. Which law explains this?",
+        options: ["A. Good figure", "B. Closure", "C. Proximity", "D. Similarity"],
+        correct: 1,
+        exp: "The Law of Closure causes perceptual processes to mentally fill in missing gaps so an incomplete figure appears complete."
+      },
+      {
+        q: "Q5. When two intersecting lines are perceived as continuing smoothly along their original paths rather than as four disconnected fragments, which law is operating?",
+        options: ["A. Continuation", "B. Similarity", "C. Closure", "D. Figure-ground perception"],
+        correct: 0,
+        exp: "The Law of Continuation describes our tendency to perceive lines as following smooth, uninterrupted trajectories."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Form Perception & Gestalt Laws!" : "Great performance! You clearly understand figure-ground switching, contours, and Gestalt grouping.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the distinctions among Proximity, Similarity, Continuation, and Closure.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the Gestalt laws summary table and contour rules above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

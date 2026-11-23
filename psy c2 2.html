@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Sensory Laws: Thresholds and Adaptation — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Psychology</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="gauge" class="w-3.5 h-3.5"></i> Sensation &amp; Perception · Sensory Laws
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Sensory Laws: Thresholds and Adaptation</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Absolute Threshold, Response Bias, Difference Threshold (JND), Weber's Law, and Sensory Adaptation</p>
+      </div>
+    </section>
+
+    <!-- Intro: Two General Laws -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Imagine sitting in a quiet room: initially you hear the clock ticking clearly, yet minutes later you barely notice it. Two fundamental <strong>sensory laws</strong> govern how much stimulation our senses require to register signals, detect changes, and filter out constant background stimuli:
+      </p>
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30">
+          <strong class="font-display text-brand-800 dark:text-brand-300 block mb-0.5">1. Sensory Threshold</strong>
+          <p class="text-slate-700 dark:text-slate-300">The minimum level of stimulation intensity needed for a sensation or change to be detected.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30">
+          <strong class="font-display text-emerald-800 dark:text-emerald-300 block mb-0.5">2. Sensory Adaptation</strong>
+          <p class="text-slate-700 dark:text-slate-300">The decreasing responsiveness of sensory receptors to a continuous, unchanging stimulus.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. Absolute Threshold & Response Bias -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Absolute Threshold (Limen) &amp; Response Bias</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Consider adding sugar to coffee: at first no sweetness registers, then a small pinch still goes unnoticed, until enough sugar reaches the <strong>sensory threshold</strong>. Specifically, the <strong>absolute threshold (limen)</strong> is the minimum amount of stimulation a person can detect—the weakest stimulus noticeable (such as a very faint sound heard only on the third, slightly louder attempt).
+      </p>
+
+      <!-- 50% Operational Definition + Worked Example -->
+      <div class="p-4 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border-l-4 border-brand-500 text-xs space-y-2">
+        <strong class="text-brand-800 dark:text-brand-300 font-bold text-sm block">Operational 50% Rule &amp; Worked Calculation:</strong>
+        <p class="text-slate-700 dark:text-slate-200">
+          Psychologists define the absolute threshold operationally as the minimum stimulation detected <strong>50% of the time</strong> across repeated trials. If a researcher plays a faint tone \(30\) times and you detect it \(15\) times (missing it \(15\) times):
+        </p>
+        <div class="math-scroll font-mono text-center text-sm font-bold text-brand-900 dark:text-brand-200">
+          $$\frac{15}{30} \times 100 = \mathbf{50\%} \quad \text{(Your absolute threshold)}$$
+        </div>
+      </div>
+
+      <!-- Response Bias -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
+        <strong class="font-display text-slate-900 dark:text-white block">Individual Variation &amp; Response Bias:</strong>
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+          Absolute thresholds differ across people and situations depending on physical and psychological state—including <strong>response bias</strong> (how ready a person is to report detecting a stimulus). Walking along a street at night, believing the neighborhood is dangerous makes you far more ready to detect footsteps as a threat than if you believe it is completely safe.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. Difference Threshold, JND & Weber's Law -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Difference Threshold, JND &amp; Weber's Law</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        The <strong>difference threshold</strong> is the minimum amount of <em>change</em> in stimulation a person can detect between two intensities—such as adding more sugar to already-sweet coffee or slightly turning up music volume until a difference registers. Psychologists call the smallest change detectable <strong>50% of the time</strong> the <strong>Just Noticeable Difference (JND)</strong>.
+      </p>
+
+      <!-- Weber's Law -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+        <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">Weber's Law (Proportional Constant):</strong>
+        <p class="text-slate-600 dark:text-slate-300">
+          <strong>Weber's Law</strong> states that the amount of change needed to produce a JND is a <strong>constant fraction (percentage)</strong> of the original stimulus intensity:
+        </p>
+
+        <div class="grid sm:grid-cols-2 gap-3 font-mono">
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center space-y-1">
+            <div class="font-bold text-slate-900 dark:text-white">50 oz Weight &rarr; +1 oz JND</div>
+            <div class="text-brand-700 dark:text-brand-400 font-bold">\(\frac{1}{50} \times 100 = \mathbf{2\%}\)</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center space-y-1">
+            <div class="font-bold text-slate-900 dark:text-white">100 oz Weight &rarr; +2 oz JND</div>
+            <div class="text-brand-700 dark:text-brand-400 font-bold">\(\frac{2}{100} \times 100 = \mathbf{2\%}\)</div>
+          </div>
+        </div>
+
+        <p class="text-[11px] font-semibold text-amber-700 dark:text-amber-300">
+          Note: Doubling the original weight doubles the required noticeable change. Weber's Law holds better for moderate-intensity stimuli than for extremely low or extremely high intensities.
+        </p>
+      </div>
+    </section>
+
+    <!-- 3. Sensory Adaptation & Exceptions -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Sensory Adaptation &amp; Adaptive Purpose</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        <strong>Sensory adaptation</strong> is the tendency of sensory receptors to show decreasing responsiveness to an unchanging stimulus over time:
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">1. Cold Swimming Pool</strong>
+          <p class="text-slate-600 dark:text-slate-300">Shivering initially gives way to feeling <em>&ldquo;the water is fine!&rdquo;</em>—not because the pool warmed up, but because temperature receptors adapted.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/QUH4tV_n41uFtMWhDuQjRNq3GlYuvHyxE2PmJF8gZV4UrDkhc29Cnna222LFicuIzzYNqYqtI3Dvt84iLvVspxhMbnjWFDR90p-hYy74Nn5oHgMH37laVJWvZZNtAa_rAxnLKZnwcyYaJCc14j--74zkmghMU_CcMusNMK_9nLs5YAW7lFzAUOV5qUAarUn3?purpose=fullsize', 'Cold Pool Adaptation: Reduced Sensory Response Over Time')">
+            <img src="https://images.openai.com/static-rsc-4/QUH4tV_n41uFtMWhDuQjRNq3GlYuvHyxE2PmJF8gZV4UrDkhc29Cnna222LFicuIzzYNqYqtI3Dvt84iLvVspxhMbnjWFDR90p-hYy74Nn5oHgMH37laVJWvZZNtAa_rAxnLKZnwcyYaJCc14j--74zkmghMU_CcMusNMK_9nLs5YAW7lFzAUOV5qUAarUn3?purpose=fullsize" alt="Swimming Pool" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-slate-900 dark:text-white block">2. Garbage Smell &amp; Train Vibration</strong>
+          <p class="text-slate-600 dark:text-slate-300">A strong garbage smell in a friend's room or a vibrating train seat fades from conscious notice after minutes, freeing focus to detect <em>new</em> changes.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/-no8RF3UDEav7t8mO3aWnu4mrruXzVA1WgVtLCnDJEFvkcMOEccvIQILbOk-e3qlaP2N_OrYFCphvFx9P9P1v8Xr-qNfLiO2mP_sa-7_3TQDEnR3yqVGaDp9SFYnsmZAOwDUQctb6s9bp-uoQt_4c6lN3F9csvqv-Pq6GFGTHMr1pX3SxjwvKN4-50IyRk9T?purpose=fullsize', 'Dormitory Room Odor Adaptation')">
+            <img src="https://images.openai.com/static-rsc-4/-no8RF3UDEav7t8mO3aWnu4mrruXzVA1WgVtLCnDJEFvkcMOEccvIQILbOk-e3qlaP2N_OrYFCphvFx9P9P1v8Xr-qNfLiO2mP_sa-7_3TQDEnR3yqVGaDp9SFYnsmZAOwDUQctb6s9bp-uoQt_4c6lN3F9csvqv-Pq6GFGTHMr1pX3SxjwvKN4-50IyRk9T?purpose=fullsize" alt="Room Adaptation" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-rose-50/80 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs text-rose-950 dark:text-rose-200">
+        <strong>Protective Exception:</strong> Adaptation helps us ignore steady background noise while studying, but we <strong>do not completely adapt</strong> to extremely intense sensations—such as <strong>severe pain</strong> or <strong>freezing cold</strong>—because ignoring them could be harmful or fatal.
+      </div>
+    </section>
+
+    <!-- 4. Master Comparison Table -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Quick Concept Comparison</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Concept</th><th class="py-2 px-3">What It Measures</th><th class="py-2 px-3">Example</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Absolute Threshold</td><td class="py-1.5 px-3">Minimum stimulation detected (50% rule)</td><td class="py-1.5 px-3">Weakest sound heard</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Difference Threshold / JND</td><td class="py-1.5 px-3">Minimum detectable change (50% rule)</td><td class="py-1.5 px-3">Smallest volume increase noticed</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Sensory Adaptation</td><td class="py-1.5 px-3">Decreased response to steady stimulus</td><td class="py-1.5 px-3">Gradually ignoring a bad smell</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing thresholds, Weber's Law, and sensory adaptation</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Sensory Laws: Thresholds and Adaptation
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. The minimum amount of stimulation a person can detect is called the:",
+        options: ["A. Difference threshold", "B. Absolute threshold", "C. Sensory adaptation", "D. Response bias"],
+        correct: 1,
+        exp: "The absolute threshold (limen) is the minimum stimulus intensity required for detection."
+      },
+      {
+        q: "Q2. Operationally, psychologists define the absolute threshold as the minimum stimulation detected:",
+        options: ["A. 10% of the time", "B. 25% of the time", "C. 50% of the time", "D. 100% of the time"],
+        correct: 2,
+        exp: "Across repeated presentations, the absolute threshold is defined as the stimulus intensity detected 50% of the time."
+      },
+      {
+        q: "Q3. A person notices that music has become slightly louder. The smallest change in volume that can be detected is called the:",
+        options: ["A. Absolute threshold", "B. Sensory adaptation", "C. Difference threshold", "D. Response bias"],
+        correct: 2,
+        exp: "The difference threshold (or Just Noticeable Difference, JND) measures the smallest detectable change between two stimulus intensities."
+      },
+      {
+        q: "Q4. According to Weber's Law, if a 50-ounce weight requires a 1-ounce change to be noticed, a 100-ounce weight would require approximately:",
+        options: ["A. 0.5 ounces", "B. 1 ounce", "C. 2 ounces", "D. 5 ounces"],
+        correct: 2,
+        exp: "Weber's Law keeps the fraction constant: 1/50 = 2%. For a 100-ounce weight, 2% equals 2 ounces."
+      },
+      {
+        q: "Q5. A student enters a room with a strong unpleasant smell, and after several minutes the smell becomes less noticeable. This is an example of:",
+        options: ["A. Absolute threshold", "B. Sensory adaptation", "C. Difference threshold", "D. Weber's Law"],
+        correct: 1,
+        exp: "Sensory adaptation reduces receptor responsiveness to an unchanging stimulus, such as lingering odor or cold water."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Sensory Thresholds & Adaptation!" : "Great performance! You clearly understand 50% detection rules, Weber's Law, and sensory adaptation.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review Weber's Law proportional calculations and the difference between thresholds.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the thresholds comparison table and Weber's Law worked example above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

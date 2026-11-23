@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Behavioral Theories of Learning — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Psychology</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5"></i> Learning &amp; Theories of Learning · Behaviorism
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Behavioral Theories of Learning</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Classical Conditioning (Pavlov), Operant Conditioning (Skinner), Reinforcement Schedules, Punishment, and Shaping</p>
+      </div>
+    </section>
+
+    <!-- 1. Behavioral Overview -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Stimulus-Response Framework</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        Whether hearing a song that triggers a painful memory, studying harder for teacher praise, or stopping touching a hot pot after a burn, <strong>behavioral theories</strong> explain observable learning through <strong>stimulus–response associations</strong>: a <strong>stimulus</strong> (heat from a pot) produces a <strong>response</strong> (withdrawing your hand).
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30">
+          <strong class="font-display text-brand-900 dark:text-brand-300 block mb-1">Classical Conditioning (Ivan Pavlov)</strong>
+          <p class="text-slate-700 dark:text-slate-300">Learning through association between stimuli; typically involves <strong>involuntary</strong> responses.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30">
+          <strong class="font-display text-emerald-900 dark:text-emerald-300 block mb-1">Operant Conditioning (B. F. Skinner)</strong>
+          <p class="text-slate-700 dark:text-slate-300">Learning through consequences of <strong>voluntary</strong> behavior (reinforcement &amp; punishment).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Classical Conditioning (Pavlov) -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Classical Conditioning (Ivan Pavlov's Experiment)</span>
+      </h2>
+
+      <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs">
+        <img src="https://images.openai.com/static-rsc-4/Ds0BqsTz2LUAkepnNWKVxQNbcEAVuNQkVy0cx9840vmLOqcdHbdmUS7b0zc6tM8CTGJAAW6Os-GYVOMgxo2JBTfAleI-WkUnMnn8Z4LNjK6H9yJHCq_EpI9IOR_-EWQS83q1-TQwg2_Yqaw1H_wVNyfg6iPfk06uaJi-PGuQN6zSkH-TbUumyuT_OUUbazin?purpose=fullsize" alt="Ivan Pavlov Conditioning" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 cursor-pointer border border-slate-200 dark:border-slate-700" onclick="openLightbox(this.src, 'Ivan Pavlov: Classical Conditioning Associative Learning')" />
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+          Russian physiologist <strong>Ivan Pavlov</strong> discovered <strong>classical conditioning</strong>: a previously neutral stimulus (bell) begins producing a learned response (salivation) after repeated pairing with a natural stimulus (food).
+        </p>
+      </div>
+
+      <!-- 3 Stages -->
+      <div class="grid sm:grid-cols-3 gap-2.5 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Stage 1: Before Conditioning</strong>
+          <p class="text-slate-600 dark:text-slate-300">Bell &rarr; No salivation.<br>Food (UCS) &rarr; Salivation (UCR).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/a8z_t6nHTnIs5Tp3oM2ONX-0Um3VoznMA_kWGfZXYJOqOCtiYd9OR34uC2vcSOJJO0dhDm7QEwEuICKssvbLeiF9Jm4xzf5MfVEp4swIpvvGNgV8hmVw2sWIFc19jWNRpewGJJgGFayzUWmLI1gcn7Lcxn694xMebIPqlZG2ZcHRMo2yureJf9ZzdKgeJaD0?purpose=fullsize', 'Stage 1: Before Conditioning')">
+            <img src="https://images.openai.com/static-rsc-4/a8z_t6nHTnIs5Tp3oM2ONX-0Um3VoznMA_kWGfZXYJOqOCtiYd9OR34uC2vcSOJJO0dhDm7QEwEuICKssvbLeiF9Jm4xzf5MfVEp4swIpvvGNgV8hmVw2sWIFc19jWNRpewGJJgGFayzUWmLI1gcn7Lcxn694xMebIPqlZG2ZcHRMo2yureJf9ZzdKgeJaD0?purpose=fullsize" alt="Before Conditioning" class="w-full h-24 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-slate-900 dark:text-white block">Stage 2: During Conditioning</strong>
+          <p class="text-slate-600 dark:text-slate-300">Bell + Food paired repeatedly &rarr; Salivation.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/SOa0rR_yMfcZ6KiM63IPs0hCzW7NfQ5AdJKSnchU78vQrlUyfIrdJNakG89wxEhekinwp6Fps83NktYfuqLHh-HVdBFweEUL2MudgahbXfy4cJy7BPa1GoM2M4gYvJqDpptmqoU5q5XPz2Ne6X6T2QYyEgUE8JugITVFR7Z9KAA6l_TgY4z1s_pMr963xYx9?purpose=fullsize', 'Stage 2: During Conditioning (Repeated Pairing)')">
+            <img src="https://images.openai.com/static-rsc-4/SOa0rR_yMfcZ6KiM63IPs0hCzW7NfQ5AdJKSnchU78vQrlUyfIrdJNakG89wxEhekinwp6Fps83NktYfuqLHh-HVdBFweEUL2MudgahbXfy4cJy7BPa1GoM2M4gYvJqDpptmqoU5q5XPz2Ne6X6T2QYyEgUE8JugITVFR7Z9KAA6l_TgY4z1s_pMr963xYx9?purpose=fullsize" alt="During Conditioning" class="w-full h-24 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1.5">
+          <strong class="font-display text-emerald-900 dark:text-emerald-300 block">Stage 3: After Conditioning</strong>
+          <p class="text-slate-700 dark:text-slate-300">Bell alone (CS) &rarr; Salivation (CR)!</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/yyHjOmz_DT1G3QnHPeqTGwIAdDgsxm41mdc830B770ZjefXNXMkvInnA1okmfea9Ilz-Ti8uFlYo8wpsrpI383NKEfN6AU4n7yiPLf7XF1eZy8Kr1zb6XtOn6QnEZo2PjGTHUV-Jj34bpvyXoBO-IdxQENph1wZs96jhi-hzuF2kgicop-IyJdZBa-L_UGL9?purpose=fullsize', 'Stage 3: After Conditioning (Conditioned Response)')">
+            <img src="https://images.openai.com/static-rsc-4/yyHjOmz_DT1G3QnHPeqTGwIAdDgsxm41mdc830B770ZjefXNXMkvInnA1okmfea9Ilz-Ti8uFlYo8wpsrpI383NKEfN6AU4n7yiPLf7XF1eZy8Kr1zb6XtOn6QnEZo2PjGTHUV-Jj34bpvyXoBO-IdxQENph1wZs96jhi-hzuF2kgicop-IyJdZBa-L_UGL9?purpose=fullsize" alt="After Conditioning" class="w-full h-24 object-contain" />
+          </figure>
+        </div>
+      </div>
+
+      <!-- 5 Terms Table & Hospital Example -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Term</th><th class="py-2 px-3">Meaning</th><th class="py-2 px-3">Pavlov / Hospital Injection Example</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Neutral Stimulus (NS)</td><td class="py-1.5 px-3">Produces no relevant response initially</td><td class="py-1.5 px-3">Bell before conditioning / Hospital before pain</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Unconditioned Stimulus (UCS)</td><td class="py-1.5 px-3">Naturally triggers a response</td><td class="py-1.5 px-3">Food / Painful injection</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Unconditioned Response (UCR)</td><td class="py-1.5 px-3">Natural, unlearned reaction</td><td class="py-1.5 px-3">Salivation to food / Fear from injection</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Conditioned Stimulus (CS)</td><td class="py-1.5 px-3">Previously NS that triggers learned response</td><td class="py-1.5 px-3">Bell after pairing / Hospital building</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Conditioned Response (CR)</td><td class="py-1.5 px-3">Learned reaction to CS</td><td class="py-1.5 px-3">Salivation to bell / Fear seeing hospital</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 text-center font-mono text-xs font-bold text-brand-900 dark:text-brand-200">
+        UCS &rarr; UCR (Natural) &nbsp;|&nbsp; CS &rarr; CR (Learned)
+      </div>
+    </section>
+
+    <!-- 3. Principles of Classical Conditioning -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Four Principles of Classical Conditioning</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-brand-700 dark:text-brand-400 block mb-0.5">A. Stimulus Generalization</strong>
+          <p class="text-slate-600 dark:text-slate-300">Responding to stimuli similar to the CS (salivating to a doorbell or telephone bell as well as a dinner bell).</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-brand-700 dark:text-brand-400 block mb-0.5">B. Stimulus Discrimination</strong>
+          <p class="text-slate-600 dark:text-slate-300">Distinguishing between similar stimuli and responding only to the exact CS (dinner bell only, not telephone bell).</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-rose-600 dark:text-rose-400 block mb-0.5">C. Extinction</strong>
+          <p class="text-slate-600 dark:text-slate-300">CR gradually weakens and stops when CS is presented repeatedly without UCS (inhibits CR rather than erasing it completely).</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-emerald-700 dark:text-emerald-400 block mb-0.5">D. Spontaneous Recovery</strong>
+          <p class="text-slate-600 dark:text-slate-300">Reappearance of an extinguished CR after a rest period without further training.</p>
+        </div>
+      </div>
+
+      <figure class="cursor-pointer group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/BC95bv5oqZn4lq23LSkffm0qvnlfXdvmKse3nq_4DQwTJbs0KlIpHkeDMQ-IgO-7XVLfN2YiA5bdBvcokfNlEjp_3MBbYs0bsn4u7VwajVRKkJY4okGrzcJOVaSlrGgXD80arrpivP8W0EShjFgueeAwFM3eYuaPCMjGqs4k3oJYSMIVYd-0nx2XLDb_Y47m?purpose=fullsize', 'Acquisition, Extinction, and Spontaneous Recovery Curve')">
+        <img src="https://images.openai.com/static-rsc-4/BC95bv5oqZn4lq23LSkffm0qvnlfXdvmKse3nq_4DQwTJbs0KlIpHkeDMQ-IgO-7XVLfN2YiA5bdBvcokfNlEjp_3MBbYs0bsn4u7VwajVRKkJY4okGrzcJOVaSlrGgXD80arrpivP8W0EShjFgueeAwFM3eYuaPCMjGqs4k3oJYSMIVYd-0nx2XLDb_Y47m?purpose=fullsize" alt="Extinction and Recovery" class="w-full max-h-40 object-contain" />
+      </figure>
+    </section>
+
+    <!-- 4. Operant Conditioning (Skinner) & Primary vs Secondary Reinforcers -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Operant Conditioning (B. F. Skinner) &amp; Reinforcers</span>
+      </h2>
+
+      <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs">
+        <img src="https://images.openai.com/static-rsc-4/PDFtDMTlipZK3EDbx0cf3mOGwcH47mSR0BNV3cRq0hOwy_L3CZkCyvI52D4rreTUpC9K1ypRO9NGF3LgLtY2ELDAPdASQDN5MnojXEIA2bSVDZXO5_QLrD5D-fmo9xdeITuMal9rCmfeKz4NxYZaar_yeXoEL4XdUgd7oo7hvLjRkso2RBH1QQoW4bExZorU?purpose=fullsize" alt="Skinner Box" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-contain bg-white shrink-0 cursor-pointer border border-slate-200 dark:border-slate-700" onclick="openLightbox(this.src, 'B. F. Skinner Operant Conditioning Chamber (Skinner Box)')" />
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+          Associated with <strong>B. F. Skinner</strong>, <strong>operant conditioning</strong> modifies voluntary behavior through its consequences (e.g., studying hard &rarr; scoring 95% &amp; earning praise &rarr; studying hard again). Skinner identified three consequences: <strong>Neutral consequence</strong> (no effect on likelihood), <strong>Reinforcement</strong> (strengthens behavior), and <strong>Punishment</strong> (weakens behavior).
+        </p>
+      </div>
+
+      <!-- Primary vs Secondary Reinforcers WITH COMPACT IMAGES IN FRONT OF TEXT -->
+      <div class="space-y-3 text-xs">
+        <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Primary vs. Secondary Reinforcers</h3>
+
+        <div class="flex items-start gap-3 p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30">
+          <img src="https://images.openai.com/static-rsc-4/d_-sWvKjzRemtuiMavV24cl9FLD9uTzEyCtxqg__nfS6-wRLHQdFRdIFwgr6gw9h3VHb-td0iOhp-l1nszO0vnLkPSuyuYc3xEYEg_wnKlUvu4S3r0lkzHd-fLgT5jSF95dup97DF55NLBjWmmH9ZrMZ1UnmoqTl2KScxqo2KeFMstaaoBzoibyjVgaMKjNt?purpose=fullsize" alt="Primary Reinforcers" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 cursor-pointer border border-emerald-300 dark:border-emerald-700" onclick="openLightbox(this.src, 'Primary Reinforcers: Natural Biological Rewards (Water, Food, Comfort)')" />
+          <div class="space-y-1">
+            <strong class="font-display text-sm text-emerald-900 dark:text-emerald-300 block">1. Primary Reinforcers (Biological Needs)</strong>
+            <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+              Naturally satisfy biological needs without any prior learning: <strong>food, water, light, stroking of the skin, and comfortable air temperature</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30">
+          <img src="https://images.openai.com/static-rsc-4/p8y5LxSQHJcCBxCKcdAJ0mzkHWaAEZ41ZeXoDkXvdA8bwFv1-uMLyQlKoEUcYsuU_NroF734sPXyEGD274E-DrEFAgqcRt9dilmIhdVRfP3EsP8vl4uUAWHpAP7OMbP7Dbw1cKx171xNn-g5OXLwotxfv2SZfmueYLVLUKIp7cX43ggGb22zdak4hASIxxnF?purpose=fullsize" alt="Secondary Reinforcers" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 cursor-pointer border border-brand-300 dark:border-brand-700" onclick="openLightbox(this.src, 'Secondary Reinforcers: Learned Rewards (Awards, Certificates, Money, Praise)')" />
+          <div class="space-y-1">
+            <strong class="font-display text-sm text-brand-900 dark:text-brand-300 block">2. Secondary Reinforcers (Learned Value)</strong>
+            <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+              Become rewarding through association with primary or other learned rewards: <strong>money, praise, applause, good grades, awards, certificates, and gold stars</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Positive/Negative Reinforcement, Escape/Avoidance & Punishment -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">5</span>
+        <span>Reinforcement vs. Punishment &amp; Escape vs. Avoidance</span>
+      </h2>
+
+      <div class="p-3 rounded-xl bg-amber-50/90 dark:bg-amber-500/10 border-l-4 border-amber-500 text-xs text-amber-950 dark:text-amber-200">
+        <strong>Crucial Rule:</strong> <em>Positive</em> = <strong>Add</strong> something; <em>Negative</em> = <strong>Remove</strong> something (NOT good vs. bad!). <em>Reinforcement</em> always <strong>increases</strong> behavior; <em>Punishment</em> always <strong>decreases</strong> behavior.
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Type</th><th class="py-2 px-3">Action</th><th class="py-2 px-3">Effect</th><th class="py-2 px-3">Example</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">Positive Reinforcement</td><td class="py-1.5 px-3">Add desirable</td><td class="py-1.5 px-3 font-bold">Increases</td><td class="py-1.5 px-3">Teacher praises correct answer</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold text-emerald-700 dark:text-emerald-400">Negative Reinforcement</td><td class="py-1.5 px-3">Remove unpleasant</td><td class="py-1.5 px-3 font-bold">Increases</td><td class="py-1.5 px-3">Nagging stops once you start studying</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold text-rose-600 dark:text-rose-400">Positive Punishment</td><td class="py-1.5 px-3">Add unpleasant</td><td class="py-1.5 px-3 font-bold">Decreases</td><td class="py-1.5 px-3">Extra work assigned for breaking rule</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold text-rose-600 dark:text-rose-400">Negative Punishment</td><td class="py-1.5 px-3">Remove desirable</td><td class="py-1.5 px-3 font-bold">Decreases</td><td class="py-1.5 px-3">Phone privileges removed for misuse</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-slate-900 dark:text-white block">Escape Learning:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Stopping an unpleasant stimulus already occurring (leaving a noisy room to escape noise).</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+          <strong class="text-slate-900 dark:text-white block">Avoidance Learning:</strong>
+          <p class="text-slate-600 dark:text-slate-300">Preventing an unpleasant stimulus before it happens (leaving early to avoid heavy traffic).</p>
+        </div>
+      </div>
+
+      <!-- Punishment Limitations -->
+      <div class="p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-xs space-y-1">
+        <strong class="font-display text-rose-900 dark:text-rose-300 block">Effectiveness &amp; Limitations of Punishment:</strong>
+        <p class="text-slate-700 dark:text-slate-300">
+          Punishment works best with <strong>immediacy, consistency, and appropriate intensity</strong>. However, it can fail by triggering fear/anger that spreads to the teacher or classroom (e.g., shouting at students asking questions), acting only temporarily when the punisher is absent, failing to teach replacement behavior, or accidentally reinforcing attention-seeking.
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. Schedules, Shaping & Educational Applications -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">6</span>
+        <span>Schedules of Reinforcement, Shaping &amp; Classroom Applications</span>
+      </h2>
+
+      <p class="text-xs text-slate-600 dark:text-slate-300">
+        <strong>Continuous reinforcement</strong> reinforces every correct response (fast initial learning); <strong>intermittent (partial) reinforcement</strong> reinforces occasionally, creating stronger resistance to extinction via four schedules (<em>Ratio = responses; Interval = time</em>):
+      </p>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Intermittent Schedule</th><th class="py-2 px-3">Rule</th><th class="py-2 px-3">Example</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Fixed-Ratio (FR)</td><td class="py-1.5 px-3">Fixed number of responses</td><td class="py-1.5 px-3">Bonus after every 10 products</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Variable-Ratio (VR)</td><td class="py-1.5 px-3">Unpredictable response count (highest rate/resistance)</td><td class="py-1.5 px-3">Slot machine payouts</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Fixed-Interval (FI)</td><td class="py-1.5 px-3">Fixed elapsed time</td><td class="py-1.5 px-3">Monthly allowance every 30 days</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Variable-Interval (VI)</td><td class="py-1.5 px-3">Varying elapsed time</td><td class="py-1.5 px-3">Surprise quizzes</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Shaping -->
+      <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs">
+        <img src="https://images.openai.com/static-rsc-4/_LXaap4THkRpWAYwYOcIdijFyRrHhHCBEWFmhbB1gbvT2rrKnSQOkMdzSmgQC7YPx4uN0CZtfBHNj282pBjKIkxo3S04LY4oftv1Fegq1AjZyZ1GPrV8nIYPXLxuQ7lZYehWSI5rKsfZg68BLYynbG2L7S5UP3TQas8Spv16XLLp4Q2uIcBFyYWF-jMHxpk3?purpose=fullsize" alt="Shaping Behavior" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 cursor-pointer border border-slate-200 dark:border-slate-700" onclick="openLightbox(this.src, 'Shaping: Reinforcing Successive Approximations Toward a Complex Skill')" />
+        <div class="space-y-1">
+          <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">Shaping (Successive Approximations)</strong>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+            Teaching complex behavior by rewarding small progressive steps (<em>successive approximations</em>)—such as rewarding a child first for holding a fork, then both utensils, then picking up food, until eating properly.
+          </p>
+        </div>
+      </div>
+
+      <!-- 7 Educational Applications -->
+      <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-xs space-y-1">
+        <strong class="font-display text-brand-900 dark:text-brand-300 block">Seven Educational Applications of Operant Conditioning:</strong>
+        <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+          (1) Conditioning study behavior via prizes/praise/marks; (2) Conditioning positive classroom attitudes; (3) Managing problem behavior with encouragement; (4) Reducing anxieties via gradual desensitization; (5) Conditioning group discussion participation; (6) Stepped cognitive lessons with immediate feedback; (7) Shaping complex skills step by step.
+        </p>
+      </div>
+    </section>
+
+    <!-- 7. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing classical conditioning, reinforcement schedules, and shaping</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Behavioral Theories of Learning
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. A dog naturally salivates when food is presented. In Pavlov's experiment, food represents the:",
+        options: ["A. Conditioned stimulus", "B. Conditioned response", "C. Unconditioned stimulus", "D. Neutral stimulus"],
+        correct: 2,
+        exp: "Food naturally triggers salivation without prior learning, making it the Unconditioned Stimulus (UCS)."
+      },
+      {
+        q: "Q2. After learning to salivate to a dinner bell, a dog also salivates upon hearing a similar-sounding doorbell. This illustrates:",
+        options: ["A. Stimulus discrimination", "B. Stimulus generalization", "C. Extinction", "D. Spontaneous recovery"],
+        correct: 1,
+        exp: "Stimulus generalization occurs when stimuli resembling the original conditioned stimulus trigger the conditioned response."
+      },
+      {
+        q: "Q3. A student studies more frequently because nagging stops whenever the student begins studying. This exemplifies:",
+        options: ["A. Positive punishment", "B. Negative punishment", "C. Positive reinforcement", "D. Negative reinforcement"],
+        correct: 3,
+        exp: "Removing an unpleasant stimulus (nagging) increases the frequency of studying—defining Negative Reinforcement."
+      },
+      {
+        q: "Q4. A factory worker receives a bonus after producing every 20 items. Which schedule of reinforcement is being applied?",
+        options: ["A. Fixed-ratio schedule", "B. Variable-ratio schedule", "C. Fixed-interval schedule", "D. Variable-interval schedule"],
+        correct: 0,
+        exp: "Reinforcement delivered after a constant, predictable number of responses (20 items) is a Fixed-Ratio (FR) schedule."
+      },
+      {
+        q: "Q5. Teaching a child a complex skill by rewarding small progressive steps that gradually approach the desired final behavior is called:",
+        options: ["A. Extinction", "B. Generalization", "C. Shaping", "D. Spontaneous recovery"],
+        correct: 2,
+        exp: "Shaping uses operant conditioning to reinforce successive approximations toward a complex target behavior."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Behavioral Theories of Learning!" : "Great performance! You clearly understand Pavlov, Skinner, reinforcement schedules, and shaping.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review Negative Reinforcement vs. Punishment and the four schedules of reinforcement.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the classical terms table and operant reinforcement matrix above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

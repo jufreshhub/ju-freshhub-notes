@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Applications of Learning Theories — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Psychology</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i> Learning &amp; Theories of Learning · Practical Synthesis
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Applications of Learning Theories</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Classroom Practice, Behavioral Reinforcement Techniques, and Effective University Study Strategies</p>
+      </div>
+    </section>
+
+    <!-- 1 & 2. Classical and Operant Conditioning Applications -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Applying Classical &amp; Operant Conditioning</span>
+      </h2>
+
+      <!-- Classical -->
+      <div class="p-4 rounded-xl bg-rose-50/70 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs space-y-1.5">
+        <strong class="font-display text-sm text-rose-900 dark:text-rose-300 block">1. Classical Conditioning (Learned Emotional Responses):</strong>
+        <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+          If a student suffers repeated embarrassment and harsh criticism in mathematics class, the subject or room itself becomes associated with anxiety—making the student anxious before the lesson even starts. Therefore, teachers must build pleasant classroom atmospheres, encourage warm participation, and reduce learned fears gradually via <strong>desensitization</strong>.
+        </p>
+      </div>
+
+      <!-- Operant -->
+      <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2">
+        <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">2. Operant Conditioning (Six Practical Classroom Uses):</strong>
+        <ul class="list-disc pl-4 text-slate-600 dark:text-slate-300 space-y-1">
+          <li><strong>A. Reinforcing desirable behavior:</strong> Use prizes, medals, smiles, praise, encouragement, affectionate patting on the back, and higher marks (e.g., praising homework completion or discussion).</li>
+          <li><strong>B. Managing problem behavior:</strong> Prioritize reinforcing cooperation and appropriate participation rather than relying mainly on punishment.</li>
+          <li><strong>C. Dealing with anxiety:</strong> Introduce feared stimuli weakly at first and increase gradually to reduce anxiety.</li>
+          <li><strong>D. Conditioning group behavior:</strong> Reward relevant class questions to raise whole-class participation.</li>
+          <li><strong>E. Supporting cognitive learning:</strong> Break material into small logical steps with immediate feedback/reinforcement at each step.</li>
+          <li><strong>F. Shaping complex skills:</strong> Teach a lab procedure step by step—arrange equipment &rarr; prepare materials &rarr; execute each step &rarr; combine into the full procedure.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3 & 4. Social Learning and Cognitive Applications -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Applying Social Learning &amp; Cognitive Theories</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1.5">
+          <strong class="font-display text-sm text-brand-900 dark:text-brand-300 block">3. Social Learning Theory</strong>
+          <ul class="list-disc pl-4 text-slate-700 dark:text-slate-300 space-y-0.5">
+            <li><strong>Positive modeling:</strong> Teachers/parents arrive on time, respect students, and speak politely.</li>
+            <li><strong>Vicarious learning:</strong> Seeing a classmate praised for answering a hard question motivates observers.</li>
+            <li><strong>Diverse role models:</strong> Challenge stereotypes; build <strong>self-efficacy</strong>, realistic goals, and <strong>self-regulation</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1.5">
+          <strong class="font-display text-sm text-emerald-900 dark:text-emerald-300 block">4. Cognitive Learning Theory</strong>
+          <ul class="list-disc pl-4 text-slate-700 dark:text-slate-300 space-y-0.5">
+            <li><strong>Understand vs. memorize:</strong> Understand how blood flows through heart chambers and valves—not just chamber names.</li>
+            <li><strong>Meaningful physics:</strong> Explain what each formula variable represents and apply it to real life.</li>
+            <li><strong>Logical connections:</strong> Link new topics to prior knowledge and invite independent problem solving.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Unified Classroom Matrix & 8 Motivational Techniques -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Integrating All Four Theories &amp; Eight Practical Techniques</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Theory</th><th class="py-2 px-3">Main Process</th><th class="py-2 px-3">Goal: Boost Class Participation</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Classical</td><td class="py-1.5 px-3">Stimulus association</td><td class="py-1.5 px-3">Make classroom participation pleasant &amp; anxiety-free</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Operant</td><td class="py-1.5 px-3">Consequences</td><td class="py-1.5 px-3">Praise students immediately when they contribute</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Social</td><td class="py-1.5 px-3">Observation/modeling</td><td class="py-1.5 px-3">Let students watch peers participate confidently</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Cognitive</td><td class="py-1.5 px-3">Mental understanding</td><td class="py-1.5 px-3">Ask thought-provoking questions requiring reasoning</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-slate-900 dark:text-white block">Eight Techniques to Motivate &amp; Reinforce Behavior:</strong>
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+          (1) Praise &amp; encouragement; (2) Rewards &amp; incentives (marks, certificates, medals); (3) Immediate feedback; (4) Meaningful practice &amp; repetition; (5) Breaking hard tasks into smaller steps; (6) Modeling expected skills; (7) Self-regulation (goal-setting &amp; self-monitoring); (8) Distributed learning spaced over days.
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. University Study Life Blueprint & Theorists Table -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>University Study Blueprint &amp; Key Theorists</span>
+      </h2>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Learning Principle</th><th class="py-2 px-3">Personal University Study Application</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Readiness / Motivation</td><td class="py-1.5 px-3">Study rested &amp; prepared; set clear academic goals</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Exercise / Effect</td><td class="py-1.5 px-3">Practice exam questions regularly; reinforce progress positively</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Primacy / Recency / Intensity</td><td class="py-1.5 px-3">Learn foundations right first; review before exams; use real examples</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Distributed / Observational / Cognitive</td><td class="py-1.5 px-3">Space sessions over days; adopt top students' habits; understand concepts deeply</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Key Psychologist(s)</th><th class="py-2 px-3">Major Contribution</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Ivan Pavlov</td><td class="py-1.5 px-3">Classical conditioning (associative learning)</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">B. F. Skinner</td><td class="py-1.5 px-3">Operant conditioning (reinforcement, punishment, shaping)</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Albert Bandura</td><td class="py-1.5 px-3">Social learning theory (modeling, vicarious reinforcement, self-efficacy)</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Tolman &amp; Honzik (1930)</td><td class="py-1.5 px-3">Latent learning maze experiment</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing classroom applications across all learning theories</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Applications of Learning Theories
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. A teacher praises students whenever they participate constructively in class. This is a direct classroom application of:",
+        options: ["A. Classical conditioning", "B. Operant conditioning", "C. Latent learning", "D. Insight learning"],
+        correct: 1,
+        exp: "Adding praise as a desirable consequence after voluntary classroom participation applies positive reinforcement under Operant Conditioning."
+      },
+      {
+        q: "Q2. A student develops an automatic fear of a particular subject after repeatedly experiencing humiliation during its lessons. This best illustrates:",
+        options: ["A. Classical conditioning", "B. Insight learning", "C. Observational learning", "D. Shaping"],
+        correct: 0,
+        exp: "The subject became paired with unpleasant emotional experiences, creating a conditioned fear response via Classical Conditioning."
+      },
+      {
+        q: "Q3. A student begins completing assignments diligently after watching a classmate receive praise for doing the same. Which theory best explains this?",
+        options: ["A. Cognitive learning theory", "B. Classical conditioning", "C. Social learning theory", "D. Latent learning"],
+        correct: 2,
+        exp: "Learning by watching another person get rewarded (vicarious reinforcement) is a central mechanism of Bandura's Social Learning Theory."
+      },
+      {
+        q: "Q4. A teacher breaks a complicated laboratory procedure into smaller steps and reinforces students as they master each stage. This technique is called:",
+        options: ["A. Extinction", "B. Shaping", "C. Stimulus discrimination", "D. Spontaneous recovery"],
+        correct: 1,
+        exp: "Shaping trains complex behavior by reinforcing successive approximations (small progressive steps) leading up to the complete skill."
+      },
+      {
+        q: "Q5. Which teaching strategy best reflects Cognitive Learning Theory?",
+        options: [
+          "A. Giving rewards without explaining the lesson",
+          "B. Punishing students whenever they make mistakes",
+          "C. Encouraging students to understand concepts and solve problems",
+          "D. Asking students to imitate every movement of the teacher"
+        ],
+        correct: 2,
+        exp: "Cognitive learning theory focuses on deep comprehension, logical organization, connecting prior knowledge, and independent problem solving."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Applications of Learning Theories!" : "Great performance! You clearly know how to apply all four learning theories to classrooms and personal study.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review how Classical, Operant, Social, and Cognitive theories differ in practice.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the four-theory comparison table and study blueprint above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

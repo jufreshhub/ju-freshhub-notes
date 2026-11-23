@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Factors Influencing Learning — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Psychology</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Learning &amp; Theories of Learning · Determinants
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Factors Influencing Learning</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">Motivation, Maturation, Physical Health, Psychological Wellbeing, Environment, Background, Time, and Spacing</p>
+      </div>
+    </section>
+
+    <!-- 1 & 2. Motivation & Maturation -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>Internal Drives &amp; Readiness: Motivation and Maturation</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-brand-50/70 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 space-y-1.5">
+          <strong class="font-display text-sm text-brand-900 dark:text-brand-300 block">1. Motivation (Fuel of a Car)</strong>
+          <p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+            Internal drive or desire encouraging learning. Stronger, clearer motives produce greater enthusiasm and effort (e.g., studying medicine out of genuine passion to heal vs. family pressure).
+          </p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1.5">
+          <strong class="font-display text-sm text-slate-900 dark:text-white block">2. Maturation (Neuromuscular Coordination)</strong>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+            Natural biological and nervous-system development preparing a learner (e.g., a 6-month-old baby cannot walk until muscles mature). <em>Maturation</em> = readiness; <em>Practice</em> = repeated improvement.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 & 4. Physical Health & Psychological Wellbeing -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>Physical Health &amp; Psychological Wellbeing</span>
+      </h2>
+
+      <!-- 3. Health Condition -->
+      <div class="p-4 rounded-xl bg-rose-50/70 dark:bg-rose-500/10 border-l-4 border-rose-500 text-xs space-y-1.5">
+        <strong class="font-display text-sm text-rose-900 dark:text-rose-300 block">3. Health Condition of the Learner (Low Phone Battery Analogy)</strong>
+        <p class="text-slate-700 dark:text-slate-300">Physical illness or exhaustion weakens attention and memory (like sitting through a 2-hour lecture after staying awake all night). Five physical barriers include:</p>
+        <ul class="list-disc pl-5 text-slate-700 dark:text-slate-300 space-y-0.5">
+          <li><strong>Sensory defects:</strong> Hearing or vision problems blocking input.</li>
+          <li><strong>Malnutrition &amp; Toxic conditions:</strong> Poor nutrition or harmful substances disrupting brain functioning.</li>
+          <li><strong>Loss of sleep &amp; Fatigue:</strong> Sleep deprivation and exhaustion cutting concentration and recall.</li>
+        </ul>
+      </div>
+
+      <!-- 4. Psychological Wellbeing -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="text-rose-600 dark:text-rose-400 block">Psychological Barriers (Hinder Learning):</strong>
+          <p class="text-slate-600 dark:text-slate-300">Worries (e.g., family crisis), fears, loneliness, and feelings of inferiority (afraid peers will laugh) distract attention.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-1">
+          <strong class="text-emerald-800 dark:text-emerald-300 block">Psychological Supports (Aid Learning):</strong>
+          <p class="text-slate-700 dark:text-slate-300"><strong>Self-confidence</strong> (believing in ability), <strong>Self-reliance</strong> (depending on own judgment), and <strong>Self-respect</strong> (positive self-regard).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 & 6. Working Conditions & Background Experiences -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>Environment &amp; Prior Knowledge</span>
+      </h2>
+
+      <!-- 5. Good vs Poor Working Conditions -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-2">
+          <strong class="font-display text-emerald-900 dark:text-emerald-300 block">5A. Good Working Conditions</strong>
+          <p class="text-slate-700 dark:text-slate-300">Fresh air, adequate light, comfortable surroundings, moderate temperature, learning aids, minimal distractions (quiet library).</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/66IxTE_KB3GF2CnTGmyjIqhML2WIrMrJ8f5_cNX9aIZh8iRkgUU9ucG4drvQ__uhITDzOPBjlMQ9dGxAwRyRiaviOVnDlIipdDbsaM4Jn2UJjVDbSM1j3TYivDmNJxkR2mgsRWynPzuRpa92uH32SCIgLU-wfPnSFFRnFPkyHgbGC6ouPAz2PCaRgVMYaLj7?purpose=fullsize', 'Good Working Conditions: Quiet, Well-Lit Study Space')">
+            <img src="https://images.openai.com/static-rsc-4/66IxTE_KB3GF2CnTGmyjIqhML2WIrMrJ8f5_cNX9aIZh8iRkgUU9ucG4drvQ__uhITDzOPBjlMQ9dGxAwRyRiaviOVnDlIipdDbsaM4Jn2UJjVDbSM1j3TYivDmNJxkR2mgsRWynPzuRpa92uH32SCIgLU-wfPnSFFRnFPkyHgbGC6ouPAz2PCaRgVMYaLj7?purpose=fullsize" alt="Good Study Environment" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-rose-50/60 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 space-y-2">
+          <strong class="font-display text-rose-900 dark:text-rose-300 block">5B. Poor Working Conditions</strong>
+          <p class="text-slate-700 dark:text-slate-300">Poor ventilation, dim light, uncomfortable seating, extreme temperatures, loud music/noise distractions, lack of aids.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/IzN9j8aKplnSxkC_v7igsCIk5Df0B_QsblpqrFv40VzUTAKEKIv8y_Wtd_OLSVda7-BS78Z8RXmpL8ZhUigi6nyHh1T59oyz1BA-RbPU-vRZpoi1szWKVHXOMNh8N4Zp-4pF_qRCaYu4ASmMxypeBJ0zyOSqn4JD8WTT49iP7KqOeOpKCxFhKKh5j_V1UFQy?purpose=fullsize', 'Poor Working Conditions & Distractions')">
+            <img src="https://images.openai.com/static-rsc-4/IzN9j8aKplnSxkC_v7igsCIk5Df0B_QsblpqrFv40VzUTAKEKIv8y_Wtd_OLSVda7-BS78Z8RXmpL8ZhUigi6nyHh1T59oyz1BA-RbPU-vRZpoi1szWKVHXOMNh8N4Zp-4pF_qRCaYu4ASmMxypeBJ0zyOSqn4JD8WTT49iP7KqOeOpKCxFhKKh5j_V1UFQy?purpose=fullsize" alt="Distractions" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+      </div>
+
+      <!-- 6. Background Experiences -->
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+        <strong class="font-display text-sm text-brand-700 dark:text-brand-400 block">6. Background Experiences (House Foundation Analogy)</strong>
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+          Prior knowledge supports new learning: understanding blood, vessels, and heart function prepares you to grasp cardiac pumping; knowing multiplication simplifies learning division.
+        </p>
+      </div>
+    </section>
+
+    <!-- 7 & 8. Working Period & Massed vs Distributed Learning -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Study Duration &amp; Massed vs. Distributed Practice</span>
+      </h2>
+
+      <!-- 7. Length of Working Period -->
+      <div class="grid grid-cols-3 gap-2 text-center text-xs">
+        <div class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30">
+          <strong class="block text-rose-700 dark:text-rose-400">Too Long (8 hrs)</strong>
+          <span class="text-[11px] text-slate-600 dark:text-slate-300">Fatigue &amp; drop in focus</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30">
+          <strong class="block text-amber-700 dark:text-amber-400">Too Short (5 min)</strong>
+          <span class="text-[11px] text-slate-600 dark:text-slate-300">Inadequate practice</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30">
+          <strong class="block text-emerald-700 dark:text-emerald-400">Balanced + Breaks</strong>
+          <span class="text-[11px] text-slate-600 dark:text-slate-300">Optimal mastery</span>
+        </div>
+      </div>
+
+      <!-- 8. Massed vs Distributed Learning -->
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-sm text-rose-600 dark:text-rose-400 block">8A. Massed Learning (Cramming)</strong>
+          <p class="text-slate-600 dark:text-slate-300">Studying 5 chapters or 100 psychology terms continuously the night before an exam without breaks.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/5EAmXqA2wS32ZVrEREcsqhI-fnmi7ZIe2eb0UJciHou2ytCddo4OjbI3ycAtAjDFs-c3xAmqcRYCEDQ_q8dzp1fIQfIedLqBlsW0juWh7gdQj_B1181rcqCREnQEVrLAh1DcqenFnDOwA6MvHdYHJwAQmXqPH9ri_wlnMPWOaQYEt1me9V5jS_FEDQbEC1g-?purpose=fullsize', 'Massed Learning: Cramming Material in One Short Period')">
+            <img src="https://images.openai.com/static-rsc-4/5EAmXqA2wS32ZVrEREcsqhI-fnmi7ZIe2eb0UJciHou2ytCddo4OjbI3ycAtAjDFs-c3xAmqcRYCEDQ_q8dzp1fIQfIedLqBlsW0juWh7gdQj_B1181rcqCREnQEVrLAh1DcqenFnDOwA6MvHdYHJwAQmXqPH9ri_wlnMPWOaQYEt1me9V5jS_FEDQbEC1g-?purpose=fullsize" alt="Massed Learning" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 space-y-2">
+          <strong class="font-display text-sm text-emerald-800 dark:text-emerald-300 block">8B. Distributed Learning (Spaced)</strong>
+          <p class="text-slate-700 dark:text-slate-300">Spreading study across days (1 chapter/day or 20 terms/day for 5 days with review)—consistently outperforms cramming!</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/PDc4aBIweloLYWgAIN9wAwZtjJEKfXwjb_62it__Fl8RpdwaEwGy_MEC6e8hcs6Ym0na3Q_Gq-CxYCLccr8DDqHll48_7uiRxUuMmDKogUSv-uLigUHp9A5koyC22Wxo_mPtmp1jAuMKfqP7_5v4GAcpTNVwmnfiprazY0bQFFEduk4wDlrDJUzU8xZ7D1I3?purpose=fullsize', 'Distributed Learning: Spreading Study Sessions Over Time')">
+            <img src="https://images.openai.com/static-rsc-4/PDc4aBIweloLYWgAIN9wAwZtjJEKfXwjb_62it__Fl8RpdwaEwGy_MEC6e8hcs6Ym0na3Q_Gq-CxYCLccr8DDqHll48_7uiRxUuMmDKogUSv-uLigUHp9A5koyC22Wxo_mPtmp1jAuMKfqP7_5v4GAcpTNVwmnfiprazY0bQFFEduk4wDlrDJUzU8xZ7D1I3?purpose=fullsize" alt="Distributed Learning" class="w-full max-h-28 object-contain" />
+          </figure>
+        </div>
+      </div>
+
+      <!-- Summary & Exam Distinctions -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Tricky Contrast</th><th class="py-2 px-3">Key Distinction</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Motivation vs. Maturation</td><td class="py-1.5 px-3">Desire to learn vs. natural biological readiness</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Health vs. Psychological Wellbeing</td><td class="py-1.5 px-3">Physical condition vs. emotional/mental condition</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Background Experience vs. Maturation</td><td class="py-1.5 px-3">Prior learned knowledge vs. natural biological growth</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Massed vs. Distributed Learning</td><td class="py-1.5 px-3">Night-before cramming vs. spaced sessions over time</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing all eight factors influencing learning</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Factors Influencing Learning
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. A student studies diligently because they possess a strong internal desire to become a successful doctor. Which factor influencing learning is demonstrated?",
+        options: ["A. Maturation", "B. Motivation", "C. Background experience", "D. Working conditions"],
+        correct: 1,
+        exp: "Motivation is the internal drive or desire that fuels effort and enthusiasm toward achieving a learning goal."
+      },
+      {
+        q: "Q2. A young child cannot perform a complex physical task because the necessary neuromuscular coordination has not yet developed. This illustrates:",
+        options: ["A. Motivation", "B. Distributed learning", "C. Maturation", "D. Psychological wellbeing"],
+        correct: 2,
+        exp: "Maturation involves natural biological and nervous-system development required before certain physical or cognitive skills can be learned."
+      },
+      {
+        q: "Q3. Which of the following conditions hinders effective learning?",
+        options: ["A. Self-confidence", "B. Self-reliance", "C. Self-respect", "D. Loss of sleep"],
+        correct: 3,
+        exp: "Loss of sleep and fatigue reduce concentration and memory, whereas self-confidence, self-reliance, and self-respect support psychological wellbeing."
+      },
+      {
+        q: "Q4. A student draws on previously learned knowledge about blood vessels to understand how blood circulates through the body. Which factor is illustrated?",
+        options: ["A. Background experiences", "B. Good working conditions", "C. Maturation", "D. Length of working period"],
+        correct: 0,
+        exp: "Background experiences (prior knowledge) provide the foundation needed to connect and understand new concepts."
+      },
+      {
+        q: "Q5. A student studies a manageable amount every day across several weeks rather than cramming everything the night before an exam. This exemplifies:",
+        options: ["A. Massed learning", "B. Distributed learning", "C. Maturation", "D. Fatigue"],
+        correct: 1,
+        exp: "Distributed learning spaces study sessions over time with rest intervals, yielding far stronger retention than night-before cramming (massed learning)."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Factors Influencing Learning!" : "Great performance! You clearly understand all eight physical, mental, environmental, and timing factors.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the differences between maturation vs. background experience and massed vs. distributed study.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the eight factors and exam distinctions table above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>

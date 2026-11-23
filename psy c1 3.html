@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#D97706" />
+  <title>Historical Background and Major Perspectives in Psychology — JU FreshHub</title>
+  <link rel="icon" href="https://img.icons8.com/color/48/graduation-cap.png" type="image/png" />
+
+  <!-- Fonts matching JU FreshHub -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- MathJax v3 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('ju_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Sora', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#FFFBEB', 100: '#FEF3C7', 200: '#FDE68A', 400: '#FBBF24',
+              500: '#F59E0B', 600: '#D97706', 700: '#B45309', 800: '#92400E', 900: '#451A03',
+              gold: '#F5B83D',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer components {
+      .card { @apply bg-white/90 dark:bg-slate-900/75 backdrop-blur border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm shadow-slate-900/5 max-w-full overflow-hidden; }
+      .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition active:scale-[.97] disabled:opacity-60 disabled:cursor-not-allowed; }
+      .btn-primary { @apply btn text-white bg-gradient-to-br from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 shadow-md shadow-brand-600/25; }
+      .btn-ghost { @apply btn bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200; }
+      .section-heading { @apply font-display font-bold text-base sm:text-lg text-brand-700 dark:text-brand-400 border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-4 flex items-center gap-2; }
+      .portrait-box { @apply shrink-0 w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 cursor-pointer shadow-sm transition hover:scale-105; }
+    }
+  </style>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    .font-display { font-family: 'Sora', sans-serif; }
+    .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.16), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.12), transparent 60%), #F6F7FB;
+    }
+    .dark .bg-ambient {
+      background: radial-gradient(900px 400px at 10% -10%, rgba(245,158,11,.20), transparent 60%), radial-gradient(700px 400px at 100% 0%, rgba(245,184,61,.08), transparent 60%), #0B1020;
+    }
+    .math-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-top: 0.25rem; padding-bottom: 0.25rem; -webkit-overflow-scrolling: touch; }
+    .option-btn.correct { background-color: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 700; }
+    .dark .option-btn.correct { background-color: rgba(16, 185, 129, 0.16) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
+    .option-btn.wrong { background-color: #fff1f2 !important; border-color: #f43f5e !important; color: #9f1239 !important; }
+    .dark .option-btn.wrong { background-color: rgba(244, 63, 94, 0.16) !important; border-color: #f43f5e !important; color: #fda4af !important; }
+  </style>
+</head>
+<body class="bg-ambient text-slate-800 dark:text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Sticky Header -->
+  <header class="bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-3 !py-2 shrink-0">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Dashboard</span>
+      </button>
+      <div class="min-w-0 text-center hidden sm:block">
+        <span class="text-xs font-display font-bold text-slate-800 dark:text-white truncate block">General Psychology</span>
+        <span class="text-[11px] font-semibold text-brand-600 dark:text-brand-400">JU FreshHub Study Notes</span>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="btn-ghost !px-2.5 shrink-0" title="Toggle dark mode">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 space-y-5">
+
+    <!-- Hero Banner -->
+    <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-6 sm:p-8 shadow-xl shadow-brand-900/20 relative overflow-hidden">
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-[11px] font-bold uppercase tracking-wider mb-3">
+          <i data-lucide="landmark" class="w-3.5 h-3.5"></i> Foundations of Psychology · Evolution of Thought
+        </span>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mb-1.5 break-words">Historical Background and Major Perspectives in Psychology</h1>
+        <p class="text-xs sm:text-sm text-brand-100/90 break-words">From Philosophy to Independent Science (1879), Five Early Schools, and Six Modern Perspectives</p>
+      </div>
+    </section>
+
+    <!-- Part 1: How Psychology Became a Science -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">1</span>
+        <span>How Psychology Became an Independent Science</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        For centuries, questions about thinking, emotions, behavior, and how the mind works belonged solely to <strong>philosophy</strong>. In the late 19th century, psychology broke away to become an independent experimental science.
+      </p>
+
+      <!-- Wilhelm Wundt Side-by-Side Card -->
+      <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-start gap-3.5 sm:gap-4">
+        <figure class="portrait-box" onclick="openLightbox('https://images.openai.com/static-rsc-4/XpHOBEEhBRC19CHTyoVCgjruijX2ho4itwXFeFUk5nZElgxlXuTDpS38HUZaNy5J2a50clcU9gDqyVsxice99eyZt5P7bLUMp16HjUzebtAu1qCpyVW2vp1EJCffLre_rUmLb8OKHhWXyVUFoMT6cTHH2_bJTdVS9fCbW1pagp6jyWP22bbLPUX0HntjfATG?purpose=fullsize', 'Wilhelm Wundt — Father of Modern Psychology (1879)')">
+          <img src="https://images.openai.com/static-rsc-4/XpHOBEEhBRC19CHTyoVCgjruijX2ho4itwXFeFUk5nZElgxlXuTDpS38HUZaNy5J2a50clcU9gDqyVsxice99eyZt5P7bLUMp16HjUzebtAu1qCpyVW2vp1EJCffLre_rUmLb8OKHhWXyVUFoMT6cTHH2_bJTdVS9fCbW1pagp6jyWP22bbLPUX0HntjfATG?purpose=fullsize" alt="Wilhelm Wundt" class="w-full h-full object-cover" />
+        </figure>
+        <div class="min-w-0 flex-1 space-y-1.5 text-xs">
+          <h3 class="font-display font-bold text-sm text-slate-900 dark:text-white">Wilhelm Wundt — Father of Modern Psychology</h3>
+          <ul class="list-disc pl-4 text-slate-600 dark:text-slate-300 space-y-1">
+            <li>In <strong>1879</strong>, established the first psychology laboratory at the <strong>University of Leipzig, Germany</strong>—marking psychology's birth as an independent science.</li>
+            <li>Developed <strong>objective introspection</strong>: looking inward systematically to examine conscious experiences (e.g., reporting racing heartbeat, worry, and tension when feeling afraid).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-center text-xs font-mono font-bold text-brand-800 dark:text-brand-300">
+        1879 &middot; Wilhelm Wundt &middot; Leipzig, Germany &middot; First Psychology Laboratory
+      </div>
+    </section>
+
+    <!-- Part 2: The Five Early Schools of Psychology -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">2</span>
+        <span>The Five Early Schools of Psychology</span>
+      </h2>
+
+      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+        A <strong>school of thought</strong> is a system of thinking about an issue—like five teachers observing the same student and interpreting their behavior through five different lenses:
+      </p>
+
+      <div class="space-y-3.5 text-xs">
+        <!-- 1. Structuralism -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-start gap-3.5 sm:gap-4">
+          <figure class="portrait-box" onclick="openLightbox('https://images.openai.com/static-rsc-4/hWshJZ1uNnlofiWbihRkaykVy1cBX_MMFsVbDl_BvuzH7yH1K9yMrHRoG1_ASRG8a2Vub9fZW_rD1OxIwv8c0VFpWeq-1olUlBpGStaD1jF87eCZYEWzF6XxLS3hq4IoMeRdJ83jc1geAbYv3vrRzy1JZ7GYkw6glvXTNoRaCutkO5w8tVzL18wl4Wt3bNxi?purpose=fullsize', 'Edward Titchener — Founder of Structuralism')">
+            <img src="https://images.openai.com/static-rsc-4/hWshJZ1uNnlofiWbihRkaykVy1cBX_MMFsVbDl_BvuzH7yH1K9yMrHRoG1_ASRG8a2Vub9fZW_rD1OxIwv8c0VFpWeq-1olUlBpGStaD1jF87eCZYEWzF6XxLS3hq4IoMeRdJ83jc1geAbYv3vrRzy1JZ7GYkw6glvXTNoRaCutkO5w8tVzL18wl4Wt3bNxi?purpose=fullsize" alt="Edward Titchener" class="w-full h-full object-cover" />
+          </figure>
+          <div class="min-w-0 flex-1 space-y-1">
+            <h3 class="font-display font-bold text-sm text-brand-700 dark:text-brand-400">1. Structuralism — Edward Titchener</h3>
+            <p class="text-slate-600 dark:text-slate-300">Studies the <strong>structure/elements</strong> of the mind (<strong>sensations, images, feelings</strong>) via introspection. Like dismantling a phone into battery, screen, and camera, tasting a lemon reveals sour sensation, mental image, and emotional reaction.</p>
+          </div>
+        </div>
+
+        <!-- 2. Functionalism -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-start gap-3.5 sm:gap-4">
+          <figure class="portrait-box" onclick="openLightbox('https://images.openai.com/static-rsc-4/kbC99TOSw0q1Sqf7x9kw9xDKvN5Dw4G8VWoFWYFeXGP1pXbkmsDxSNyxaOlReT3j5g8InAmpbfMTb_8Id_rIgnD_H_JcsH11XeJDbXrwXBh7neyX_7bXSsA3o9o1QKmsuRQVUB4XdvwiHhlAzAGc2ZCUm-L1BxvgReYv_ihG-0G-AINkhaA_KlJ93P26swvK?purpose=fullsize', 'William James — Founder of Functionalism')">
+            <img src="https://images.openai.com/static-rsc-4/kbC99TOSw0q1Sqf7x9kw9xDKvN5Dw4G8VWoFWYFeXGP1pXbkmsDxSNyxaOlReT3j5g8InAmpbfMTb_8Id_rIgnD_H_JcsH11XeJDbXrwXBh7neyX_7bXSsA3o9o1QKmsuRQVUB4XdvwiHhlAzAGc2ZCUm-L1BxvgReYv_ihG-0G-AINkhaA_KlJ93P26swvK?purpose=fullsize" alt="William James" class="w-full h-full object-cover" />
+          </figure>
+          <div class="min-w-0 flex-1 space-y-1">
+            <h3 class="font-display font-bold text-sm text-emerald-700 dark:text-emerald-400">2. Functionalism — William James</h3>
+            <p class="text-slate-600 dark:text-slate-300">Studies the <strong>function and adaptive purpose</strong> of the mind—how people work, play, adapt, and survive (using questionnaires, mental tests, and observation). Instead of asking what parts make up a phone, it asks <em>what the phone does to help us</em> (e.g., how exam fear keeps a student alert).</p>
+          </div>
+        </div>
+
+        <!-- 3. Gestalt Psychology -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-start gap-3.5 sm:gap-4">
+          <figure class="portrait-box" onclick="openLightbox('https://images.openai.com/static-rsc-4/1n6qTq_mUIwLt7hgyiXWHExYkPO7aGF97zI6IXz9isy3Mrh77vTHaWro-SSXTiCLUzHHNeVI97Bh1OIvsp1ZWAx9QgWifKs17xPi8nHUYF1u--bmKYN63DAxn7B5OzxvWdZ2eYfJl_ZNB5FCtzNaX_5v_8_o4ZGbg9cgTQ7ZYjCVGLI-64TPGagjSKZqbAbJ?purpose=fullsize', 'Max Wertheimer — Founder of Gestalt Psychology')">
+            <img src="https://images.openai.com/static-rsc-4/1n6qTq_mUIwLt7hgyiXWHExYkPO7aGF97zI6IXz9isy3Mrh77vTHaWro-SSXTiCLUzHHNeVI97Bh1OIvsp1ZWAx9QgWifKs17xPi8nHUYF1u--bmKYN63DAxn7B5OzxvWdZ2eYfJl_ZNB5FCtzNaX_5v_8_o4ZGbg9cgTQ7ZYjCVGLI-64TPGagjSKZqbAbJ?purpose=fullsize" alt="Max Wertheimer" class="w-full h-full object-cover" />
+          </figure>
+          <div class="min-w-0 flex-1 space-y-1">
+            <h3 class="font-display font-bold text-sm text-indigo-700 dark:text-indigo-400">3. Gestalt Psychology — Max Wertheimer &amp; Colleagues</h3>
+            <p class="text-slate-600 dark:text-slate-300">Focuses on the <strong>whole mind</strong> (<em>Gestalt</em> = form, whole, configuration, pattern). Famous principle: <strong>&ldquo;The whole is greater than the sum of its parts.&rdquo;</strong> Like watching an entire football team collaborate rather than just one isolated player.</p>
+          </div>
+        </div>
+
+        <!-- 4. Behaviorism -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-start gap-3.5 sm:gap-4">
+          <figure class="portrait-box" onclick="openLightbox('https://images.openai.com/static-rsc-4/_3i-bfofITMeSrAx2cpkaoTj7E1yxUNOGpfR376aJ2OJw-Cuz2qKLs18kGaVH21tP0PbcGxSS3dcN3aosxOkBIvtkSxqejt62y5Gkyu_XoYrqxgU3Br2uiJNbQWSZ8-8ReuBHqTlmACoGVmmdM0dgX2nSoraIs8DNuJn5383YIINZKa3fYYwcb3ZXEq4FcdI?purpose=fullsize', 'John B. Watson — Founder of Behaviorism')">
+            <img src="https://images.openai.com/static-rsc-4/_3i-bfofITMeSrAx2cpkaoTj7E1yxUNOGpfR376aJ2OJw-Cuz2qKLs18kGaVH21tP0PbcGxSS3dcN3aosxOkBIvtkSxqejt62y5Gkyu_XoYrqxgU3Br2uiJNbQWSZ8-8ReuBHqTlmACoGVmmdM0dgX2nSoraIs8DNuJn5383YIINZKa3fYYwcb3ZXEq4FcdI?purpose=fullsize" alt="John B. Watson" class="w-full h-full object-cover" />
+          </figure>
+          <div class="min-w-0 flex-1 space-y-1">
+            <h3 class="font-display font-bold text-sm text-amber-700 dark:text-amber-400">4. Behaviorism — John B. Watson (with Thorndike &amp; Skinner)</h3>
+            <p class="text-slate-600 dark:text-slate-300">Studies strictly <strong>observable and measurable behavior</strong>. Emphasizes that behavior is learned rather than inherited through conditioned responses to environmental stimuli (plus animal studies)—e.g., a student participating more after receiving praise.</p>
+          </div>
+        </div>
+
+        <!-- 5. Psychoanalysis -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-3">
+          <div class="flex items-start gap-3.5 sm:gap-4">
+            <figure class="portrait-box" onclick="openLightbox('https://images.openai.com/static-rsc-4/FunLvQV8zI3LUX-Yk1OJJ05KYT_v5jddVBGsh9SVW2RKEdpWo8fTufVUEFczh9bRWmKSV0PhjX0bwn5A6op2cEH0SvHvWWv71W7_HL-A7LJa0os0nhVUCsXPj4zyjgj7rm-LxfVjtmuWdduPILfMhYwi9xRVFw5m6UNGL5AXA2JT1yqTwJqHhUwYOEGO2vFe?purpose=fullsize', 'Sigmund Freud — Founder of Psychoanalysis')">
+              <img src="https://images.openai.com/static-rsc-4/FunLvQV8zI3LUX-Yk1OJJ05KYT_v5jddVBGsh9SVW2RKEdpWo8fTufVUEFczh9bRWmKSV0PhjX0bwn5A6op2cEH0SvHvWWv71W7_HL-A7LJa0os0nhVUCsXPj4zyjgj7rm-LxfVjtmuWdduPILfMhYwi9xRVFw5m6UNGL5AXA2JT1yqTwJqHhUwYOEGO2vFe?purpose=fullsize" alt="Sigmund Freud" class="w-full h-full object-cover" />
+            </figure>
+            <div class="min-w-0 flex-1 space-y-1">
+              <h3 class="font-display font-bold text-sm text-rose-700 dark:text-rose-400">5. Psychoanalysis — Sigmund Freud</h3>
+              <p class="text-slate-600 dark:text-slate-300">Emphasizes the <strong>unconscious mind</strong>—hidden wishes, emotional conflicts, and early childhood traumas influencing adult behavior. Investigated via clinical case studies, hypnosis, and dream analysis.</p>
+            </div>
+          </div>
+
+          <!-- Mental Iceberg Analogy -->
+          <div class="pt-2 border-t border-slate-200 dark:border-slate-700 grid sm:grid-cols-2 gap-3 items-center">
+            <p class="text-slate-600 dark:text-slate-300">
+              <strong>The Mental Iceberg Analogy:</strong> Conscious awareness is only the small visible tip above water; the vast hidden submerged mass represents the unconscious mind.
+            </p>
+            <figure class="cursor-pointer rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/yLjiWZg8GFX1qf1YRWJ8grtR4eTmHMHPxGjY59a7kSrczezgaGSMFo5XUicS7D9G_Wh5daUlMB4f36p1RMC4ICV9qMvmR_RkAP475fSvSxbJb-2glyDygckXLazB3bAtZZLFYzDsz2MbTb_Bx9GYWYIBwvYgJbqq2mWvQR6KWNxsyAeoOK9gDumy3OrDVbsq?purpose=fullsize', 'Freuds Mental Iceberg: Conscious Tip vs. Unconscious Depths')">
+              <img src="https://images.openai.com/static-rsc-4/yLjiWZg8GFX1qf1YRWJ8grtR4eTmHMHPxGjY59a7kSrczezgaGSMFo5XUicS7D9G_Wh5daUlMB4f36p1RMC4ICV9qMvmR_RkAP475fSvSxbJb-2glyDygckXLazB3bAtZZLFYzDsz2MbTb_Bx9GYWYIBwvYgJbqq2mWvQR6KWNxsyAeoOK9gDumy3OrDVbsq?purpose=fullsize" alt="Mental Iceberg" class="w-full max-h-32 object-contain" />
+            </figure>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Table of 5 Early Schools -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">School</th><th class="py-2 px-3">Main Focus</th><th class="py-2 px-3">Founder</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Structuralism</td><td class="py-1.5 px-3">Structure/elements of mind</td><td class="py-1.5 px-3">Edward Titchener</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Functionalism</td><td class="py-1.5 px-3">Function/adaptation of mind</td><td class="py-1.5 px-3">William James</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Gestalt</td><td class="py-1.5 px-3">Whole mind &amp; pattern</td><td class="py-1.5 px-3">Max Wertheimer &amp; colleagues</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Behaviorism</td><td class="py-1.5 px-3">Observable behavior</td><td class="py-1.5 px-3">John B. Watson</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Psychoanalysis</td><td class="py-1.5 px-3">Unconscious mind</td><td class="py-1.5 px-3">Sigmund Freud</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-[11px] text-slate-500 italic">These five schools differ mainly in their <strong>object of study</strong>, <strong>goal</strong>, and <strong>method</strong> (introspection, observation, or clinical case studies).</p>
+    </section>
+
+    <!-- Part 3: Six Modern Perspectives -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">3</span>
+        <span>The Six Modern Perspectives of Psychology</span>
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-rose-700 dark:text-rose-400 block">1. Psychodynamic Perspective</strong>
+          <p class="text-slate-600 dark:text-slate-300">Originated from Freud. Focuses on unconscious motives, childhood experiences, and internal conflicts—like a hidden system error causing a visible screen malfunction.</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+          <strong class="font-display text-amber-700 dark:text-amber-400 block">2. Behavioral Perspective (Black Box)</strong>
+          <p class="text-slate-600 dark:text-slate-300">Focuses on rewards, punishments, and environmental learning—studying external input and behavioral output rather than hidden internal states.</p>
+          <figure class="cursor-pointer rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" onclick="openLightbox('https://images.openai.com/static-rsc-4/a7gDp3eqEXNKcSxCg8VJ8uo329Y2vtH7TdvuWAUVbqPoXHMP8u_7zTF0CpxfreTFYAZYUcI8R4LonIlHZ0Xxb0UqrsH4PlUzT7rXt97tj5CHDtIG_exRj3jhIcJelhMOfQXQVoAFIOhCNt6Oh0_ifkTnrSYOk-_ew6oqLlsPTYC567FprlCyZnEPIk50BQ34?purpose=fullsize', 'Behavioral Black Box Input-Output Approach')">
+            <img src="https://images.openai.com/static-rsc-4/a7gDp3eqEXNKcSxCg8VJ8uo329Y2vtH7TdvuWAUVbqPoXHMP8u_7zTF0CpxfreTFYAZYUcI8R4LonIlHZ0Xxb0UqrsH4PlUzT7rXt97tj5CHDtIG_exRj3jhIcJelhMOfQXQVoAFIOhCNt6Oh0_ifkTnrSYOk-_ew6oqLlsPTYC567FprlCyZnEPIk50BQ34?purpose=fullsize" alt="Black Box" class="w-full max-h-24 object-contain" />
+          </figure>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-emerald-700 dark:text-emerald-400 block">3. Humanistic Perspective</strong>
+          <p class="text-slate-600 dark:text-slate-300">Emphasizes free will, uniqueness, values, personal growth, and <strong>self-actualization</strong> (realizing full potential—like a seed growing into a full tree).</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-indigo-700 dark:text-indigo-400 block">4. Cognitive Perspective</strong>
+          <p class="text-slate-600 dark:text-slate-300">Studies mental processes (reasoning, memory, beliefs, problem solving) like a computer processing data, plus brain electrical recording, stimulation, and metabolic tracing.</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-sky-700 dark:text-sky-400 block">5. Biological Perspective</strong>
+          <p class="text-slate-600 dark:text-slate-300">Studies brain structures, neurochemicals, and genetic heritage as the physical &ldquo;hardware&rdquo; interacting dynamically with behavior and feelings.</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-1">
+          <strong class="font-display text-brand-700 dark:text-brand-400 block">6. Sociocultural Perspective</strong>
+          <p class="text-slate-600 dark:text-slate-300">Examines family, peers, groups, and culture. Just as a fish cannot live without water, human behavior cannot be separated from social context (both producers and products of culture).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Part 4: Synthesis & Exam Facts -->
+    <section class="card p-4 sm:p-6 space-y-4">
+      <h2 class="section-heading">
+        <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xs font-extrabold shrink-0">4</span>
+        <span>Comparing Perspectives &amp; Key Exam Facts</span>
+      </h2>
+
+      <p class="text-xs text-slate-600 dark:text-slate-300"><strong>One Behavior, Six Explanations (Exam Fear Example):</strong></p>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 dark:bg-slate-800/80 uppercase font-bold text-slate-500">
+            <tr><th class="py-2 px-3">Perspective</th><th class="py-2 px-3">Explanation for Student's Exam Fear</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr><td class="py-1.5 px-3 font-bold">Psychodynamic</td><td class="py-1.5 px-3">Hidden unconscious conflicts or childhood experiences</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Behavioral</td><td class="py-1.5 px-3">Past negative experiences or punishment</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Humanistic</td><td class="py-1.5 px-3">Personal growth, subjective values, and choices</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Cognitive</td><td class="py-1.5 px-3">Negative thoughts and self-defeating beliefs</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Biological</td><td class="py-1.5 px-3">Brain chemistry, bodily stress response, or genetics</td></tr>
+            <tr><td class="py-1.5 px-3 font-bold">Sociocultural</td><td class="py-1.5 px-3">Family expectations, peer pressure, and cultural norms</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-brand-50/80 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30 text-xs space-y-1">
+        <strong class="font-display text-brand-900 dark:text-brand-300 block">Distinction &amp; Memorization Checklist:</strong>
+        <p class="text-slate-700 dark:text-slate-300">Do not confuse the <strong>5 historical early schools</strong> with the <strong>6 modern perspectives</strong> (Psychodynamic grew from Psychoanalysis; Behavioral from Behaviorism; Cognitive reclaimed mental processes).</p>
+        <p class="font-mono font-bold text-brand-800 dark:text-brand-200 pt-1">
+          1879 (Lab) &bull; Wundt (Father) &bull; Titchener (Structuralism) &bull; James (Functionalism) &bull; Wertheimer (Gestalt) &bull; Watson (Behaviorism) &bull; Freud (Psychoanalysis)
+        </p>
+      </div>
+    </section>
+
+    <!-- 5. Interactive Self-Assessment Quiz (5 Questions) -->
+    <section class="card p-4 sm:p-6 border-2 border-brand-500/40 dark:border-brand-500/30 space-y-5">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">Self-Assessment Exercise</h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">5 exam-style questions testing early schools and modern perspectives</p>
+          </div>
+        </div>
+        <span id="quiz-progress" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300 shrink-0">0 / 5</span>
+      </div>
+
+      <div id="quiz-mount" class="space-y-6"></div>
+
+      <div id="quiz-result" class="hidden rounded-2xl p-5 sm:p-6 border text-center space-y-3 transition-all">
+        <div id="result-icon-box" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"></div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quiz Completed</p>
+          <h3 id="result-score" class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-0.5">0 / 5 (0%)</h3>
+        </div>
+        <p id="result-message" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300"></p>
+        <div class="pt-2 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetQuiz()" class="btn-primary !px-5 !py-2.5 text-xs">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Retake Quiz</span>
+          </button>
+          <button type="button" onclick="goBackToDashboard()" class="btn-ghost !px-5 !py-2.5 text-xs">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i><span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex flex-col items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
+    <button type="button" onclick="closeLightbox()" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/15 hover:bg-white/25 text-white transition z-10" title="Close Lightbox">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="flex flex-col items-center justify-center w-full max-h-full">
+      <img id="lightbox-img" src="" alt="" class="max-w-[92vw] max-h-[70vh] sm:max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-white/10" />
+      <p id="lightbox-caption" class="text-slate-300 text-xs sm:text-sm font-medium mt-3 text-center px-2 max-w-[90vw]"></p>
+    </div>
+  </div>
+
+  <footer class="max-w-3xl w-full mx-auto px-4 pb-6 pt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
+    JU FreshHub &middot; Historical Background and Major Perspectives in Psychology
+  </footer>
+
+  <script>
+    const quizData = [
+      {
+        q: "Q1. Which psychologist established the first psychology laboratory in Leipzig, Germany, in 1879?",
+        options: ["A. Sigmund Freud", "B. Wilhelm Wundt", "C. William James", "D. John B. Watson"],
+        correct: 1,
+        exp: "Wilhelm Wundt established the first psychology laboratory at the University of Leipzig in 1879, earning the title 'Father of Modern Psychology'."
+      },
+      {
+        q: "Q2. A psychologist wants to identify the basic elements of the mind, such as sensations, images, and feelings. Which early school of thought does this represent?",
+        options: ["A. Functionalism", "B. Behaviorism", "C. Structuralism", "D. Gestalt psychology"],
+        correct: 2,
+        exp: "Structuralism (founded by Edward Titchener) uses introspection to analyze the basic building-block elements of the mind: sensations, images, and feelings."
+      },
+      {
+        q: "Q3. Which early school emphasizes that 'the whole is greater than the sum of its parts'?",
+        options: ["A. Psychoanalysis", "B. Structuralism", "C. Functionalism", "D. Gestalt psychology"],
+        correct: 3,
+        exp: "Gestalt psychology (founded by Max Wertheimer and colleagues) emphasizes holistic patterns and configurations rather than breaking experience into isolated elements."
+      },
+      {
+        q: "Q4. A psychologist explains a student's poor examination performance by focusing on negative thoughts, beliefs, and reasoning. Which modern perspective is being used?",
+        options: ["A. Biological perspective", "B. Cognitive perspective", "C. Sociocultural perspective", "D. Behavioral perspective"],
+        correct: 1,
+        exp: "The Cognitive perspective investigates internal mental processes including thoughts, beliefs, reasoning, memory, and problem solving."
+      },
+      {
+        q: "Q5. Which statement accurately describes the humanistic perspective?",
+        options: [
+          "A. Human behavior is controlled entirely by unconscious forces.",
+          "B. Human behavior is understood only through observable actions.",
+          "C. It emphasizes free will, human uniqueness, and achieving full potential.",
+          "D. It focuses mainly on brain chemicals and genetic inheritance."
+        ],
+        correct: 2,
+        exp: "The Humanistic perspective emphasizes free will, subjective human experience, personal growth, and self-actualization (achieving full potential)."
+      }
+    ];
+
+    let answeredCount = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const quizMount = document.getElementById("quiz-mount");
+      const progressEl = document.getElementById("quiz-progress");
+      const resultEl = document.getElementById("quiz-result");
+      quizMount.innerHTML = ""; answeredCount = 0; score = 0;
+      progressEl.innerText = `0 / ${quizData.length}`;
+      resultEl.classList.add("hidden");
+
+      quizData.forEach((item) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "pb-5 border-b border-dashed border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0 space-y-2.5";
+        const title = document.createElement("div");
+        title.className = "font-semibold text-xs sm:text-sm text-slate-900 dark:text-white break-words";
+        title.innerText = item.q;
+        qBlock.appendChild(title);
+
+        const optionsWrap = document.createElement("div");
+        optionsWrap.className = "space-y-2";
+        const feedback = document.createElement("div");
+        feedback.className = "hidden text-xs p-3 rounded-xl font-medium leading-relaxed break-words";
+
+        item.options.forEach((optText, optIdx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option-btn w-full text-left px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/50 hover:border-brand-400 dark:hover:border-brand-500 text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition break-words";
+          btn.innerText = optText;
+
+          btn.addEventListener("click", () => {
+            const allBtns = optionsWrap.querySelectorAll(".option-btn");
+            if (btn.disabled) return;
+            allBtns.forEach(b => (b.disabled = true));
+            answeredCount++;
+            progressEl.innerText = `${answeredCount} / ${quizData.length}`;
+
+            if (optIdx === item.correct) {
+              score++; btn.classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 break-words";
+              feedback.innerHTML = `✅ <strong>Correct!</strong> ${item.exp}`;
+            } else {
+              btn.classList.add("wrong"); allBtns[item.correct].classList.add("correct");
+              feedback.className = "text-xs p-3 rounded-xl font-medium leading-relaxed bg-rose-50 dark:bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 break-words";
+              feedback.innerHTML = `❌ <strong>Correct answer: ${item.options[item.correct]}</strong><br>${item.exp}`;
+            }
+            if (answeredCount === quizData.length) showQuizResult();
+          });
+          optionsWrap.appendChild(btn);
+        });
+        qBlock.appendChild(optionsWrap); qBlock.appendChild(feedback); quizMount.appendChild(qBlock);
+      });
+      lucide.createIcons();
+    }
+
+    function showQuizResult() {
+      const resultEl = document.getElementById("quiz-result");
+      const scoreEl = document.getElementById("result-score");
+      const msgEl = document.getElementById("result-message");
+      const iconBox = document.getElementById("result-icon-box");
+      const pct = Math.round((score / quizData.length) * 100);
+      scoreEl.innerText = `${score} / ${quizData.length} (${pct}%)`;
+
+      if (pct >= 80) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-emerald-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="trophy" class="w-6 h-6"></i>`;
+        msgEl.innerText = pct === 100 ? "Outstanding! 100% mastery achieved on Schools & Perspectives!" : "Great performance! You clearly understand the five early schools and six modern perspectives.";
+      } else if (pct >= 60) {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-amber-50/70 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-amber-500 text-white shadow-md shadow-amber-500/25";
+        iconBox.innerHTML = `<i data-lucide="award" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Good effort! Review the founders table and modern perspectives comparison above.";
+      } else {
+        resultEl.className = "rounded-2xl p-5 sm:p-6 border text-center space-y-3 bg-rose-50/70 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30";
+        iconBox.className = "w-12 h-12 mx-auto rounded-2xl flex items-center justify-center bg-rose-500 text-white shadow-md shadow-emerald-500/25";
+        iconBox.innerHTML = `<i data-lucide="book-open-check" class="w-6 h-6"></i>`;
+        msgEl.innerText = "Carefully review the founders, schools, and modern perspectives above, then try again.";
+      }
+      resultEl.classList.hidden = false; resultEl.classList.remove("hidden"); lucide.createIcons();
+      resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function resetQuiz() { renderQuiz(); document.getElementById("quiz-mount").scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function openLightbox(src, alt) {
+      const modal = document.getElementById('lightbox-modal');
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-img').alt = alt;
+      document.getElementById('lightbox-caption').innerText = alt;
+      modal.classList.add('flex');
+      modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; lucide.createIcons();
+    }
+    function closeLightbox() { const modal = document.getElementById('lightbox-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    document.getElementById('lightbox-modal').addEventListener('click', (e) => { if (e.target.id === 'lightbox-modal') closeLightbox(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    function goBackToDashboard() {
+      try { if (window.history.length > 1 && document.referrer) { const ref = new URL(document.referrer); if (ref.origin === window.location.origin || document.referrer.includes("index.html")) { window.history.back(); return; } } } catch (e) {}
+      window.location.href = "index.html";
+    }
+    function toggleTheme() { const isDark = document.documentElement.classList.toggle("dark"); try { localStorage.setItem("ju_theme", isDark ? "dark" : "light"); } catch (e) {} syncThemeIcon(); }
+    function syncThemeIcon() { const isDark = document.documentElement.classList.contains("dark"); const icon = document.getElementById("theme-icon"); if (icon) { icon.setAttribute("data-lucide", isDark ? "sun" : "moon"); lucide.createIcons(); } }
+    document.addEventListener("DOMContentLoaded", () => { syncThemeIcon(); renderQuiz(); });
+  </script>
+</body>
+</html>
