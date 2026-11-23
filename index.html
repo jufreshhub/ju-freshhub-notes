@@ -1175,13 +1175,41 @@
     /* ------------------------------------------------------------------
        Views: exams (Safe Filtering & Status Detection)
     ------------------------------------------------------------------ */
-    // Helper to accurately determine if an exam is closed regardless of case
+    // Android-compatible deadline gate. Exam status is not the review-unlock source.
+    function toMillis(value) {
+      if (value == null || value === "") return 0;
+      if (typeof value === "number") return value > 0 && value < 100000000000 ? value * 1000 : value;
+      if (typeof value === "string") {
+        const n = Number(value);
+        if (Number.isFinite(n)) return n > 0 && n < 100000000000 ? n * 1000 : n;
+        const parsed = Date.parse(value);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+      if (typeof value.toMillis === "function") return value.toMillis();
+      if (typeof value.toDate === "function") return value.toDate().getTime();
+      if (typeof value.seconds === "number") return value.seconds * 1000;
+      if (typeof value._seconds === "number") return value._seconds * 1000;
+      return 0;
+    }
+
+    function getExamDeadline(exam) {
+      if (!exam) return 0;
+      return toMillis(exam.deadlineTimestamp ?? exam.deadlineAt ?? exam.deadline ?? 0);
+    }
+
+    // Matches the Android review rule: no exam, no configured deadline, or deadline passed.
+    function isExamReviewUnlocked(exam) {
+      const deadline = getExamDeadline(exam);
+      return !exam || deadline <= 0 || Date.now() >= deadline;
+    }
+
     function isExamClosedStatus(exam) {
       if (!exam) return true;
       const st = String(exam.status || "").toLowerCase().trim();
       if (["ended", "closed", "inactive", "finished", "completed", "done"].includes(st)) return true;
       if (exam.isLive === false) return true;
-      return false;
+      const deadline = getExamDeadline(exam);
+      return deadline > 0 && Date.now() >= deadline;
     }
 
     // Keep completed exams visible so students can access their score!
@@ -1193,29 +1221,30 @@
     function normalizeExamDoc(d) {
       const data = d.data() || {};
       const raw = data.questions || data.questionList || data.items || data.quiz || [];
-      const list = Array.isArray(raw) ? raw : Object.values(raw);
+      const list = Array.isArray(raw) ? raw : Object.entries(raw).map(([key, value]) => ({ id: key, ...(value || {}) }));
       const questions = list.map((item, idx) => {
-        const text = item.question || item.q || item.questionText || item.title || `Question ${idx + 1}`;
-        const rawOpts = item.options || item.choices || item.answers || [];
+        const text = item.questionText ?? item.question ?? item.q ?? item.title ?? `Question ${idx + 1}`;
+        const rawOpts = item.options ?? item.choices ?? item.answers ?? [];
         const options = (Array.isArray(rawOpts) ? rawOpts : Object.values(rawOpts)).map(String);
-
-        let correct = item.correct;
-        if (correct === undefined) correct = item.correctIndex;
-        if (correct === undefined) correct = item.answer;
-        if (correct === undefined) correct = item.correctAnswer;
-
+        let correct = item.correctIndex ?? item.correct ?? item.answerIndex ?? item.answer ?? item.correctAnswer;
         if (typeof correct === "string") {
-          const up = correct.trim().toUpperCase();
-          if (["A", "B", "C", "D"].includes(up)) correct = up.charCodeAt(0) - 65;
+          const value = correct.trim();
+          const letter = value.toUpperCase();
+          if (/^[A-Z]$/.test(letter)) correct = letter.charCodeAt(0) - 65;
           else {
-            const found = options.findIndex((o) => o.trim().toLowerCase() === correct.trim().toLowerCase());
-            correct = found !== -1 ? found : (parseInt(correct) || 0);
+            const found = options.findIndex((o) => o.trim().toLowerCase() === value.toLowerCase());
+            correct = found >= 0 ? found : Number(value);
           }
-        } else if (typeof correct !== "number") {
-          correct = parseInt(correct) || 0;
         }
-        return { q: String(text), options, correct, exp: item.exp || item.explanation || item.rationale || "Review the matching course notes." };
+        correct = Number.isInteger(Number(correct)) ? Number(correct) : -1;
+        if (correct < 0 || correct >= options.length) correct = -1;
+        const id = String(item.id ?? item.questionId ?? item.uid ?? `question_${idx + 1}`);
+        const questionNumber = Number(item.questionNumber ?? item.number ?? idx + 1) || idx + 1;
+        const explanation = item.explanation ?? item.exp ?? item.rationale ?? "Review the matching course notes.";
+        return { id, questionNumber, questionText: String(text), options, correctIndex: correct,
+          explanation: String(explanation), q: String(text), correct, exp: String(explanation) };
       });
+      const deadlineTimestamp = toMillis(data.deadlineTimestamp ?? data.deadlineAt ?? data.deadline ?? 0);
       return {
         id: d.id,
         title: data.title || data.name || data.examTitle || data.subject || "Live examination",
@@ -1223,6 +1252,9 @@
         duration: parseInt(data.duration || data.durationMinutes || data.timeLimit || data.time || 30) || 30,
         status: data.status || (data.isLive !== false ? "active" : "ended"),
         isLive: data.isLive,
+        deadlineTimestamp,
+        bannerUrl: data.bannerUrl || data.imageUrl || "",
+        instructions: typeof data.instructions === "string" ? data.instructions : "",
         questions
       };
     }
@@ -1266,6 +1298,14 @@
 
             return `
             <div class="card spot reveal p-5 border-l-4 ${alreadySubmitted ? "border-l-emerald-500" : "border-l-brand-600"} space-y-3">
+              ${(() => {
+                let banner = "";
+                try {
+                  const u = new URL(String(e.bannerUrl || ""), location.href);
+                  if (u.protocol === "https:") banner = u.href;
+                } catch (_) {}
+                return banner ? `<div class="-mx-5 -mt-5 mb-1 overflow-hidden rounded-t-2xl bg-slate-100 dark:bg-slate-800"><img src="${esc(banner)}" alt="${esc(e.title)} exam banner" loading="lazy" class="block w-full max-h-64 object-cover" onerror="this.closest('div').remove()"></div>` : "";
+              })()}
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <div class="flex items-center gap-2">
@@ -1273,17 +1313,23 @@
                       ? `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-1">${ic("check", "w-3 h-3")}Submitted (${recorded ? recorded.pct + "%" : "Recorded"})</span>`
                       : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30"><span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>Live and timed</span>`
                     }
-                    ${isClosed ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">Closed / Ended</span>` : ""}
                   </div>
                   <h4 class="font-display font-bold text-slate-900 dark:text-white text-base mt-1.5">${esc(e.title)}</h4>
                   <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${esc(e.course)}</p>
                 </div>
-                <span class="shrink-0 text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/15 px-2.5 py-1 rounded-lg border border-brand-200 dark:border-brand-500/30">${e.duration} min</span>
+                ${alreadySubmitted
+                  ? (isClosed ? `<span class="shrink-0 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-600">Closed / Ended</span>` : "")
+                  : `<span class="shrink-0 text-xs font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/15 px-2.5 py-1 rounded-lg border border-brand-200 dark:border-brand-500/30">${e.duration} min</span>`}
               </div>
               <div class="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">
                 <div>Questions: <strong class="text-slate-900 dark:text-white">${e.questions.length}</strong></div>
                 <div>Status: <strong class="${alreadySubmitted ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}">${alreadySubmitted ? (isClosed ? "Review Available" : "Completed (Locked)") : "Ready to Start"}</strong></div>
               </div>
+              ${!alreadySubmitted && String(e.instructions || "").trim() ? `
+                <section class="rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50/70 dark:bg-amber-500/10 p-4" aria-label="Exam instructions">
+                  <h5 class="flex items-center gap-2 text-sm font-bold text-amber-900 dark:text-amber-200 mb-2">${ic("clipboard-list", "w-4 h-4")} Exam instructions</h5>
+                  <div class="text-xs sm:text-sm leading-relaxed text-slate-700 dark:text-slate-200 whitespace-pre-wrap break-words">${esc(e.instructions)}</div>
+                </section>` : ""}
               ${alreadySubmitted 
                 ? `<button data-action="view-my-score" data-id="${esc(e.id)}" class="btn-ghost w-full sm:w-auto !px-6 !py-2.5 text-brand-700 dark:text-brand-300 font-bold">${ic(isClosed ? "book-open-check" : "award", "w-3.5 h-3.5")}<span>${isClosed ? "View Score &amp; Question Review" : "View My Score &amp; Details"}</span></button>`
                 : `<button data-action="start-exam" data-id="${esc(e.id)}" class="btn-primary w-full sm:w-auto !px-6 !py-2.5">${ic("play", "w-3.5 h-3.5")}<span>Enter exam and start timer</span></button>`
@@ -1322,10 +1368,17 @@
         });
         if (!ok) return;
       }
+      const restoredAnswers = {};
+      if (saved?.answers && typeof saved.answers === "object") {
+        data.questions.forEach((q, index) => {
+          if (saved.answers[q.id] !== undefined) restoredAnswers[q.id] = saved.answers[q.id];
+          else if (saved.answers[index] !== undefined) restoredAnswers[q.id] = saved.answers[index];
+        });
+      }
       session = {
         data,
         idx: saved?.idx || 0,
-        answers: saved?.answers || {},
+        answers: restoredAnswers,
         flags: new Set(saved?.flags || []),
         penaltyCount: saved?.penaltyCount || 0,
         endAt: saved?.endAt || Date.now() + data.duration * 60000,
@@ -1398,12 +1451,12 @@
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Question ${i + 1} of ${n}</span>
             <button data-action="flag" class="chip ${flagged ? "!bg-rose-600 !border-rose-600 !text-white" : ""}" aria-pressed="${flagged}">${ic("flag", "w-3.5 h-3.5")}<span>${flagged ? "Flagged" : "Flag for review"}</span></button>
           </div>
-          <p class="font-display font-semibold text-base sm:text-lg text-slate-900 dark:text-white leading-snug mb-4">${esc(q.q)}</p>
+          <p class="font-display font-semibold text-base sm:text-lg text-slate-900 dark:text-white leading-snug mb-4">${esc(q.questionText || q.q)}</p>
           <div class="space-y-2.5" role="radiogroup" aria-label="Answer options">
             ${q.options.map((o, k) => `
-              <button data-action="pick" data-i="${k}" role="radio" aria-checked="${session.answers[i] === k}" class="opt ${session.answers[i] === k ? "sel" : ""}">
+              <button data-action="pick" data-i="${k}" role="radio" aria-checked="${session.answers[q.id] === k}" class="opt ${session.answers[q.id] === k ? "sel" : ""}">
                 <span class="opt-key">${String.fromCharCode(65 + k)}</span><span class="flex-1">${esc(o)}</span>
-                ${session.answers[i] === k ? `<span class="pop text-brand-600 dark:text-brand-400">${ic("circle-check", "w-5 h-5")}</span>` : ""}
+                ${session.answers[q.id] === k ? `<span class="pop text-brand-600 dark:text-brand-400">${ic("circle-check", "w-5 h-5")}</span>` : ""}
               </button>`).join("")}
           </div>
         </div>
@@ -1421,7 +1474,7 @@
             <button data-action="submit-exam" class="text-xs font-bold text-brand-700 dark:text-brand-400 hover:underline">Submit now</button>
           </div>
           <div class="flex flex-wrap gap-2">
-            ${qs.map((_, k) => `<button data-action="goq" data-i="${k}" aria-label="Question ${k + 1}" class="qdot ${session.answers[k] !== undefined ? "answered" : ""} ${session.flags.has(k) ? "flagged" : ""} ${k === i ? "current" : ""}">${k + 1}</button>`).join("")}
+            ${qs.map((_, k) => `<button data-action="goq" data-i="${k}" aria-label="Question ${k + 1}" class="qdot ${session.answers[qs[k].id] !== undefined ? "answered" : ""} ${session.flags.has(k) ? "flagged" : ""} ${k === i ? "current" : ""}">${k + 1}</button>`).join("")}
           </div>
           <p class="hidden sm:block text-[11px] text-slate-400">Tip: press 1 to ${Math.min(q.options.length, 9)} to answer, arrow keys to move, F to flag.</p>
         </div>`;
@@ -1457,7 +1510,7 @@
 
       const { data } = session, qs = data.questions, answers = { ...session.answers };
       let score = 0;
-      qs.forEach((q, i) => { if (answers[i] === q.correct) score++; });
+      qs.forEach((q) => { if (q.correctIndex >= 0 && answers[q.id] === q.correctIndex) score++; });
       const total = qs.length, pct = pctOf(score, total);
       const totalPenalties = session.penaltyCount || 0;
 
@@ -1477,6 +1530,7 @@
         pct,
         answers,
         questions: qs,
+        deadlineTimestamp: data.deadlineTimestamp || 0,
         penalties: totalPenalties,
         submittedAt: Date.now()
       };
@@ -1520,9 +1574,18 @@
     ------------------------------------------------------------------ */
     function viewResult() {
       const r = lastResult, pass = r.pct >= 60;
-      const isClosed = isExamClosedStatus(r.exam);
+      // Always use the newest Firestore exam status so review unlocks as soon as
+      // the admin closes the exam, even if the student is already on this page.
+      const currentExam = liveExams.find((e) => e.id === r.exam.id) || r.exam;
+      const reviewUnlocked = isExamReviewUnlocked(currentExam);
+      const deadline = getExamDeadline(currentExam);
+      if (!reviewUnlocked && deadline > Date.now() && !lastResult._unlockTimer) {
+        lastResult._unlockTimer = setTimeout(() => {
+          if (lastResult && lastResult.exam && lastResult.exam.id === r.exam.id) render({ anim: false });
+        }, Math.min(deadline - Date.now() + 50, 2147483000));
+      }
       const msg = r.pct >= 80 ? "Outstanding! Excellent performance." : pass ? "Good work! You achieved a passing score." : "Keep studying. Focus on strengthening weak topics.";
-      const missed = r.qs.filter((q, i) => r.answers[i] !== q.correct).length;
+      const missed = r.qs.filter((q) => q.correctIndex < 0 || r.answers[q.id] !== q.correctIndex).length;
 
       return `
         <div class="space-y-4">
@@ -1543,7 +1606,7 @@
 
           <!-- Question Review Section: Revealed ONLY when exam status is closed/ended! -->
           <section class="card reveal p-5 space-y-4">
-            ${isClosed ? `
+            ${reviewUnlocked ? `
               <div class="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div>
                   <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white">Question Review &amp; Explanations</h4>
@@ -1555,14 +1618,14 @@
                 </div>
               </div>
               ${r.qs.map((q, i) => {
-                const ua = r.answers[i], ok = ua === q.correct;
+                const ua = r.answers[q.id], ok = q.correctIndex >= 0 && ua === q.correctIndex;
                 if (resultFilter === "missed" && ok) return "";
                 return `
                 <div class="p-4 rounded-xl border ${ok ? "border-emerald-200 dark:border-emerald-500/30 bg-emerald-50/60 dark:bg-emerald-500/10" : "border-rose-200 dark:border-rose-500/30 bg-rose-50/60 dark:bg-rose-500/10"} space-y-1.5 text-xs">
-                  <div class="font-bold text-slate-900 dark:text-white">Q${i + 1}. ${esc(q.q)}</div>
+                  <div class="font-bold text-slate-900 dark:text-white">Q${i + 1}. ${esc(q.questionText || q.q)}</div>
                   <div class="${ok ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"} font-semibold">Your answer: ${ua !== undefined ? esc(q.options[ua]) : "Not answered"}</div>
-                  ${ok ? "" : `<div class="text-emerald-700 dark:text-emerald-300 font-bold">Correct answer: ${esc(q.options[q.correct])}</div>`}
-                  <div class="text-slate-500 dark:text-slate-400 pt-1"><em>Why:</em> ${esc(q.exp)}</div>
+                  <div class="text-emerald-700 dark:text-emerald-300 font-bold">Correct answer: ${esc(q.options[q.correctIndex] ?? "Answer not provided")}</div>
+                  <div class="text-slate-500 dark:text-slate-400 pt-1"><em>Explanation:</em> ${esc(q.explanation || q.exp)}</div>
                 </div>`;
               }).join("") || `<p class="text-sm text-center text-slate-400 py-4">No missed questions.</p>`}
             ` : `
@@ -1961,12 +2024,26 @@
         // Determine current status (prefer real-time status from Firestore)
         const examStatus = liveData ? liveData.status : "ended";
         const examTitle = liveData ? liveData.title : (recorded.title || "Exam Review");
-        const questions = liveData?.questions?.length ? liveData.questions : (recorded.questions || []);
+        const questions = liveData?.questions?.length ? liveData.questions : (recorded.questions || []).map((q, index) => {
+          const id = String(q.id ?? q.questionId ?? `question_${index + 1}`);
+          const correctIndex = Number(q.correctIndex ?? q.correct ?? -1);
+          const text = String(q.questionText ?? q.q ?? q.question ?? `Question ${index + 1}`);
+          const explanation = String(q.explanation ?? q.exp ?? q.rationale ?? "Review the matching course notes.");
+          return { ...q, id, questionNumber: Number(q.questionNumber ?? index + 1), questionText: text,
+            correctIndex: Number.isInteger(correctIndex) ? correctIndex : -1, explanation,
+            q: text, correct: Number.isInteger(correctIndex) ? correctIndex : -1, exp: explanation };
+        });
+        const rawAnswers = recorded.answers || {};
+        const normalizedAnswers = {};
+        questions.forEach((q, index) => {
+          if (rawAnswers[q.id] !== undefined) normalizedAnswers[q.id] = rawAnswers[q.id];
+          else if (rawAnswers[index] !== undefined) normalizedAnswers[q.id] = rawAnswers[index];
+        });
 
         lastResult = {
-          exam: { id: examId, title: examTitle, status: examStatus, ...(liveData || {}) },
+          exam: { id: examId, title: examTitle, status: examStatus, deadlineTimestamp: liveData?.deadlineTimestamp ?? recorded.deadlineTimestamp ?? 0, ...(liveData || {}) },
           qs: questions,
-          answers: recorded.answers || {},
+          answers: normalizedAnswers,
           score: recorded.score,
           total: recorded.total,
           pct: recorded.pct,
@@ -1975,7 +2052,7 @@
         render();
         scrollTo({ top: 0 });
       },
-      pick: (el) => { session.answers[session.idx] = Number(el.dataset.i); persistExam(); render({ anim: false }); },
+      pick: (el) => { session.answers[session.data.questions[session.idx].id] = Number(el.dataset.i); persistExam(); render({ anim: false }); },
       goq: (el) => gotoQ(Number(el.dataset.i)),
       prev: () => gotoQ(session.idx - 1),
       next: () => gotoQ(session.idx + 1),
@@ -2066,8 +2143,8 @@
         }
 
         const q = session.data.questions[session.idx], k = e.key.toLowerCase();
-        if (/^[1-9]$/.test(k) && Number(k) <= q.options.length) { session.answers[session.idx] = Number(k) - 1; persistExam(); render({ anim: false }); }
-        else if (/^[a-d]$/.test(k) && k.charCodeAt(0) - 97 < q.options.length) { session.answers[session.idx] = k.charCodeAt(0) - 97; persistExam(); render({ anim: false }); }
+        if (/^[1-9]$/.test(k) && Number(k) <= q.options.length) { session.answers[session.data.questions[session.idx].id] = Number(k) - 1; persistExam(); render({ anim: false }); }
+        else if (/^[a-d]$/.test(k) && k.charCodeAt(0) - 97 < q.options.length) { session.answers[session.data.questions[session.idx].id] = k.charCodeAt(0) - 97; persistExam(); render({ anim: false }); }
         else if (k === "arrowright") gotoQ(session.idx + 1);
         else if (k === "arrowleft") gotoQ(session.idx - 1);
         else if (k === "f") actions.flag();
@@ -2180,6 +2257,7 @@
           if (fresh) {
             lastResult.exam.status = fresh.status;
             lastResult.exam.isLive = fresh.isLive;
+            lastResult.exam.deadlineTimestamp = fresh.deadlineTimestamp;
           }
         }
 
