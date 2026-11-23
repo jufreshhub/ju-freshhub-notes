@@ -18,7 +18,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <script>
-    // Apply the saved theme before first paint (no flash)
     (function () {
       try {
         const saved = localStorage.getItem('ju_theme');
@@ -47,7 +46,7 @@
             toastIn: { '0%': { opacity: 0, transform: 'translateY(-10px) scale(.96)' }, '100%': { opacity: 1, transform: 'none' } },
             floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
           },
-          animation: { toastIn: 'toastIn .3s cubic-bezier(.22,1,.36,1)', floaty: 'floaty 6s ease-in-out infinite' }
+          animation: { toastIn: 'toastIn .25s cubic-bezier(.22,1,.36,1)', floaty: 'floaty 6s ease-in-out infinite' }
         }
       }
     }
@@ -100,12 +99,12 @@
     .pulse-dot { animation: pulse 1.6s cubic-bezier(.4,0,.6,1) infinite; }
     @keyframes pulse { 50% { opacity: .35; } }
 
-    /* View entrance: one staggered reveal when the screen changes */
-    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-    .anim .reveal { animation: rise .55s var(--ease) both; animation-delay: calc(var(--i, 0) * 55ms); }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .anim .reveal { animation: rise .4s var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms); }
 
-    @keyframes pop { 0% { transform: scale(.55); } 60% { transform: scale(1.22); } 100% { transform: scale(1); } }
-    .pop { animation: pop .42s var(--ease); }
+    /* Snappy pop effect for quick toggle */
+    @keyframes pop { 0% { transform: scale(.7); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    .pop { animation: pop .18s cubic-bezier(.16, 1, .3, 1) both; }
     @keyframes shake { 0%,100% { transform: none; } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
     .shake { animation: shake .45s; }
     @keyframes slideNext { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: none; } }
@@ -122,19 +121,16 @@
     @keyframes bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-6px) rotate(6deg); } }
     .bob { animation: bob 3.2s ease-in-out infinite; }
 
-    /* Progress */
-    .ring-fg { transition: stroke-dashoffset 1.2s var(--ease); }
-    .bar-fill { transition: width 1.1s var(--ease); }
+    .ring-fg { transition: stroke-dashoffset .8s var(--ease); }
+    .bar-fill { transition: width .8s var(--ease); }
 
-    /* Splash screen */
-    #splash { clip-path: circle(150% at 50% 50%); transition: clip-path .9s var(--ease), opacity .7s ease; }
+    #splash { clip-path: circle(150% at 50% 50%); transition: clip-path .8s var(--ease), opacity .6s ease; }
     #splash.out { clip-path: circle(0% at 50% 50%); opacity: 0; pointer-events: none; }
     @keyframes orbit { to { transform: rotate(360deg); } }
     .splash-ring { animation: orbit 2.6s linear infinite; }
     @keyframes letterIn { from { opacity: 0; transform: translateY(18px) scale(.9); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
     .splash-letter { display: inline-block; opacity: 0; animation: letterIn .7s var(--ease) forwards; animation-delay: calc(var(--i) * 70ms + 300ms); }
 
-    /* Pointer spotlight on cards */
     .spot { position: relative; overflow: hidden; }
     .spot::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s;
       background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(245,158,11,.14), transparent 60%); }
@@ -143,7 +139,6 @@
     mark.hl { background: #FDE68A; color: #451A03; border-radius: 3px; padding: 0 2px; }
     .qdot.flagged { box-shadow: inset 0 0 0 2px #F43F5E; }
 
-    /* Circular theme reveal */
     ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
     ::view-transition-new(root) { z-index: 9999; }
 
@@ -186,6 +181,12 @@
       <div id="splash-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-brand-400 to-brand-gold"></div>
     </div>
     <p id="splash-pct" class="mt-2 font-mono text-[11px] text-brand-200/70">0%</p>
+
+    <!-- Company Badge at Splash -->
+    <div class="absolute bottom-5 text-[10px] tracking-wider text-brand-300/60 uppercase font-semibold flex items-center gap-1.5">
+      <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+      <span>An AlphaFront Tech Solutions™ Platform</span>
+    </div>
   </div>
 
   <!-- ======================== LOGIN ======================== -->
@@ -238,6 +239,13 @@
           <span>Sign in to portal</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
+
+        <!-- Company Trademark Notice -->
+        <div class="pt-3 text-center">
+          <p class="text-[10px] text-slate-400 dark:text-slate-500">
+            Powered by <strong class="text-slate-600 dark:text-slate-400 font-bold">AlphaFront Tech Solutions™</strong>
+          </p>
+        </div>
       </form>
     </div>
   </div>
@@ -320,11 +328,22 @@
       <div id="app-mount"></div>
     </main>
 
+    <!-- Professional Footer with Company Trademark -->
     <footer class="max-w-5xl w-full mx-auto px-4 sm:px-6 pb-6 pt-2">
-      <div class="card p-5 text-center space-y-1">
-        <div class="font-display font-extrabold text-sm text-brand-700 dark:text-brand-400">JU FreshHub</div>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Structured tutoring and guided study notes for freshman students</p>
-        <p class="text-[11px] text-slate-400 dark:text-slate-500">&copy; 2026 JU FreshHub. All rights reserved.</p>
+      <div class="card p-6 text-center space-y-2 border-slate-200/90 dark:border-slate-800">
+        <div class="flex items-center justify-center gap-2">
+          <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center text-xs font-extrabold shadow-sm">JU</div>
+          <span class="font-display font-extrabold text-sm text-slate-900 dark:text-white">JU FreshHub</span>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Structured tutoring and guided study notes designed specifically for freshman university students</p>
+        
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400 dark:text-slate-500">
+          <div>&copy; 2026 JU FreshHub. All rights reserved.</div>
+          <div class="flex items-center gap-1.5 font-medium text-slate-600 dark:text-slate-400">
+            <span>Projected By</span>
+            <strong class="text-brand-700 dark:text-brand-400 font-bold tracking-wide">ALPHAFRONT TECH SOLUTIONS™</strong>
+          </div>
+        </div>
       </div>
     </footer>
 
@@ -376,7 +395,6 @@
       dashPhoto: 'Learning Journey to the Stars.png'
     };
 
-    // Splash length. The full splash plays once per browser session; later reloads are short.
     const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const SPLASH_MS = reducedMotion() ? 600 : (sessionStorage.getItem('fh_splash') ? 1200 : 5000);
     const BASE_TITLE = document.title;
@@ -592,7 +610,6 @@
       return esc(text.slice(0, i)) + `<mark class="hl">${esc(text.slice(i, i + q.length))}</mark>` + hl(text.slice(i + q.length), q);
     }
 
-    /* Study streak: a day counts when the student reads a note, finishes a focus session or takes an exam */
     function markActive() {
       const days = store.get(K.days, []);
       const k = dayKey();
@@ -621,10 +638,10 @@
 
     let user = null, studentName = "Student", profileStream = "";
     let liveExams = [], notices = [], unsubs = [];
-    let session = null;      // active exam attempt
-    let lastResult = null;   // result screen
+    let session = null;
+    let lastResult = null;
     let resultFilter = "all";
-    let justDone = null, justAdded = null;
+    let justAdded = null;
 
     const mount = $("#app-mount");
     const navBar = $("#nav-bar");
@@ -632,7 +649,7 @@
     const searchInput = $("#search-input");
 
     /* ------------------------------------------------------------------
-       UI primitives: rings, counters, toast, modal, confetti
+       UI primitives
     ------------------------------------------------------------------ */
     function ring(pct, { size = 64, stroke = 4, color = "text-brand-500", label = "" } = {}) {
       return `
@@ -663,7 +680,7 @@
         const to = Number(el.dataset.count), suf = el.dataset.suffix || "";
         if (reducedMotion() || to === 0) { el.textContent = to + suf; return; }
         el.textContent = "0" + suf;
-        const t0 = performance.now(), dur = 900;
+        const t0 = performance.now(), dur = 700;
         const step = (now) => {
           const p = Math.min(1, (now - t0) / dur);
           el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + suf;
@@ -686,7 +703,7 @@
       el.querySelector("button").onclick = () => el.remove();
       root.appendChild(el);
       icons();
-      setTimeout(() => { el.style.transition = "opacity .3s, transform .3s"; el.style.opacity = 0; el.style.transform = "translateY(-6px)"; setTimeout(() => el.remove(), 300); }, duration);
+      setTimeout(() => { el.style.transition = "opacity .25s, transform .25s"; el.style.opacity = 0; el.style.transform = "translateY(-6px)"; setTimeout(() => el.remove(), 250); }, duration);
     }
 
     let modalResolve = null;
@@ -750,7 +767,6 @@
       else { fxRaf = 0; fctx.clearRect(0, 0, innerWidth, innerHeight); }
     }
 
-    // Sound
     let audioCtx;
     function unlockAudio() {
       try { audioCtx ||= new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume?.(); } catch {}
@@ -770,7 +786,7 @@
     }
 
     /* ------------------------------------------------------------------
-       Navigation, history and render
+       Navigation and render
     ------------------------------------------------------------------ */
     function go(patch, { push = true } = {}) {
       Object.assign(state, patch);
@@ -835,13 +851,13 @@
       const views = { courses: viewCourses, exams: viewExams, notices: viewNotices, study: viewStudy, profile: viewProfile };
       mount.className = anim && !reducedMotion() ? "anim" : "";
       mount.innerHTML = views[state.nav]();
-      $$(".reveal", mount).forEach((el, i) => el.style.setProperty("--i", Math.min(i, 10)));
+      $$(".reveal", mount).forEach((el, i) => el.style.setProperty("--i", Math.min(i, 8)));
       icons();
-      void mount.offsetWidth;            // flush styles so the transitions start from zero
+      void mount.offsetWidth;
       fillProgress(!anim);
       if (anim) animateCounts(mount);
       if (state.nav === "study") tickFocus();
-      justDone = null; justAdded = null;
+      justAdded = null;
       updateNav();
       if (scroll) scrollTo({ top: 0 });
     }
@@ -985,19 +1001,19 @@
               <span class="text-xs font-bold text-brand-600 dark:text-brand-400">${esc(x.num)}</span>
               <h3 class="font-display font-bold text-slate-900 dark:text-white text-base sm:text-lg">${esc(x.title)}</h3>
             </div>
-            ${r.length ? `<div>${bar(pctOf(d, r.length))}<p class="mt-1.5 text-[11px] font-semibold text-slate-400">${d} of ${r.length} notes read</p></div>` : ""}
+            ${r.length ? `<div>${bar(pctOf(d, r.length))}<p id="chapter-count" class="mt-1.5 text-[11px] font-semibold text-slate-400">${d} of ${r.length} notes read</p></div>` : ""}
           </div>
           ${x.topics.map((tp, i) => {
             const isDone = tp.file && completed.has(tp.file);
             return `
-            <div class="card reveal p-4 sm:p-5 transition ${isDone ? "!border-l-4 !border-l-emerald-500" : ""}">
+            <div data-topic-card="${esc(tp.file || '')}" class="card reveal p-4 sm:p-5 transition ${isDone ? "!border-l-4 !border-l-emerald-500" : ""}">
               <div class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-3">${i + 1}. ${esc(tp.title)}</div>
               ${tp.file ? `
               <div class="flex flex-wrap gap-2">
                 <a href="${noteHref(tp.file)}" data-note="${esc(tp.file)}" class="btn-primary flex-1 sm:flex-initial sm:min-w-[160px]">${ic("book-open")}<span>Open notes</span></a>
                 <button data-action="toggle-done" data-file="${esc(tp.file)}" class="${isDone ? "btn-ok" : "btn-ghost"}" aria-pressed="${isDone}">
-                  <span class="${justDone === tp.file ? "pop inline-flex" : "inline-flex"}">${ic(isDone ? "circle-check" : "circle")}</span>
-                  <span>${isDone ? "Completed" : "Mark as read"}</span>
+                  <span class="icon-slot inline-flex">${ic(isDone ? "circle-check" : "circle")}</span>
+                  <span class="label-slot">${isDone ? "Completed" : "Mark as read"}</span>
                 </button>
               </div>` : `
               <button data-action="soon" class="btn-ghost opacity-70">${ic("lock", "w-3.5 h-3.5")}<span>Coming soon</span></button>`}
@@ -1323,7 +1339,7 @@
       render();
       scrollTo({ top: 0 });
       checkBadges();
-      if (pct >= 60) setTimeout(() => confetti(innerWidth / 2, innerHeight * 0.3, pct >= 80 ? 150 : 70), 450);
+      if (pct >= 60) setTimeout(() => confetti(innerWidth / 2, innerHeight * 0.3, pct >= 80 ? 150 : 70), 300);
     }
 
     function viewResult() {
@@ -1615,7 +1631,14 @@
             </div>
           </section>
 
-          <section class="card reveal p-5 space-y-2">
+          <section class="card reveal p-5 space-y-3">
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <div class="text-xs">
+                <span class="text-slate-400 block text-[10px]">Portal Engineering</span>
+                <strong class="text-slate-800 dark:text-slate-200 font-bold">AlphaFront Tech Solutions™</strong>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-300">Verified Vendor</span>
+            </div>
             <button data-action="signout" class="btn-ghost !text-rose-600 w-full py-2.5">${ic("log-out")}<span>Sign out of JU FreshHub</span></button>
             <button data-action="reset-progress" class="w-full text-xs font-semibold text-slate-400 hover:text-rose-600 py-2 transition">Reset my progress on this device</button>
           </section>
@@ -1623,26 +1646,54 @@
     }
 
     /* ------------------------------------------------------------------
-       Actions (event delegation, no inline handlers)
+       Actions (Optimized for instant, snappy DOM feedback)
     ------------------------------------------------------------------ */
     function toggleDone(file, btn) {
-      const was = completed.has(file);
-      was ? completed.delete(file) : completed.add(file);
+      const isDone = completed.has(file);
+      if (isDone) completed.delete(file);
+      else completed.add(file);
       store.set(K.done, [...completed]);
-      justDone = file;
-      if (!was) {
+
+      // Instant local DOM update without full page re-render!
+      const card = btn?.closest("[data-topic-card]");
+      if (btn && card) {
+        const nowDone = completed.has(file);
+        btn.className = nowDone ? "btn-ok" : "btn-ghost";
+        btn.setAttribute("aria-pressed", String(nowDone));
+
+        const iconSlot = btn.querySelector(".icon-slot");
+        if (iconSlot) {
+          iconSlot.className = "icon-slot pop inline-flex";
+          iconSlot.innerHTML = ic(nowDone ? "circle-check" : "circle");
+        }
+        const labelSlot = btn.querySelector(".label-slot");
+        if (labelSlot) labelSlot.textContent = nowDone ? "Completed" : "Mark as read";
+
+        card.classList.toggle("!border-l-4", nowDone);
+        card.classList.toggle("!border-l-emerald-500", nowDone);
+
+        // Update chapter counter smoothly
+        const x = getChapter();
+        if (x) {
+          const r = x.topics.filter(tp => tp.file), d = doneIn(r);
+          const countEl = $("#chapter-count");
+          if (countEl) countEl.textContent = `${d} of ${r.length} notes read`;
+        }
+      }
+
+      if (!isDone) {
         markActive();
         const rect = btn?.getBoundingClientRect();
-        confetti(rect ? rect.left + rect.width / 2 : undefined, rect ? rect.top : undefined, 40);
+        confetti(rect ? rect.left + rect.width / 2 : undefined, rect ? rect.top : undefined, 35);
         const info = findTopic(file);
         const ready = info?.chapter.topics.filter((x) => x.file) || [];
         if (ready.length > 1 && doneIn(ready) === ready.length) {
-          toast(`Chapter complete: ${info.chapter.title}`, "success", 4500);
-          confetti(innerWidth / 2, innerHeight / 3, 120);
+          toast(`Chapter complete: ${info.chapter.title}`, "success", 4000);
+          confetti(innerWidth / 2, innerHeight / 3, 100);
         }
       }
       checkBadges();
-      render({ anim: false });
+      icons();
     }
 
     function clearSearch() {
@@ -1665,7 +1716,7 @@
       const vt = document.startViewTransition(apply);
       vt.ready.then(() => document.documentElement.animate(
         { clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
-        { duration: 550, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
+        { duration: 500, easing: "ease-in-out", pseudoElement: "::view-transition-new(root)" }
       )).catch(() => {});
     }
     function syncTheme() {
@@ -1802,7 +1853,6 @@
       searchTimer = setTimeout(() => { state.q = v; render({ anim: false }); }, 120);
     });
 
-    // Card spotlight follows the pointer
     mount.addEventListener("pointermove", (e) => {
       const s = e.target.closest?.(".spot");
       if (!s) return;
@@ -1811,7 +1861,6 @@
       s.style.setProperty("--my", e.clientY - r.top + "px");
     });
 
-    // Phone back button walks through the app instead of leaving it
     addEventListener("popstate", (e) => {
       if (session) {
         history.pushState(snap(), "");
@@ -1823,7 +1872,6 @@
     });
     addEventListener("beforeunload", (e) => { if (session) { e.preventDefault(); e.returnValue = ""; } });
 
-    // Scroll progress and header shadow
     let scrollTick = false;
     addEventListener("scroll", () => {
       if (scrollTick) return;
@@ -1902,7 +1950,7 @@
       const el = $("#splash");
       if (!el) return;
       el.classList.add("out");
-      setTimeout(() => el.remove(), 950);
+      setTimeout(() => el.remove(), 850);
     }
 
     onAuthStateChanged(auth, async (u) => {
